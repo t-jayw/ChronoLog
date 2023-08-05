@@ -244,7 +244,7 @@ class TimepieceDisplayInfo extends ConsumerWidget {
                 const SizedBox(height: 15),
                 Divider(),
                 Expanded(
-                  child: TimingRunsContainer(watchId: updatedTimepiece.id),
+                  child: TimingRunsContainer(timepiece: timepiece),
                 ),
               ],
       ),

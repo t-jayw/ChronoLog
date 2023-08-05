@@ -4,6 +4,7 @@ import 'package:chronolog/providers/timing_measurements_list_provider.dart';
 import 'package:intl/intl.dart';
 
 import '../data_helpers.dart/timing_run_parser.dart';
+import '../models/timepiece.dart';
 import '../models/timing_measurement.dart';
 import '../models/timing_run.dart';
 import '../screens/timing_run_details_screen.dart';
@@ -14,10 +15,12 @@ class TimingRunComponent extends ConsumerStatefulWidget {
   const TimingRunComponent(
       {super.key,
       required this.timingRun,
+      required this.timepiece,
       this.isMostRecent // This is the updated line
       });
 
   final TimingRun timingRun;
+  final Timepiece timepiece;
   final bool? isMostRecent;
 
   @override
@@ -77,7 +80,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                TimingRunDetails(timingRun: widget.timingRun),
+                TimingRunDetails(timingRun: widget.timingRun, timepiece: widget.timepiece,),
           ),
         );
       },

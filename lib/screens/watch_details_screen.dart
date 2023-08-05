@@ -155,7 +155,7 @@ class WatchDetails extends ConsumerWidget {
             const SizedBox(height: 8),
             Divider(thickness: 2,),
             Expanded(
-              child: TimingRunsContainer(watchId: updatedTimepiece.id),
+              child: TimingRunsContainer(timepiece: updatedTimepiece),
             ),
           ],
         ),

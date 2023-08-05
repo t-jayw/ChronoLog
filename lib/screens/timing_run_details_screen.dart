@@ -1,3 +1,4 @@
+import 'package:chronolog/models/timepiece.dart';
 import 'package:flutter/material.dart';
 import 'package:chronolog/components/timing_measurements_container.dart';
 import 'package:chronolog/components/graphs/timing_run_measurements_offset_graph.dart';
@@ -12,8 +13,10 @@ import '../providers/timing_measurements_list_provider.dart'; // new import
 
 class TimingRunDetails extends StatefulWidget {
   final TimingRun timingRun;
+  final Timepiece timepiece;
 
-  TimingRunDetails({Key? key, required this.timingRun}) : super(key: key);
+  TimingRunDetails({Key? key, required this.timingRun, required this.timepiece})
+      : super(key: key);
 
   @override
   _TimingRunDetailsState createState() => _TimingRunDetailsState();
@@ -23,20 +26,23 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
   final _controller = PageController();
   double _currentPage = 0;
 
-
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Timing Run Details',style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        title: Text('Timing Run Details',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('${widget.timepiece.brand} ${widget.timepiece.model}')
+              ],
+            ),
             TimingRunDetailHeaderStats(timingRun: widget.timingRun),
             SizedBox(height: 10),
             Container(
@@ -59,7 +65,10 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
             SmoothPageIndicator(
                 controller: _controller, // PageController
                 count: 2, // Number of pages
-                effect: JumpingDotEffect(activeDotColor: Theme.of(context).colorScheme.tertiary), // your preferred effect
+                effect: JumpingDotEffect(
+                    activeDotColor: Theme.of(context)
+                        .colorScheme
+                        .tertiary), // your preferred effect
                 onDotClicked: (index) {
                   _controller.animateToPage(
                     index,

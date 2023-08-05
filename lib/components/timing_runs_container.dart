@@ -5,15 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ulid/ulid.dart';
 import 'package:chronolog/components/timing_run_component.dart';
 
+import '../models/timepiece.dart';
 import '../models/timing_run.dart';
 import '../providers/timing_run_provider.dart';
 import 'delete_confirmation_dialog.dart';
 
 class TimingRunsContainer extends ConsumerWidget {
-  const TimingRunsContainer({Key? key, required this.watchId})
+  const TimingRunsContainer({Key? key, required this.timepiece})
       : super(key: key);
 
-  final String watchId;
+  final Timepiece timepiece;
 
   void _addTimingRun(WidgetRef ref) {
     final Ulid ulid = Ulid();
@@ -22,15 +23,15 @@ class TimingRunsContainer extends ConsumerWidget {
     final startTime = DateTime.now();
     final timingRun = TimingRun(
       id: timingRunId,
-      watch_id: watchId,
+      watch_id: timepiece.id,
       startDate: startTime,
     );
-    ref.read(timingRunProvider(watchId).notifier).addTimingRun(timingRun);
+    ref.read(timingRunProvider(timepiece.id).notifier).addTimingRun(timingRun);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final timingRuns = ref.watch(timingRunProvider(watchId));
+    final timingRuns = ref.watch(timingRunProvider(timepiece.id));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -82,7 +83,7 @@ class TimingRunsContainer extends ConsumerWidget {
                 },
                 onDismissed: (direction) {
                   ref
-                      .read(timingRunProvider(watchId).notifier)
+                      .read(timingRunProvider(timepiece.id).notifier)
                       .deleteTimingRun(timingRun.id);
                 },
                 background: Container(
@@ -92,7 +93,7 @@ class TimingRunsContainer extends ConsumerWidget {
                       color: Theme.of(context).colorScheme.error, size: 40),
                 ),
                 child: TimingRunComponent(
-                    timingRun: timingRun, isMostRecent: isMostRecentTimingRun),
+                    timingRun: timingRun, timepiece: timepiece, isMostRecent: isMostRecentTimingRun),
               );
             },
           ),
