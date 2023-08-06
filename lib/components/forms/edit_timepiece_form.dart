@@ -111,7 +111,7 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                                       Theme.of(context).colorScheme.onPrimary),
                             ), // Use image icon
                             onPressed: () {
-                              _pickImage(ImageSource.gallery);
+                              _pickImage(ImageSource.camera);
                             },
                           ),
                           PrimaryButton(

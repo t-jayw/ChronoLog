@@ -135,7 +135,7 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                                                   .colorScheme
                                                   .onPrimary),), // Use image icon
                             onPressed: () {
-                              _pickImage(ImageSource.gallery);
+                              _pickImage(ImageSource.camera);
                             },
                           ),
                           PrimaryButton(
