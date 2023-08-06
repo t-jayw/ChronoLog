@@ -10,6 +10,7 @@ import '../providers/timing_run_provider.dart';
 import '../screens/watch_details_screen.dart';
 
 import '../providers/timing_measurements_list_provider.dart';
+import 'custom_tool_tip.dart';
 import 'measurement_picker.dart';
 
 class NewTimepieceDisplay extends ConsumerWidget {
@@ -132,8 +133,11 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-                                  Icon(Icons.chevron_right, size: 24, color: Theme.of(context).colorScheme.onBackground),
-
+                              Icon(Icons.chevron_right,
+                                  size: 24,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground),
                             ],
                           ),
                           SizedBox(height: 4),
@@ -187,34 +191,50 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                 alignment: Alignment.bottomRight,
                                 child: Padding(
                                   padding: EdgeInsets.all(2.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      PrimaryButton(
-                                        child: Text(
-                                          'Add Measurement',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary),
-                                        ),
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                actions: <Widget>[
-                                                  MeasurementPicker(
-                                                    timingRunId:
-                                                        timingRuns.first.id,
-                                                  )
-                                                ],
+                                      Expanded(child: Container()),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          PrimaryButton(
+                                            child: Text(
+                                              'Add Measurement',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary),
+                                            ),
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    actions: <Widget>[
+                                                      MeasurementPicker(
+                                                        timingRunId:
+                                                            timingRuns.first.id,
+                                                      )
+                                                    ],
+                                                  );
+                                                },
                                               );
                                             },
-                                          );
-                                        },
-                                      )
+                                          )
+                                        ],
+                                      ),
+                                      CustomToolTip(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        child: Text(
+                                          "Add to current timing run",
+                                          style: TextStyle(
+                                              fontSize:
+                                                  12.0), // you can style your text here
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),

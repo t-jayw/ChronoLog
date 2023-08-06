@@ -13,9 +13,10 @@ import 'components/show_review_dialog.dart';
 final theme = ThemeData(
   colorScheme: const ColorScheme.light(
     primary: Color.fromARGB(255, 255, 255, 255),
-    secondary: Color.fromRGBO(88, 195, 88, 1),
+    secondary: Color.fromRGBO(177, 164, 42, 1),
     tertiary: Color.fromRGBO(35, 80, 52, 1),
     error: Color.fromARGB(255, 243, 165, 163),
+    
   ),
   fontFamily: 'SFProText',
   textTheme: const TextTheme(
@@ -62,7 +63,7 @@ final darkTheme = ThemeData(
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
     primary: Color.fromRGBO(17, 6, 6, 1),
-    secondary: Color.fromARGB(255, 94, 160, 150), // Accent color
+    secondary: Color.fromRGBO(221, 204, 51, 1),
     tertiary: Color.fromARGB(255, 143, 240, 188),
     error: Color.fromARGB(158, 172, 17, 12),
   ),
