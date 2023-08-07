@@ -39,6 +39,7 @@ class WatchDetailStats extends ConsumerWidget {
     int allRunsDuration = 0;
     int allRunsDifferenceInSeconds = 0;
     double allDaysRun = 0;
+    int allSecondsRun = 0;
 
     int mostRecentOffsetInSeconds = 0;
 
@@ -56,15 +57,22 @@ class WatchDetailStats extends ConsumerWidget {
       final timingMeasurements =
           ref.watch(timingMeasurementsListProvider(run.id));
       totalDuration = calculateTotalDuration(timingMeasurements);
+      allSecondsRun = totalDuration;
       totalDurationDays = totalDuration / 60 / 60 / 24;
 
       allMeasurements += timingMeasurements.length;
       allRunsDuration += totalDuration;
       allDaysRun += totalDurationDays;
+      allRunsDifferenceInSeconds += calculateTotalSecondsChange(timingMeasurements);
     });
 
+    print('here');
+    print(allRunsDifferenceInSeconds);
+    print(allDaysRun);
     double secPerDay =
-        allDaysRun != 0.0 ? allRunsDifferenceInSeconds / allDaysRun : 0.0;
+        allDaysRun != 0.0 ?
+          allRunsDifferenceInSeconds / allDaysRun :
+          0.0;
 
     if (timingRuns.isEmpty) {
       return StatsGrid(
