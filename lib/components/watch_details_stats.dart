@@ -21,9 +21,9 @@ String formatDuration(Duration d) {
   } else if (d.inHours > 0) {
     return '${d.inHours} hour${d.inHours != 1 ? 's' : ''}';
   } else if (d.inMinutes > 0) {
-    return '${d.inMinutes} minute${d.inMinutes != 1 ? 's' : ''}';
+    return '${d.inMinutes} min${d.inMinutes != 1 ? 's' : ''}';
   } else {
-    return '${d.inSeconds} second${d.inSeconds != 1 ? 's' : ''}';
+    return '${d.inSeconds} sec${d.inSeconds != 1 ? 's' : ''}';
   }
 }
 
