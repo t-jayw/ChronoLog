@@ -68,7 +68,7 @@ class WatchDetails extends ConsumerWidget {
         Column(
           children: [
             SizedBox(
-      height: 180,
+
       width: double.infinity,
       child: InkWell(
           onTap: () {
@@ -79,7 +79,7 @@ class WatchDetails extends ConsumerWidget {
             //   ),
             // );
           },
-          child: Container(
+
 
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -91,10 +91,12 @@ class WatchDetails extends ConsumerWidget {
                         ? Image.memory(
                             updatedTimepiece.image!,
                             fit: BoxFit.cover,
+                                  height: 180,
                           )
                         : Image.asset(
                             'assets/images/placeholder.png',
                             fit: BoxFit.cover,
+                                  height: 180,
                           ),
                   ),
                   Expanded(
@@ -112,7 +114,7 @@ class WatchDetails extends ConsumerWidget {
                                 updatedTimepiece.model,
                                 maxLines: 2,
                                 softWrap: true,
-                                overflow: TextOverflow.ellipsis,
+                                overflow: TextOverflow.fade,
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -136,7 +138,7 @@ class WatchDetails extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          SizedBox(height: 4),
+                          SizedBox(height: 2),
                                                     WatchDetailStats(
                             timepiece: updatedTimepiece,
                           )
@@ -150,7 +152,6 @@ class WatchDetails extends ConsumerWidget {
             ),
           ),
         ),
-      ),
             
             const SizedBox(height: 8),
             Divider(thickness: 2,),

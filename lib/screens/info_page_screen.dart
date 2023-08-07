@@ -47,7 +47,7 @@ void sendMailWithFeedback() async {
 class InfoPage extends ConsumerWidget {
   InfoPage({Key? key}) : super(key: key);
 
-  final String versionNumber = "1.0.2";
+  final String versionNumber = "1.2.0";
   // replace with actual value
   ThemeModeOption _themeModeOption = ThemeModeOption.system;
 
@@ -215,15 +215,29 @@ class InfoPage extends ConsumerWidget {
               child: Column(
             children: [],
           )),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: Text(
-              'Made with ⛰️ in Boulder, CO',
-              style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurface,
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Text(
+                  'Made with ⛰️ in Boulder, CO',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
               ),
-            ),
+               Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Text(
+                  '© 2023 Tyler Wood',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -18,6 +18,7 @@ final theme = ThemeData(
     error: Color.fromARGB(255, 243, 165, 163),
     
   ),
+  splashColor: Colors.transparent,
   fontFamily: 'SFProText',
   textTheme: const TextTheme(
     bodyLarge: TextStyle(color: Color.fromRGBO(10, 10, 10, 1)),
@@ -67,6 +68,7 @@ final darkTheme = ThemeData(
     tertiary: Color.fromARGB(255, 143, 240, 188),
     error: Color.fromARGB(158, 172, 17, 12),
   ),
+  splashColor: Colors.transparent,
   appBarTheme: const AppBarTheme(
       iconTheme: IconThemeData(
         color: Colors.white, // change this to preferred icon color

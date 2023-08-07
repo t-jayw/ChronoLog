@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';
+import '../models/timing_measurement.dart';
+import '../models/timing_run.dart';
 import '../providers/timing_measurements_list_provider.dart';
 import '../providers/timing_run_provider.dart';
 
@@ -38,32 +40,47 @@ class WatchDetailStats extends ConsumerWidget {
     int allRunsDifferenceInSeconds = 0;
     double allDaysRun = 0;
 
+    int mostRecentOffsetInSeconds = 0;
+
+    TimingRun mostRecentRun = timingRuns.last;
+    List<TimingMeasurement> mostRecentRunMeasurements =
+        ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
+    mostRecentOffsetInSeconds = mostRecentRunMeasurements.first.user_input_time!
+        .difference(mostRecentRunMeasurements.first.system_time)
+        .inSeconds;
+
     timingRuns.forEach((run) {
       int totalDuration;
       double totalDurationDays;
-      int totalSecondsChanged;
 
       final timingMeasurements =
           ref.watch(timingMeasurementsListProvider(run.id));
       totalDuration = calculateTotalDuration(timingMeasurements);
       totalDurationDays = totalDuration / 60 / 60 / 24;
 
-      totalSecondsChanged = calculateTotalSecondsChange(timingMeasurements);
-
       allMeasurements += timingMeasurements.length;
       allRunsDuration += totalDuration;
       allDaysRun += totalDurationDays;
-      allRunsDifferenceInSeconds += totalSecondsChanged;
     });
 
     double secPerDay =
         allDaysRun != 0.0 ? allRunsDifferenceInSeconds / allDaysRun : 0.0;
-        
+
+    if (timingRuns.isEmpty) {
+      return StatsGrid(
+        runs: 0,
+        points: 0,
+        duration: 0,
+        totalSecondsChanged: 0,
+        rateSecPerDay: 0,
+      );
+    }
+
     return StatsGrid(
       runs: timingRuns.length,
       points: allMeasurements,
       duration: allRunsDuration,
-      totalSecondsChanged: allRunsDifferenceInSeconds,
+      totalSecondsChanged: mostRecentOffsetInSeconds,
       rateSecPerDay: secPerDay,
     );
   }
@@ -102,33 +119,36 @@ class StatsGrid extends StatelessWidget {
           //     color: Theme.of(context).colorScheme.secondary,
           //   ),
           // ),
+          TextWithLabel(
+              value:
+                  '${formatDuration(Duration(seconds: totalSecondsChanged))}',
+              label: 'Offset:',
+              color: Theme.of(context).colorScheme.tertiary,
+              labelSize: 14),
+          Divider(),
 
-          Text('All Runs:', style: TextStyle(fontSize: 14)),
+          Text('All Runs', style: TextStyle(fontSize: 16)),
           TextWithLabel(
             value: '$rate',
-            label: 'Sec/Day',
+            label: 'Sec/Day:',
             color: Theme.of(context).colorScheme.tertiary,
-            labelSize: 22,
+            labelSize: 20,
           ),
-          TextWithLabel(
-            value: '${formatDuration(Duration(seconds: totalSecondsChanged))}', 
-            label: 'Offset',
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
+
           TextWithLabel(
             value: '${formatDuration(Duration(seconds: duration))}',
-            label: 'Duration',
+            label: 'Duration:',
             color: Theme.of(context).colorScheme.tertiary,
           ),
           TextWithLabel(
             value: '$runs',
-            label: 'Runs',
+            label: 'Runs:',
             color: Theme.of(context).colorScheme.tertiary,
           ),
 
           TextWithLabel(
             value: '$points',
-            label: 'Points',
+            label: 'Points:',
             color: Theme.of(context).colorScheme.tertiary,
           ),
         ],
@@ -158,19 +178,27 @@ class TextWithLabel extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.inverseSurface,
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.inverseSurface,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: labelSize ?? 12,
-              fontWeight: FontWeight.bold,
-              color: color,
+          Flexible(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: labelSize ?? 14,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

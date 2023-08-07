@@ -14,12 +14,13 @@ class TabsScreen extends ConsumerStatefulWidget {
 }
 
 class _TabsScreenState extends ConsumerState<TabsScreen> {
-  int _selectedPageIndex = 1;
+  int _selectedPageIndex = 0;
   final List<Widget> _pages = [
+        WatchboxScreen(),
     InfoPage(),
-    WatchboxScreen(),
+
   ];
-  final List<String> _pageTitles = ["Info", "ChronoLog"];
+  final List<String> _pageTitles = [ "ChronoLog", "Info",];
 
   void _selectPage(int index) {
     setState(() {
@@ -36,10 +37,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
 
   void _navigateToInfoPageScreen(BuildContext context) {
     _selectPage(2);
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (_) => InfoPage()),
-    // );
   }
 
   @override
@@ -53,19 +50,11 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
           ),
         ),
         actions: <Widget>[
-          if (_selectedPageIndex == 1) 
+          if (_selectedPageIndex == 0) 
           IconButton(
             icon: const Icon(Icons.add), // Plus sign icon
             onPressed: () {
               _navigateToAddWatchScreen(context);
-              // showModalBottomSheet(
-              //   context: context,
-              //   builder: (context) {
-              //     return AddWatchScreen();
-              //   },
-              //   isScrollControlled: true,
-              //   useSafeArea: true,
-              // );
             },
           ),
         ],
@@ -77,13 +66,13 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
         selectedItemColor: Theme.of(context).colorScheme.tertiary,
         unselectedItemColor: Theme.of(context).colorScheme.onSurface,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info_outline),
-            label: 'Info',
-          ),
+         
           BottomNavigationBarItem(
             icon: Icon(Icons.watch_outlined),
             label: 'ChronoLog',
+          ), BottomNavigationBarItem(
+            icon: Icon(Icons.info_outline),
+            label: 'Info',
           ),
         ],
       ),

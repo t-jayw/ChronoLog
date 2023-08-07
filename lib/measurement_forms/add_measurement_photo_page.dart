@@ -50,7 +50,7 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
   void _showSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Measurement Added to Current Timing Run'),
+        content: Text('Measurement Added to Current Timing Run!'),
         duration: Duration(seconds: 3),
       ),
     );

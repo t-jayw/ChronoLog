@@ -42,7 +42,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
   void _showSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Measurement Added to Current Timing Run'),
+        content: Text('Measurement Added to Current Timing Run!'),
         duration: Duration(seconds: 5),
       ),
     );

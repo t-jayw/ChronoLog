@@ -8,7 +8,6 @@ import 'package:chronolog/components/timing_run_component.dart';
 import '../models/timepiece.dart';
 import '../models/timing_run.dart';
 import '../providers/timing_run_provider.dart';
-import 'custom_tool_tip.dart';
 import 'delete_confirmation_dialog.dart';
 
 class TimingRunsContainer extends ConsumerWidget {
@@ -37,11 +36,21 @@ class TimingRunsContainer extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        CustomToolTip(
-          mainAxisAlignment: MainAxisAlignment.center,
-          child: Text(
-            "Start a new timing run after setting your watch",
-            style: TextStyle(fontSize: 12.0), // you can style your text here
+        const Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.lightbulb_outline, size: 14.0, color: Colors.yellow),
+              SizedBox(
+                  width:
+                      5.0), // you can control the space between the icon and text by adjusting the width
+              Text(
+                "Start a new timing run after setting your watch",
+                style:
+                    TextStyle(fontSize: 12.0), // you can style your text here
+              ),
+            ],
           ),
         ),
         Padding(
@@ -64,14 +73,23 @@ class TimingRunsContainer extends ConsumerWidget {
               return Dismissible(
                 key: Key(timingRun.id),
                 direction: DismissDirection.endToStart,
-                confirmDismiss: (direction) async {
-                  return await showCupertinoDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return DeleteConfirmationDialog();
-                    },
-                  );
-                },
+confirmDismiss: (direction) async {
+  if (timingRuns.length <= 1) {
+    // Show the SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Center(child: Text("Can't delete the only timing run!")), duration: Duration(seconds: 3), ),
+    );
+    return false; // Do not allow dismissal if it's the only remaining timing run
+  }
+
+  return await showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return DeleteConfirmationDialog();
+    },
+  );
+},
+
                 onDismissed: (direction) {
                   ref
                       .read(timingRunProvider(timepiece.id).notifier)

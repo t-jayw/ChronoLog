@@ -226,15 +226,19 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                           )
                                         ],
                                       ),
-                                      CustomToolTip(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        child: Text(
-                                          "Add to current timing run",
-                                          style: TextStyle(
-                                              fontSize:
-                                                  12.0), // you can style your text here
-                                        ),
-                                      ),
+                                      // CustomToolTip(
+                                      //   mainAxisAlignment:
+                                      //       MainAxisAlignment.end,
+                                      //   child: Text(
+                                      //     "Adds to current timing run",
+                                      //     overflow: TextOverflow.ellipsis,
+                                      //     maxLines: 2,
+                                      //     softWrap: true,
+                                      //     style: TextStyle(
+                                      //         fontSize:
+                                      //             10.0), // you can style your text here
+                                      //   ),
+                                      // ),
                                     ],
                                   ),
                                 ),

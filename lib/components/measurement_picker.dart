@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../measurement_forms/add_measurement_button_page.dart';
 import '../measurement_forms/add_measurement_photo_page.dart';
+import 'custom_tool_tip.dart';
 
 class MeasurementPicker extends StatelessWidget {
   final String timingRunId;
@@ -16,13 +17,23 @@ class MeasurementPicker extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       height:
-          MediaQuery.of(context).size.height / 4, // Half of the screen height
+          MediaQuery.of(context).size.height / 5, // Half of the screen height
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              CustomToolTip(
+                mainAxisAlignment: MainAxisAlignment.center,
+                child: Flexible(
+                  child: Text(
+                    "Choose how to enter your watch's time.",
+                    style: TextStyle(
+                        fontSize: 12.0), // you can style your text here
+                  ),
+                ),
+              ),
               Expanded(
                 child: buildButton(
                     context, Icons.photo_camera, "Measure with Pic", () async {

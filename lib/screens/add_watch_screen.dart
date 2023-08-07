@@ -1,21 +1,19 @@
 import 'dart:io';
-
 import 'package:chronolog/screens/tabs.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:ulid/ulid.dart';
-
+import '../components/forms/form_components.dart';
 import '../components/primary_button.dart';
 import '../models/timepiece.dart';
 import '../models/timing_run.dart';
 import '../providers/timepiece_list_provider.dart';
 import '../providers/timing_run_provider.dart';
 
-Future<String> _formatDate(DateTime date) async {
+String _formatDate(DateTime date) {
   // var locale = await DeviceLocale.getCurrentLocale();
   // var format = locale.startsWith('en_US') ? 'MM/dd/yyyy' : 'dd/MM/yyyy';
   var format = 'MM/dd/yyyy';
@@ -31,68 +29,30 @@ class AddWatchScreen extends StatefulWidget {
 
 class _AddWatchScreenState extends State<AddWatchScreen> {
   final _formKey = GlobalKey<FormState>();
-  //String watchName = '';
   String brand = '';
   String model = '';
   String serial = '';
-  //MovementType? movementType;
   DateTime? purchaseDate;
   String notes = '';
   String? imageUrl;
   XFile? imageFile;
   CroppedFile? _croppedFile;
 
-  Future<void> _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
-
-    imageFile = pickedFile;
-
-    _cropImage();
+  Future<void> _cropImage() async {
+    ImageHelper.cropImage(imageFile, (croppedFile) {
+      setState(() {
+        _croppedFile = croppedFile;
+      });
+    });
   }
 
-  Future<void> _cropImage() async {
-    print('crop');
-    if (imageFile != null) {
-      final croppedFile = await ImageCropper().cropImage(
-        sourcePath: imageFile!.path,
-        compressFormat: ImageCompressFormat.jpg,
-        compressQuality: 100,
-        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-        aspectRatioPresets: [
-          CropAspectRatioPreset.square,
-        ],
-        uiSettings: [
-          AndroidUiSettings(
-              toolbarTitle: 'Cropper',
-              toolbarColor: Colors.deepOrange,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: false),
-          IOSUiSettings(
-            title: 'Cropper',
-          ),
-          WebUiSettings(
-            context: context,
-            presentStyle: CropperPresentStyle.dialog,
-            boundary: const CroppieBoundary(
-              width: 520,
-              height: 520,
-            ),
-            viewPort:
-                const CroppieViewPort(width: 480, height: 480, type: 'circle'),
-            enableExif: true,
-            enableZoom: true,
-            showZoomer: true,
-          ),
-        ],
-      );
-      if (croppedFile != null) {
-        setState(() {
-          _croppedFile = croppedFile;
-        });
-      }
-    }
+  Future<void> _pickAndCropImage(ImageSource source) async {
+    ImageHelper.pickImage(source, (pickedFile) {
+      setState(() {
+        imageFile = pickedFile;
+      });
+      _cropImage();
+    });
   }
 
   @override
@@ -112,56 +72,50 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  if (imageFile != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: _croppedFile != null ?
                     Image.file(
                       File(_croppedFile!.path),
                       height: 200,
                     )
-                  else
+                  :
                     Image.asset(
                       'assets/images/placeholder.png',
                       height: 200,
                     ),
+                  ),
+                  
                   SizedBox(
                     height: 8,
                   ),
-                  Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                         PrimaryButton(
-                            child: Text('Camera',                                           style: TextStyle(
-                                              fontSize: 16,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary),), // Use image icon
-                            onPressed: () {
-                              _pickImage(ImageSource.camera);
-                            },
-                          ),
-                          PrimaryButton(
-                            child: Text('Photo Roll',                                           style: TextStyle(
-                                              fontSize: 16,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary),), // Use image icon
-                            onPressed: () {
-                              _pickImage(ImageSource.gallery);
-                            },
-                          ),
-                        ],
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      PrimaryButton(
+                        child: Text(
+                          'Add From Camera',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.onPrimary),
+                        ), // Use image icon
+                        onPressed: () {
+                          _pickAndCropImage(ImageSource.camera);
+                        },
                       ),
-                  // TextFormField(
-                  //   decoration: const InputDecoration(labelText: 'Watch Name'),
-                  //   validator: (value) {
-                  //     if (value == null || value.isEmpty) {
-                  //       return 'Please enter a name';
-                  //     }
-                  //     return null;
-                  //   },
-                  //   onSaved: (value) {
-                  //     watchName = value ?? '';
-                  //   },
-                  // ),
+                      PrimaryButton(
+                        child: Text(
+                          'Add From Photo Roll',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.onPrimary),
+                        ), // Use image icon
+                        onPressed: () {
+                          _pickAndCropImage(ImageSource.gallery);
+                        },
+                      ),
+                    ],
+                  ),
                   TextFormField(
                     decoration: const InputDecoration(labelText: 'Brand'),
                     validator: (value) {
@@ -198,94 +152,20 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.inverseSurface),
                   ),
-                  // DropdownButtonFormField<MovementType>(
-                  //   decoration:
-                  //       const InputDecoration(labelText: 'Movement Type'),
-                  //   value: movementType,
-                  //   items: MovementType.values.map((type) {
-                  //     return DropdownMenuItem<MovementType>(
-                  //       value: type,
-                  //       child: Text(type.toString()),
-                  //     );
-                  //   }).toList(),
-                  //   onChanged: (value) {
-                  //     setState(() {
-                  //       movementType = value;
-                  //     });
-                  //   },
-                  //   onSaved: (value) {
-                  //     movementType = value;
-                  //   },
-                  // ),
-                  TextFormField(
-                    decoration:
-                        const InputDecoration(labelText: 'Purchase Date'),
-                    onTap: () async {
-                      final pickedDate = await showModalBottomSheet<DateTime>(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (BuildContext builder) {
-                          DateTime tempPickedDate = DateTime.now();
-                          return SafeArea(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).canvasColor,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8),
-                                  topRight: Radius.circular(8),
-                                ),
-                              ),
-                              padding: EdgeInsets.all(16),
-                              height: MediaQuery.of(context).size.height / 2.7,
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: CupertinoDatePicker(
-                                      mode: CupertinoDatePickerMode.date,
-                                      initialDateTime: DateTime.now(),
-                                      onDateTimeChanged: (DateTime dateTime) {
-                                        tempPickedDate = dateTime;
-                                      },
-                                    ),
-                                  ),
-                                  Center(
-                                    child: CupertinoButton(
-                                      color: Theme.of(context).colorScheme.tertiary,
-                                      child: Text('Done',
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary)),
-                                      onPressed: () {
-                                        Navigator.of(builder)
-                                            .pop(tempPickedDate);
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-
-                      if (pickedDate != null) {
-                        setState(() {
-                          purchaseDate = pickedDate;
-                        });
-                      }
-                    },
-                    readOnly: true,
+                  DatePickerButton(
+                    labelText: 'Purchase Date',
+                    initialDate: purchaseDate,
                     controller: TextEditingController(
                       text: purchaseDate != null
-                          ? '${purchaseDate!.day}/${purchaseDate!.month}/${purchaseDate!.year}'
+                          ? _formatDate(purchaseDate!)
                           : '',
                     ),
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.inverseSurface),
+                    onDateChanged: (date) {
+                      setState(() {
+                        purchaseDate = date;
+                      });
+                    },
                   ),
-
                   TextFormField(
                     decoration: const InputDecoration(labelText: 'Notes'),
                     onSaved: (value) {
@@ -298,11 +178,12 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                   Container(
                     width: double.infinity,
                     child: PrimaryButton(
-                      child: Text('Add Watch',                                           style: TextStyle(
-                                              fontSize: 18,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary),),
+                      child: Text(
+                        'Add Watch',
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.onPrimary),
+                      ),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
