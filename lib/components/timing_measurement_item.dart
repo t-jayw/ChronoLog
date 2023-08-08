@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -63,8 +64,8 @@ class TimingMeasurementItem extends ConsumerWidget {
             '${(timingMeasurement.difference_ms! / 1000).toStringAsFixed(1)} s',
             colorScheme.onSurface,
             colorScheme.tertiary),
-        _buildMetricColumn('Change', '--' + ' s', colorScheme.tertiary,
-            colorScheme.onSurface),
+        _buildMetricColumn(
+            'Change', '--' + ' s', colorScheme.tertiary, colorScheme.onSurface),
         _buildMetricColumn(
             'Rate', '--' + 's/d', colorScheme.onSurface, colorScheme.tertiary),
       ]);
@@ -115,7 +116,6 @@ class TimingMeasurementItem extends ConsumerWidget {
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 10.0,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     Icon(
@@ -125,10 +125,12 @@ class TimingMeasurementItem extends ConsumerWidget {
                   ],
                 ),
                 Divider(color: Colors.black), // Divider
+
                 Row(
                   children: contentList,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 ),
+
                 SizedBox(height: 1.0),
                 // Text(
                 //   '${DateFormat('yyyy-MM-dd HH:mm:ss').format(timingMeasurement.system_time)}',
@@ -238,10 +240,9 @@ class TimingMeasurementItem extends ConsumerWidget {
       String label, String value, Color metricColor, Color labelColor) {
     return Column(
       children: <Widget>[
-        Text(
+        AutoSizeText(
           value,
-          style: TextStyle(
-            fontSize: 20.0, // Larger font size
+          style: TextStyle(// Larger font size
             color: metricColor, // Tertiary color
           ),
         ),
@@ -266,7 +267,7 @@ class TimingMeasurementItem extends ConsumerWidget {
       child: Text(
         tag,
         style: TextStyle(
-            fontSize: 12, color: Theme.of(context).colorScheme.onPrimary),
+            fontSize: 10, color: Theme.of(context).colorScheme.onPrimary),
       ),
     );
   }

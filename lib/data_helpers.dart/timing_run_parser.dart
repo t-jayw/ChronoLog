@@ -19,9 +19,6 @@ int calculateTotalSecondsChange(List<TimingMeasurement> measurements) {
   int totalChange =
       measurements.first.difference_ms! - measurements.last.difference_ms!;
 
-  print(
-      '${measurements.first.difference_ms!} - ${measurements.last.difference_ms!}: $totalChange');
-
   return totalChange ~/ 1000;
 }
 

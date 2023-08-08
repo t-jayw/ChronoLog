@@ -66,9 +66,6 @@ class WatchDetailStats extends ConsumerWidget {
       allRunsDifferenceInSeconds += calculateTotalSecondsChange(timingMeasurements);
     });
 
-    print('here');
-    print(allRunsDifferenceInSeconds);
-    print(allDaysRun);
     double secPerDay =
         allDaysRun != 0.0 ?
           allRunsDifferenceInSeconds / allDaysRun :

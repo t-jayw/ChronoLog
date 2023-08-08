@@ -149,8 +149,8 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
     print(widget.timingRunId);
     return Scaffold(
       appBar: AppBar(
-        title:  Text('Add New Measurement', 
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        title: Text('Add New Measurement',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
       ),
       body: Consumer(builder: (context, ref, _) {
         final timingMeasurementListProvider = ref
@@ -190,11 +190,12 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       PrimaryButton(
-                        child: Text('Take Photo',                                           style: TextStyle(
-                                              fontSize: 16,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary),),
+                        child: Text(
+                          'Take Photo',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.onPrimary),
+                        ),
                         onPressed: () {
                           _pickImage(ImageSource.camera);
                         },
@@ -219,11 +220,12 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
                           .infinity, // this makes the button take the full width of the parent
                       height: 60, // adjust the height as you need
                       child: PrimaryButton(
-                        child: Text('Add Measurement',                                           style: TextStyle(
-                                              fontSize: 16,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary),),
+                        child: Text(
+                          'Add Measurement',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.onPrimary),
+                        ),
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
@@ -243,6 +245,7 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
                               system_time: imageTakenTime,
                               user_input_time: selectedTime,
                               image: imageBytes,
+                              tag: tag, // Set the tag
                               difference_ms: selectedTime
                                   .difference(imageTakenTime)
                                   .inMilliseconds, // change `inSeconds` to whatever unit you want

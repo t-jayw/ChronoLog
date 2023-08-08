@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to take photos.</string>
+	<string>ChronoLog lets you take pictures of your collection, and also enables you to use your camera to input your time.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To select and upload images for your profile</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
