@@ -43,12 +43,16 @@ class WatchDetailStats extends ConsumerWidget {
 
     int mostRecentOffsetInSeconds = 0;
 
-    TimingRun mostRecentRun = timingRuns.last;
+    TimingRun mostRecentRun = timingRuns.first;
+
     List<TimingMeasurement> mostRecentRunMeasurements =
         ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
-    mostRecentOffsetInSeconds = mostRecentRunMeasurements.first.user_input_time!
+    if (mostRecentRunMeasurements.isNotEmpty) {
+      mostRecentOffsetInSeconds = mostRecentRunMeasurements.first.user_input_time!
         .difference(mostRecentRunMeasurements.first.system_time)
         .inSeconds;
+    }
+
 
     timingRuns.forEach((run) {
       int totalDuration;

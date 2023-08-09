@@ -65,7 +65,8 @@ final darkTheme = ThemeData(
   colorScheme: ColorScheme.dark(
     primary: Color.fromRGBO(17, 6, 6, 1),
     secondary: Color.fromRGBO(221, 204, 51, 1),
-    tertiary: Color.fromARGB(255, 143, 240, 188),
+    // tertiary: Color.fromARGB(255, 143, 240, 188),
+    tertiary: Color.fromRGBO(178, 227, 232, 1),
     error: Color.fromARGB(158, 172, 17, 12),
   ),
   splashColor: Colors.transparent,
