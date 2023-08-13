@@ -34,6 +34,7 @@ class MeasurementPicker extends StatelessWidget {
                   ),
                 ),
               ),
+              Divider(),
               Expanded(
                 child: buildButton(
                     context, Icons.photo_camera, "Measure with Pic", () async {
@@ -46,7 +47,7 @@ class MeasurementPicker extends StatelessWidget {
                   Navigator.of(context).pop();
                 }),
               ),
-              SizedBox(width: 16.0), // Spacer in between the buttons
+              Divider(),
               Expanded(
                 child: buildButton(context, Icons.touch_app, "Measure with Tap",
                     () async {
@@ -79,7 +80,7 @@ class MeasurementPicker extends StatelessWidget {
                   child: Text(
                     title,
                     style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         color: Theme.of(context).colorScheme.onPrimary),
                   ),
                   onPressed: onPressed),

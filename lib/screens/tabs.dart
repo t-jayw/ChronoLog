@@ -1,7 +1,11 @@
+import 'package:chronolog/screens/purchase_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/screens/info_page_screen.dart';
 import 'package:chronolog/screens/watchbox_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../components/premium_needed_dialog.dart';
+import '../providers/timepiece_list_provider.dart';
 import '../screens/add_watch_screen.dart';
 
 class TabsScreen extends ConsumerStatefulWidget {
@@ -16,11 +20,14 @@ class TabsScreen extends ConsumerStatefulWidget {
 class _TabsScreenState extends ConsumerState<TabsScreen> {
   int _selectedPageIndex = 0;
   final List<Widget> _pages = [
-        WatchboxScreen(),
+    WatchboxScreen(),
     InfoPage(),
-
   ];
-  final List<String> _pageTitles = [ "ChronoLog", "Info",];
+
+  final List<String> _pageTitles = [
+    "ChronoLog",
+    "Info",
+  ];
 
   void _selectPage(int index) {
     setState(() {
@@ -39,8 +46,23 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     _selectPage(2);
   }
 
+  void _navigateToPurchasePageScreen(BuildContext context) {
+    _selectPage(3);
+  }
+
+  void _showPremiumNeededDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return PremiumNeededDialog();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final timepieces = ref.watch(timepieceListProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -50,13 +72,22 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
           ),
         ),
         actions: <Widget>[
-          if (_selectedPageIndex == 0) 
-          IconButton(
-            icon: const Icon(Icons.add), // Plus sign icon
-            onPressed: () {
-              _navigateToAddWatchScreen(context);
-            },
-          ),
+          if (_selectedPageIndex == 0)
+            IconButton(
+              icon: const Icon(Icons.add), // Plus sign icon
+              onPressed: () async {
+                // Make it async
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                bool? isPremiumActivated = prefs.getBool('premiumActive');
+                int numWatches = timepieces.length;
+
+                if (isPremiumActivated != true && numWatches >= 2) {
+                  _showPremiumNeededDialog(context);
+                } else {
+                  _navigateToAddWatchScreen(context);
+                }
+              },
+            ),
         ],
       ),
       body: _pages[_selectedPageIndex],
@@ -66,11 +97,11 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
         selectedItemColor: Theme.of(context).colorScheme.tertiary,
         unselectedItemColor: Theme.of(context).colorScheme.onSurface,
         items: const [
-         
           BottomNavigationBarItem(
             icon: Icon(Icons.watch_outlined),
             label: 'ChronoLog',
-          ), BottomNavigationBarItem(
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.info_outline),
             label: 'Info',
           ),

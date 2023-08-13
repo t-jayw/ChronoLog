@@ -3,12 +3,32 @@ import 'package:chronolog/screens/info_page_screen.dart';
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/screens/tabs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'components/show_review_dialog.dart';
+
+
+Future<void> initPlatformState() async {
+  await Purchases.setLogLevel(LogLevel.info);
+   String testUserId = "testUser_${DateTime.now().millisecondsSinceEpoch}";
+
+  PurchasesConfiguration configuration = PurchasesConfiguration(
+    "appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ",
+
+  )
+  ..appUserID = testUserId;
+
+
+
+
+  print(configuration.toString());
+  await Purchases.configure(configuration);
+}
 
 final theme = ThemeData(
   colorScheme: const ColorScheme.light(
@@ -105,6 +125,7 @@ final darkTheme = ThemeData(
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initPlatformState();
 
   final prefs = await SharedPreferences.getInstance();
   int openCount = prefs.getInt('openCount') ?? 0;
@@ -124,6 +145,8 @@ class App extends ConsumerWidget {
   bool isDialogShown = false; // add this flag
 
    App({Key? key, required this.openCount}) : super(key: key);
+
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,9 +1,11 @@
 import 'package:chronolog/main.dart';
+import 'package:chronolog/screens/purchase_screen.dart';
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../components/premium_list_item.dart';
 import '../database_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,6 +55,12 @@ class InfoPage extends ConsumerWidget {
 
   final DatabaseHelper _db = DatabaseHelper();
 
+  Future<bool> _isPremiumActivated() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('premiumActive') ??
+        false; //default to false if not found
+  }
+
   void _loadThemeModeOption(BuildContext context, WidgetRef ref) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final themeModeIndex = prefs.getInt('themeModeOption') ?? 0;
@@ -77,169 +85,196 @@ class InfoPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     _loadThemeModeOption(context, ref);
     _themeModeOption = ref.watch(themeModeProvider);
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          SizedBox(height: 20),
-          Text(
-            'ChronoLog',
-            style: TextStyle(
-                fontSize: 30, color: Theme.of(context).colorScheme.tertiary),
-          ),
-          Text(
-            'Version: $versionNumber',
-          ),
-          FutureBuilder<String>(
-            future: _db.getDatabaseVersion(),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              if (snapshot.hasData) {
-                return Text(
-                  'DB version: ${snapshot.data}',
-                );
-              } else if (snapshot.hasError) {
-                return Text(
-                  'Error: ${snapshot.error}',
-                );
-              }
-              // By default, show a loading spinner.
-              return CircularProgressIndicator();
-            },
-          ),
-          
-          TimeDisplay(),
-          SizedBox(height: 20),
-          ListGroup(
-            items: [
-              ListItem(
-                title: 'Show Welcome Screen',
-                iconData: Icons.watch_later,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => WelcomeScreen()),
+    return SingleChildScrollView(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(height: 20),
+            Text(
+              'ChronoLog',
+              style: TextStyle(
+                  fontSize: 30, color: Theme.of(context).colorScheme.tertiary),
+            ),
+            Text(
+              'Version: $versionNumber',
+            ),
+            FutureBuilder<String>(
+              future: _db.getDatabaseVersion(),
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                if (snapshot.hasData) {
+                  return Text(
+                    'DB version: ${snapshot.data}',
                   );
-                },
-              ),
-              ListItem(
-                title: 'Website',
-                iconData: Icons.web_asset,
-                onTap: () async {
-                  const url = 'https://www.tylerjaywood.com/chronolog';
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    throw 'Could not launch $url';
-                  }
-                },
-              ),
-              ListItem(
-                title: 'Send Me Feedback!',
-                iconData: Icons.email,
-                onTap: () async {
-                  sendMailWithFeedback();
-                },
-              ),
+                } else if (snapshot.hasError) {
+                  return Text(
+                    'Error: ${snapshot.error}',
+                  );
+                }
+                // By default, show a loading spinner.
+                return CircularProgressIndicator();
+              },
+            ),
 
-              ListItem(
-                title: 'Review on App Store',
-                iconData: Icons.star_border,
-                onTap: () async {
-                  const url = 'https://apps.apple.com/us/app/apple-store/6452083510';
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
-                    throw 'Could not launch $url';
-                  }
-                },
-              ),
+            TimeDisplay(),
 
-              ListItem(
-                title: 'Export Data to CSV',
-                iconData: Icons.dataset,
-                onTap: () async {
-                  String csvData = await _db.exportDataToCsv();
-                  sendMailWithCSV(csvData);
-                },
-                isLastItem: true,
+            SizedBox(height: 20),
+            PremiumButton(
+              isPremiumActivated: _isPremiumActivated,
+              onTapPremium: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PurchaseScreen()),
+                );
+              },
+            ),
+
+            // Expanded(child: PurchaseOptions()),
+            ListGroup(
+              items: [
+                ListItem(
+                  title: 'Show Welcome Screen',
+                  iconData: Icons.watch_later,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                    );
+                  },
+                ),
+
+                // ListItem(
+                //   title: 'Purchase Premium',
+                //   iconData: Icons.star_border,
+                //    onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => PurchaseScreen()),
+                //     );
+                //   },
+                // ),
+
+                ListItem(
+                  title: 'Website',
+                  iconData: Icons.web_asset,
+                  onTap: () async {
+                    const url = 'https://www.tylerjaywood.com/chronolog';
+                    if (await canLaunch(url)) {
+                      await launch(url);
+                    } else {
+                      throw 'Could not launch $url';
+                    }
+                  },
+                ),
+                ListItem(
+                  title: 'Send Me Feedback!',
+                  iconData: Icons.email,
+                  onTap: () async {
+                    sendMailWithFeedback();
+                  },
+                ),
+
+                ListItem(
+                  title: 'Review on App Store',
+                  iconData: Icons.star_border,
+                  onTap: () async {
+                    const url =
+                        'https://apps.apple.com/us/app/apple-store/6452083510';
+                    if (await canLaunch(url)) {
+                      await launch(url);
+                    } else {
+                      throw 'Could not launch $url';
+                    }
+                  },
+                ),
+
+                ListItem(
+                  title: 'Export Data to CSV',
+                  iconData: Icons.dataset,
+                  onTap: () async {
+                    String csvData = await _db.exportDataToCsv();
+                    sendMailWithCSV(csvData);
+                  },
+                  isLastItem: true,
+                ),
+                // Add more items as needed
+              ],
+            ),
+            SizedBox(height: 20),
+            Container(
+              child: Column(
+                children: [
+                  Text('Display Mode',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.inverseSurface)),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ToggleButtons(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('System'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Dark'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Light'),
+                        ),
+                      ],
+                      isSelected: [
+                        _themeModeOption == ThemeModeOption.system,
+                        _themeModeOption == ThemeModeOption.dark,
+                        _themeModeOption == ThemeModeOption.light,
+                      ],
+                      onPressed: (index) {
+                        _updateThemeModeOption(
+                            context, ref, ThemeModeOption.values[index]);
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface, // This will be the color of the unselected buttons
+                      selectedColor: Theme.of(context)
+                          .colorScheme
+                          .tertiary, // This will be the color of the selected button
+                    ),
+                  ),
+                ],
               ),
-              // Add more items as needed
-            ],
-          ),
-          SizedBox(height: 20),
-          Container(
-            child: Column(
+            ),
+            // Expanded(
+            //     child: Column(
+            //   children: [],
+            // )),
+            Column(
               children: [
-                Text('Display Mode',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.inverseSurface)),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ToggleButtons(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('System'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('Dark'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('Light'),
-                      ),
-                    ],
-                    isSelected: [
-                      _themeModeOption == ThemeModeOption.system,
-                      _themeModeOption == ThemeModeOption.dark,
-                      _themeModeOption == ThemeModeOption.light,
-                    ],
-                    onPressed: (index) {
-                      _updateThemeModeOption(
-                          context, ref, ThemeModeOption.values[index]);
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface, // This will be the color of the unselected buttons
-                    selectedColor: Theme.of(context)
-                        .colorScheme
-                        .tertiary, // This will be the color of the selected button
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: Text(
+                    'Made with ⛰️ in Boulder, CO',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: Text(
+                    '© 2023 Tyler Wood',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
               ],
             ),
-          ),
-          Expanded(
-              child: Column(
-            children: [],
-          )),
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: Text(
-                  'Made with ⛰️ in Boulder, CO',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ),
-               Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: Text(
-                  '© 2023 Tyler Wood',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
