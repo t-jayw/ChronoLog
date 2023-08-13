@@ -7,7 +7,7 @@ import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timing_measurement.dart';
 import '../models/timing_run.dart';
 import '../screens/timing_run_details_screen.dart';
-import 'measurement_picker.dart';
+import 'measurement/measurement_picker.dart';
 import 'primary_button.dart'; // Assuming you have this file
 
 class TimingRunDetailHeaderStats extends ConsumerStatefulWidget {

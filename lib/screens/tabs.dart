@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/screens/info_page_screen.dart';
 import 'package:chronolog/screens/watchbox_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../components/premium_needed_dialog.dart';
+import '../components/premium/premium_needed_dialog.dart';
 import '../providers/timepiece_list_provider.dart';
 import '../screens/add_watch_screen.dart';
 
@@ -78,7 +78,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
               onPressed: () async {
                 // Make it async
                 SharedPreferences prefs = await SharedPreferences.getInstance();
-                bool? isPremiumActivated = prefs.getBool('premiumActive');
+                bool? isPremiumActivated = prefs.getBool('isPremiumActive');
                 int numWatches = timepieces.length;
 
                 if (isPremiumActivated != true && numWatches >= 2) {

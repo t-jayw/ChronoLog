@@ -8,9 +8,9 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ulid/ulid.dart';
 
-import '../components/photo_measurement_time_picker.dart';
+import '../components/measurement/photo_measurement_time_picker.dart';
 import '../components/primary_button.dart';
-import '../components/tag_selector.dart';
+import '../components/measurement/tag_selector.dart';
 import '../models/timing_measurement.dart';
 
 import '../providers/timing_measurements_list_provider.dart';

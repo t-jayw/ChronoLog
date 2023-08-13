@@ -5,26 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/screens/tabs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'components/show_review_dialog.dart';
 
-
 Future<void> initPlatformState() async {
-  await Purchases.setLogLevel(LogLevel.info);
-   String testUserId = "testUser_${DateTime.now().millisecondsSinceEpoch}";
+  await Purchases.setLogLevel(LogLevel.error);
+  String testUserId = "testUser_${DateTime.now().millisecondsSinceEpoch}";
 
-  PurchasesConfiguration configuration = PurchasesConfiguration(
-    "appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ",
+  // PurchasesConfiguration configuration = PurchasesConfiguration(
+  //   "appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ",
+  // )..appUserID = testUserId;
 
-  )
-  ..appUserID = testUserId;
-
-
-
+    PurchasesConfiguration configuration = PurchasesConfiguration(
+    "appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ"  );
 
   print(configuration.toString());
   await Purchases.configure(configuration);
@@ -36,7 +32,6 @@ final theme = ThemeData(
     secondary: Color.fromRGBO(177, 164, 42, 1),
     tertiary: Color.fromRGBO(35, 80, 52, 1),
     error: Color.fromARGB(255, 243, 165, 163),
-    
   ),
   splashColor: Colors.transparent,
   fontFamily: 'SFProText',
@@ -144,9 +139,7 @@ class App extends ConsumerWidget {
   final int openCount;
   bool isDialogShown = false; // add this flag
 
-   App({Key? key, required this.openCount}) : super(key: key);
-
-
+  App({Key? key, required this.openCount}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -173,15 +166,17 @@ class App extends ConsumerWidget {
       themeMode: themeMode,
       home: openCount == 1
           ? WelcomeScreen()
-          : openCount == 3 
+          : openCount == 5
               ? FutureBuilder(
                   // Use a FutureBuilder to display the dialog only once after the widget is built
                   future: Future.delayed(Duration.zero),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done && !isDialogShown) {
+                    if (snapshot.connectionState == ConnectionState.done &&
+                        !isDialogShown) {
                       WidgetsBinding.instance!.addPostFrameCallback((_) {
                         ShowReviewDialog(context);
-                        isDialogShown = true; // set the flag to true after showing the dialog
+                        isDialogShown =
+                            true; // set the flag to true after showing the dialog
                       });
                     }
                     return const TabsScreen();

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screens/purchase_screen.dart';
+import '../../screens/purchase_screen.dart';
 
 
 class PremiumNeededDialog extends StatelessWidget {
@@ -11,7 +11,7 @@ class PremiumNeededDialog extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              "Premium Needed",
+              "Premium Required",
               style: TextStyle(
                 color: Theme.of(context).colorScheme.tertiary,
               ),
@@ -28,10 +28,10 @@ class PremiumNeededDialog extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min, // Adjusts the column size to its content
         children: [
-          Text("Purchase Premium to unlock all the features like adding unlimted watches"),
+          Text("Purchase Premium to unlock all features"),
           SizedBox(height: 16), // Add some spacing
           ElevatedButton(
-            child: Text("Learn more about premium"),
+            child: Text("Learn more", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
             onPressed: () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(

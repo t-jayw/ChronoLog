@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ulid/ulid.dart';
-import 'package:chronolog/components/tap_measurement_time_picker.dart';
+import '../components/measurement/tag_selector.dart';
 
 import '../components/primary_button.dart';
-import '../components/tag_selector.dart';
+import '../components/measurement/tap_measurement_time_picker.dart';
 import '../models/timing_measurement.dart';
 import '../providers/timing_measurements_list_provider.dart';
 

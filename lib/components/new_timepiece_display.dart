@@ -11,7 +11,7 @@ import '../screens/watch_details_screen.dart';
 
 import '../providers/timing_measurements_list_provider.dart';
 import 'custom_tool_tip.dart';
-import 'measurement_picker.dart';
+import 'measurement/measurement_picker.dart';
 
 class NewTimepieceDisplay extends ConsumerWidget {
   final Timepiece timepiece;

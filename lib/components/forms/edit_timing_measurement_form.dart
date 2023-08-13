@@ -1,12 +1,12 @@
+import 'package:chronolog/components/measurement/photo_measurement_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:chronolog/components/photo_measurement_time_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/timing_measurement.dart';
 import '../../providers/timing_measurements_list_provider.dart';
-import '../../components/tag_selector.dart';
+import '../measurement/tag_selector.dart';
 import '../primary_button.dart'; // Include the TagSelector component
 
 String formatDateTimeWithMillis(DateTime dateTime) {

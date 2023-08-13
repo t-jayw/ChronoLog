@@ -3,9 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../models/timing_measurement.dart';
-import '../providers/timing_measurements_list_provider.dart';
-import 'forms/edit_timing_measurement_form.dart';
+import '../../models/timing_measurement.dart';
+import '../../providers/timing_measurements_list_provider.dart';
+import '../forms/edit_timing_measurement_form.dart';
 
 class TimingMeasurementItem extends ConsumerWidget {
   const TimingMeasurementItem({Key? key, required this.timingMeasurement})

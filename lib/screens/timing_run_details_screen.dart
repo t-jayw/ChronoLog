@@ -1,6 +1,6 @@
 import 'package:chronolog/models/timepiece.dart';
 import 'package:flutter/material.dart';
-import 'package:chronolog/components/timing_measurements_container.dart';
+import 'package:chronolog/components/measurement/timing_measurements_container.dart';
 import 'package:chronolog/components/graphs/timing_run_measurements_offset_graph.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 

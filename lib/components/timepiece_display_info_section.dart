@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../components/measurement_picker.dart';
+import 'measurement/measurement_picker.dart';
 import '../components/timing_runs_container.dart';
 import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';

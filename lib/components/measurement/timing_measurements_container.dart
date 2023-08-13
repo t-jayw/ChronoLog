@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:chronolog/providers/timing_measurements_list_provider.dart';
 
-import 'delete_confirmation_dialog.dart';
+import '../delete_confirmation_dialog.dart';
 import 'timing_measurement_item.dart'; // Import the TimingMeasurementItem widget
 
 class TimingMeasurementsContainer extends ConsumerWidget {

@@ -18,7 +18,7 @@ class PremiumButton extends StatelessWidget {
               //onPressed: !snapshot.data! ? onTapPremium : null,
               onPressed: onTapPremium ,
               child:
-                  Text(snapshot.data! ? 'Premium Enabled!' : 'Enable Premium'),
+                  Text(snapshot.data! ? 'Premium Enabled!' : 'Unlock Features with Premium', style:TextStyle(color: Theme.of(context).colorScheme.primary)),
             );
           } else if (snapshot.hasError) {
             // If we run into an error, display it to the user
