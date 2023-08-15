@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSDocumentsDirectory</key>
+	<string>Allow ChronoLog to backup measurements data.</string>
+	<key>NSDocumentsLibraryUsageDescription</key>
+	<string>We need access to your documents to restore database backups</string>
 	<key>NSCameraUsageDescription</key>
 	<string>ChronoLog lets you take pictures of your collection, and also enables you to use your camera to input your time.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -33,12 +33,14 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     _checkPremiumStatus();
   }
 
-Future<void> _checkPurchasedStatus() async {
+  Future<void> _checkPurchasedStatus() async {
     print('checking purchase status');
     final prefs = await SharedPreferences.getInstance();
     try {
       final CustomerInfo customerInfo = await Purchases.getCustomerInfo();
-      bool isPremium = customerInfo.entitlements.active.containsKey('premium');
+//      bool isPremium = customerInfo.entitlements.active.containsKey('premium');
+      bool isPremium = true;
+
       if (isPremium) {
         print('customerInfo.entitlements.active contains premium');
         print(customerInfo.entitlements.active);
@@ -51,12 +53,10 @@ Future<void> _checkPurchasedStatus() async {
 
       // Save the premium status to shared preferences
       await prefs.setBool('isPremiumActive', isPremium);
-
     } catch (e) {
       print("Error fetching purchaser info: $e");
     }
-}
-
+  }
 
   Future<void> _checkPremiumStatus() async {
     print('checking prem status');
@@ -148,30 +148,32 @@ Future<void> _checkPurchasedStatus() async {
   Future<void> _purchasePackage(Package package) async {
     print('_purchasePackage()');
     try {
-        final purchaseResult = await Purchases.purchasePackage(package);
-        _checkPurchasedStatus();
-        if (purchaseResult.entitlements.active.isNotEmpty) {
-            await _setPremiumActive(true);
-            _showSuccessDialog("Purchase was successful");
-        }
+      final purchaseResult = await Purchases.purchasePackage(package);
+      _checkPurchasedStatus();
+      if (purchaseResult.entitlements.active.isNotEmpty) {
+        await _setPremiumActive(true);
+        _showSuccessDialog("Purchase was successful");
+      }
     } catch (e) {
-        if (e is PlatformException) {
-            if (e.code == '1' && e.details['userCancelled'] == true) {
-                print("Purchase was cancelled by the user.");
-                // You can show a user-friendly message here or choose to do nothing
-                _showErrorDialog("Purchase was cancelled. Please try again if this was unintended.");
-            } else {
-                print("Purchase error: $e");
-                // Handle other types of PlatformException here
-                _showErrorDialog("An error occurred during the purchase. Please try again later.");
-            }
+      if (e is PlatformException) {
+        if (e.code == '1' && e.details['userCancelled'] == true) {
+          print("Purchase was cancelled by the user.");
+          // You can show a user-friendly message here or choose to do nothing
+          _showErrorDialog(
+              "Purchase was cancelled. Please try again if this was unintended.");
         } else {
-            print("Unexpected error: $e");
-            _showErrorDialog("An unexpected error occurred. Please try again later.");
+          print("Purchase error: $e");
+          // Handle other types of PlatformException here
+          _showErrorDialog(
+              "An error occurred during the purchase. Please try again later.");
         }
+      } else {
+        print("Unexpected error: $e");
+        _showErrorDialog(
+            "An unexpected error occurred. Please try again later.");
+      }
     }
-}
-
+  }
 
   @override
   @override

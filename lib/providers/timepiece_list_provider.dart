@@ -5,36 +5,36 @@ import 'package:chronolog/models/timepiece.dart';
 import '../database_helpers.dart';
 import 'dbHelperProvider.dart';
 
-
 class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
   TimepieceListProvider(this._db) : super([]) {
-    _initTimepieces();
+    initTimepieces();
   }
 
   final DatabaseHelper _db;
 
-  Future _initTimepieces() async {
+  Future<void> initTimepieces() async {
     state = await _db.getTimepieces();
   }
-  
-void reorderTimepieces(int oldIndex, int newIndex) {
-  final Timepiece timepiece = state[oldIndex];
-  state = List<Timepiece>.from(state)
-    ..remove(timepiece)
-    ..insert(newIndex, timepiece);
-}
 
-Future<void> addTimepiece(Timepiece timepiece) async {
-  final existingTimepiece = state.firstWhereOrNull((tp) => tp.id == timepiece.id);
-  if (existingTimepiece == null) {
-    await _db.insertTimepiece(timepiece);
-    state = [...state, timepiece];
-  } else {
-    // Handle duplicate timepiece
-    // For example, you can show a snackbar or display an error message
-    print('Duplicate timepiece detected.');
+  void reorderTimepieces(int oldIndex, int newIndex) {
+    final Timepiece timepiece = state[oldIndex];
+    state = List<Timepiece>.from(state)
+      ..remove(timepiece)
+      ..insert(newIndex, timepiece);
   }
-}
+
+  Future<void> addTimepiece(Timepiece timepiece) async {
+    final existingTimepiece =
+        state.firstWhereOrNull((tp) => tp.id == timepiece.id);
+    if (existingTimepiece == null) {
+      await _db.insertTimepiece(timepiece);
+      state = [...state, timepiece];
+    } else {
+      // Handle duplicate timepiece
+      // For example, you can show a snackbar or display an error message
+      print('Duplicate timepiece detected.');
+    }
+  }
 
   Future<void> removeTimepiece(String id) async {
     await _db.removeTimepiece(id);
@@ -42,27 +42,26 @@ Future<void> addTimepiece(Timepiece timepiece) async {
   }
 
   Future<void> updateTimepiece(Timepiece updatedTimepiece) async {
-  final existingIndex = state.indexWhere((tp) => tp.id == updatedTimepiece.id);
-  if (existingIndex != -1) {
-    // Update in the database
-    await _db.updateTimepiece(updatedTimepiece);
-    // Create a copy of current state to maintain immutability
-    List<Timepiece> newState = List.from(state);
-    // Replace the old timepiece data with updated data
-    newState[existingIndex] = updatedTimepiece;
-    // Assign the updated state to the provider state
-    state = newState;
-  } else {
-    // Handle situation when the timepiece does not exist
-    print('Cannot update, timepiece does not exist.');
+    final existingIndex =
+        state.indexWhere((tp) => tp.id == updatedTimepiece.id);
+    if (existingIndex != -1) {
+      // Update in the database
+      await _db.updateTimepiece(updatedTimepiece);
+      // Create a copy of current state to maintain immutability
+      List<Timepiece> newState = List.from(state);
+      // Replace the old timepiece data with updated data
+      newState[existingIndex] = updatedTimepiece;
+      // Assign the updated state to the provider state
+      state = newState;
+    } else {
+      // Handle situation when the timepiece does not exist
+      print('Cannot update, timepiece does not exist.');
+    }
   }
 }
 
-}
-
-
-
-final timepieceListProvider = StateNotifierProvider<TimepieceListProvider, List<Timepiece>>((ref) {
+final timepieceListProvider =
+    StateNotifierProvider<TimepieceListProvider, List<Timepiece>>((ref) {
   // Get the DatabaseHelper instance from your providers
   final dbHelper = ref.watch(dbHelperProvider);
   return TimepieceListProvider(dbHelper);

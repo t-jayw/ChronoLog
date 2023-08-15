@@ -1,18 +1,82 @@
 import 'dart:async';
-
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:chronolog/models/timing_measurement.dart';
 import '../models/timepiece.dart';
-
+import 'package:file_picker/file_picker.dart';
 import 'models/timing_run.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:restart_app/restart_app.dart';
+
+// When you want to share the file
 
 class DatabaseHelper {
   static Future<Database>? _database;
 
   DatabaseHelper() {
     _initDb();
+  }
+
+  Future<void> backupDatabase() async {
+    try {
+      final String path = await getDatabasesPath();
+      print(path);
+      final String dbPath = '$path/timepiece_database.db';
+      final File originalFile = File(dbPath);
+
+      // Use Application Documents Directory
+      final Directory docDir = await getApplicationDocumentsDirectory();
+      final String backupPath = '${docDir.path}/backup/timepiece_database.db';
+
+      final File backupFile = File(backupPath);
+      if (!await backupFile.parent.exists()) {
+        await backupFile.parent.create(recursive: true);
+      }
+
+      await originalFile.copy(backupPath);
+
+      print('Backup successful at $backupPath');
+
+      // Trigger the share action for the backup file
+      Share.shareFiles(
+        [backupPath],
+      );
+    } catch (e) {
+      print("Error during backup: $e");
+    }
+  }
+  Future<bool> restoreDatabase() async {
+    try {
+      final String path = await getDatabasesPath();
+      final String dbPath = '$path/timepiece_database.db';
+
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        // The allowedExtensions can be set to restrict the file types.
+      );
+
+      if (result != null) {
+        File pickedFile = File(result.files.single.path!);
+
+        // Ensure the file name is timepiece_database.db
+        if (pickedFile.uri.pathSegments.last != 'timepiece_database.db') {
+          print("Invalid file selected. Please choose 'timepiece_database.db'.");
+          return false;
+        }
+
+        final File newDbFile = File(dbPath);
+        await pickedFile.copy(newDbFile.path);
+
+        return true;
+      } else {
+        // User canceled the picker
+      }
+    } catch (e) {
+      print("Error during restoration: $e");
+    }
+    return false;
   }
 
   Future<Database> get database async {
@@ -222,27 +286,31 @@ class DatabaseHelper {
     rows.add([
       'Timepiece Id', 'Brand', 'Model', 'Serial',
       'Timing Run Id', 'Watch Id', 'Start Date',
-      'Timing Measurement Id', 'Run Id', 'System Time', 'Input Time', 'Difference (ms)', 'Tag',
+      'Timing Measurement Id', 'Run Id', 'System Time', 'Input Time',
+      'Difference (ms)', 'Tag',
       // More columns as needed
     ]);
 
     for (Timepiece timepiece in timepieces) {
-          final List<TimingRun> timingRuns = await getTimingRunsByWatchId(timepiece.id); // Initialize with your data
+      final List<TimingRun> timingRuns = await getTimingRunsByWatchId(
+          timepiece.id); // Initialize with your data
 
       for (TimingRun run in timingRuns) {
-            final List<TimingMeasurement> timingMeasurements = await getTimingMeasurementsByRunId(run.id); // Initialize with your data
+        final List<TimingMeasurement> timingMeasurements =
+            await getTimingMeasurementsByRunId(
+                run.id); // Initialize with your data
 
         for (TimingMeasurement measurement in timingMeasurements) {
           rows.add([
-            timepiece.id, 
-            timepiece.brand, 
+            timepiece.id,
+            timepiece.brand,
             timepiece.model,
             timepiece.serial,
-            run.id, 
-            run.watch_id, 
+            run.id,
+            run.watch_id,
             run.startDate.toString(),
-            measurement.id, 
-            measurement.run_id, 
+            measurement.id,
+            measurement.run_id,
             measurement.system_time,
             measurement.user_input_time,
             measurement.difference_ms,

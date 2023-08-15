@@ -19,8 +19,8 @@ Future<void> initPlatformState() async {
   //   "appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ",
   // )..appUserID = testUserId;
 
-    PurchasesConfiguration configuration = PurchasesConfiguration(
-    "appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ"  );
+  PurchasesConfiguration configuration =
+      PurchasesConfiguration("appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ");
 
   print(configuration.toString());
   await Purchases.configure(configuration);
@@ -184,6 +184,8 @@ class App extends ConsumerWidget {
                 )
               : const TabsScreen(),
       debugShowCheckedModeBanner: false,
+
+      initialRoute: '/',
     );
   }
 }

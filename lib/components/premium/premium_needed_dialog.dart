@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../screens/purchase_screen.dart';
+import '../primary_button.dart';
 
 
 class PremiumNeededDialog extends StatelessWidget {
@@ -7,31 +8,35 @@ class PremiumNeededDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       titlePadding: EdgeInsets.all(16),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              "Premium Required",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.tertiary,
-              ),
-            ),
+      title: Center(
+        child: Text(
+          "Unlock with Premium",
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.tertiary,
           ),
-          IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-          ),
-        ],
+        ),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min, // Adjusts the column size to its content
         children: [
-          Text("Purchase Premium to unlock all features"),
-          SizedBox(height: 16), // Add some spacing
-          ElevatedButton(
-            child: Text("Learn more", style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+          Text(
+            "Some features, like adding more watches and exporting data, are unavailable in the free version. Upgrade to premium to unlock all features",
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 12), // Add some spacing
+          Divider(), // Divider
+          SecondaryButton(
+            text: "Okay",
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+          ),
+          Divider(), // Divider
+          PrimaryButton(
+            child: Text(
+              "Learn More",
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
             onPressed: () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
