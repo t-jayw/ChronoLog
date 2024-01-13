@@ -92,9 +92,8 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        title:  Text(
-          'Edit Measurement',style: TextStyle(color: Theme.of(context).colorScheme.onSurface)
-        ),
+        title: Text('Edit Measurement',
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -187,18 +186,18 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                   Consumer(
                     builder: (context, ref, _) {
                       return Container(
-                        alignment: Alignment.center,
-                        width: double.infinity,
-                        child: PrimaryButton(
-                         
-                          onPressed: () => _saveForm(context, ref),
-                          child: Text('Save',                                           style: TextStyle(
-                                              fontSize: 18,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary),)
-                        )
-                      );
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          child: PrimaryButton(
+                              onPressed: () => _saveForm(context, ref),
+                              child: Text(
+                                'Save',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
+                              )));
                     },
                   ),
 

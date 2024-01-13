@@ -53,7 +53,7 @@ class _TapMeasurementTimePicker extends State<TapMeasurementTimePicker> {
     return List<Widget>.generate(
         count,
         (index) => Center(
-            child: Text('${(index + offset) * multiplier}',
+            child: Text('${(index + offset) * multiplier}'.padLeft(2, '0'),
                 style: TextStyle(
                     fontSize: 18,
                     color: Theme.of(context).colorScheme.onBackground))));
@@ -66,7 +66,7 @@ class _TapMeasurementTimePicker extends State<TapMeasurementTimePicker> {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
-              "Set the picker to a time in the future. \nTap the button when your watch hits it.",
+              "Set the picker to a time in the future. \nTap the button when your watch reaches that time.",
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface, fontSize: 18),
               textAlign: TextAlign.center),

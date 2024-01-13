@@ -43,14 +43,19 @@ class WatchDetailStats extends ConsumerWidget {
 
     int mostRecentOffsetInSeconds = 0;
 
-    TimingRun mostRecentRun = timingRuns.first;
+    TimingRun? mostRecentRun;
+    List<TimingMeasurement> mostRecentRunMeasurements = [];
 
-    List<TimingMeasurement> mostRecentRunMeasurements =
-        ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
-    if (mostRecentRunMeasurements.isNotEmpty) {
-      mostRecentOffsetInSeconds = mostRecentRunMeasurements.first.user_input_time!
-        .difference(mostRecentRunMeasurements.first.system_time)
-        .inSeconds;
+    if (timingRuns.isNotEmpty) {
+      mostRecentRun = timingRuns.first;
+      mostRecentRunMeasurements =
+          ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
+      if (mostRecentRunMeasurements.isNotEmpty) {
+        mostRecentOffsetInSeconds = mostRecentRunMeasurements
+            .first.user_input_time!
+            .difference(mostRecentRunMeasurements.first.system_time)
+            .inSeconds;
+      }
     }
 
 
@@ -67,13 +72,12 @@ class WatchDetailStats extends ConsumerWidget {
       allMeasurements += timingMeasurements.length;
       allRunsDuration += totalDuration;
       allDaysRun += totalDurationDays;
-      allRunsDifferenceInSeconds += calculateTotalSecondsChange(timingMeasurements);
+      allRunsDifferenceInSeconds +=
+          calculateTotalSecondsChange(timingMeasurements);
     });
 
     double secPerDay =
-        allDaysRun != 0.0 ?
-          allRunsDifferenceInSeconds / allDaysRun :
-          0.0;
+        allDaysRun != 0.0 ? allRunsDifferenceInSeconds / allDaysRun : 0.0;
 
     if (timingRuns.isEmpty) {
       return StatsGrid(

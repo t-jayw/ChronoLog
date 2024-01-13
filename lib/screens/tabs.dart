@@ -1,8 +1,8 @@
-import 'package:chronolog/screens/purchase_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/screens/info_page_screen.dart';
 import 'package:chronolog/screens/watchbox_screen.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/premium/premium_needed_dialog.dart';
 import '../providers/timepiece_list_provider.dart';
@@ -54,7 +54,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return PremiumNeededDialog();
+        return PremiumNeededDialogAddWatch();
       },
     );
   }
@@ -81,7 +81,13 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
                 bool? isPremiumActivated = prefs.getBool('isPremiumActive');
                 int numWatches = timepieces.length;
 
-                if (isPremiumActivated != true && numWatches >= 2) {
+                if (isPremiumActivated != true && numWatches >= 1) {
+                  Posthog().capture(
+                    eventName: 'paywall',
+                    properties: {
+                      'reason': 'num_watches_paywall',
+                    },
+                  );
                   _showPremiumNeededDialog(context);
                 } else {
                   _navigateToAddWatchScreen(context);

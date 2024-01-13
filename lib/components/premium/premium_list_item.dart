@@ -1,3 +1,4 @@
+import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/material.dart';
 
 class PremiumButton extends StatelessWidget {
@@ -14,7 +15,7 @@ class PremiumButton extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           // If the Future is complete and no errors occurred
           if (snapshot.hasData) {
-            return ElevatedButton(
+            return PrimaryButton(
               //onPressed: !snapshot.data! ? onTapPremium : null,
               onPressed: onTapPremium ,
               child:

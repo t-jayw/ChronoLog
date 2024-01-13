@@ -3,6 +3,7 @@ import 'package:chronolog/screens/info_page_screen.dart';
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -132,6 +133,7 @@ void main() async {
       child: App(openCount: openCount),
     ),
   );
+
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 }
 
@@ -173,7 +175,11 @@ class App extends ConsumerWidget {
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done &&
                         !isDialogShown) {
-                      WidgetsBinding.instance!.addPostFrameCallback((_) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        Posthog().capture(
+                          eventName: 'review_please',
+                          properties: {},
+                        );
                         ShowReviewDialog(context);
                         isDialogShown =
                             true; // set the flag to true after showing the dialog
@@ -184,7 +190,6 @@ class App extends ConsumerWidget {
                 )
               : const TabsScreen(),
       debugShowCheckedModeBanner: false,
-
       initialRoute: '/',
     );
   }

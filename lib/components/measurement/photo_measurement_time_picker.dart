@@ -56,7 +56,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
     return List<Widget>.generate(
         count,
         (index) => Center(
-            child: Text('${index + offset}',
+            child: Text('${index + offset}'.padLeft(2,'0'),
                 style: TextStyle(
                     fontSize: 18,
                     color: Theme.of(context).colorScheme.onBackground))));

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:chronolog/screens/tabs.dart';
+import 'package:chronolog/screens/watch_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -19,6 +19,27 @@ String _formatDate(DateTime date) {
   var format = 'MM/dd/yyyy';
   return DateFormat(format).format(date);
 }
+
+void showFirstWatchAlert(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Congratulations!'),
+        content: Text('You have added your first watch.'),
+        actions: [
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
 class AddWatchScreen extends StatefulWidget {
   const AddWatchScreen({super.key});
@@ -55,8 +76,13 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
     });
   }
 
+
+
+
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New Watch'),
@@ -74,18 +100,16 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: _croppedFile != null ?
-                    Image.file(
-                      File(_croppedFile!.path),
-                      height: 200,
-                    )
-                  :
-                    Image.asset(
-                      'assets/images/placeholder.png',
-                      height: 200,
-                    ),
+                    child: _croppedFile != null
+                        ? Image.file(
+                            File(_croppedFile!.path),
+                            height: 180,
+                          )
+                        : Image.asset(
+                            'assets/images/placeholder.png',
+                            height: 180,
+                          ),
                   ),
-                  
                   SizedBox(
                     height: 8,
                   ),
@@ -206,15 +230,19 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                                 : null,
                           );
 
+                          bool isFirstAddedWatch = _timepieceListProvider.state.length == 0;
+
                           //print(timepiece.toMap());
                           _timepieceListProvider.addTimepiece(timepiece);
                           _addTimingRun(id, ref);
+
+                          
 
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (BuildContext context) =>
-                                  TabsScreen(), // Whatever screen you want to navigate to.
+                                  WatchDetails(timepiece: timepiece, firstAdded: isFirstAddedWatch,), // Whatever screen you want to navigate to.
                             ),
                           );
                         }

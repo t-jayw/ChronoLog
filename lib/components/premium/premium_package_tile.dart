@@ -1,3 +1,4 @@
+import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:purchases_flutter/models/package_wrapper.dart';
@@ -21,9 +22,13 @@ class PremiumPackageTile extends StatelessWidget {
         child: ListTile(
           title: Text(package.storeProduct.title),
           subtitle: Text(package.storeProduct.description),
-          trailing: ElevatedButton(
-            onPressed: () => onPurchase(package),
-            child: Text(package.storeProduct.priceString),
+          trailing: Column(
+            children: [
+              PrimaryButton(
+                onPressed: () => onPurchase(package),
+                child: Text(package.storeProduct.priceString, style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary)),
+              ),
+            ],
           ),
           // leading: Text(package.storeProduct.priceString), // removed based on your initial code
           contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0), // Adjust padding if necessary

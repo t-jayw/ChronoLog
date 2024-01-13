@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/models/timepiece.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 
 import '../database_helpers.dart';
 import 'dbHelperProvider.dart';
@@ -29,6 +30,18 @@ class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
     if (existingTimepiece == null) {
       await _db.insertTimepiece(timepiece);
       state = [...state, timepiece];
+
+      String stateString = state.map((tp) => tp.toString()).join(', ');
+
+      Posthog().capture(
+        eventName: 'timepiece_added',
+        properties: {
+          'brand': timepiece.brand, 
+          'name': timepiece.model,
+          'total_timepieces': state.length,
+          'timepieces': stateString},
+      );
+      
     } else {
       // Handle duplicate timepiece
       // For example, you can show a snackbar or display an error message

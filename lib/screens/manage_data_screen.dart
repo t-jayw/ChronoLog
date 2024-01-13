@@ -56,7 +56,7 @@ void _showPremiumNeededDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return PremiumNeededDialog();
+      return PremiumNeededDialogAddWatch();
     },
   );
 }

@@ -10,6 +10,8 @@ import '../components/premium/premium_list_item.dart';
 import '../database_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:posthog_flutter/posthog_flutter.dart';
+
 import '../providers/theme_provider.dart';
 
 enum ThemeModeOption { system, dark, light }
@@ -50,7 +52,7 @@ void sendMailWithFeedback() async {
 class InfoPage extends ConsumerWidget {
   InfoPage({Key? key}) : super(key: key);
 
-  final String versionNumber = "1.3.0";
+  final String versionNumber = "1.4.2";
   // replace with actual value
   ThemeModeOption _themeModeOption = ThemeModeOption.system;
 
@@ -92,6 +94,11 @@ class InfoPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+    Posthog().screen(
+      screenName: 'info_page',
+    );
+
     _loadThemeModeOption(context, ref);
     _themeModeOption = ref.watch(themeModeProvider);
     return SingleChildScrollView(
@@ -203,7 +210,8 @@ class InfoPage extends ConsumerWidget {
                   onTap: () async {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ManageDataScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => ManageDataScreen()),
                     );
                   },
                   isLastItem: true,

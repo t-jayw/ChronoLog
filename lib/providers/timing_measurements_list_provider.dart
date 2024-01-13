@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import '../database_helpers.dart';
 import '../models/timing_measurement.dart';
 import 'dbHelperProvider.dart';
 
 class TimingMeasurementsListProvider
-  extends StateNotifier<List<TimingMeasurement>> {
+    extends StateNotifier<List<TimingMeasurement>> {
   final String runId;
   final DatabaseHelper _db;
 
@@ -24,6 +25,10 @@ class TimingMeasurementsListProvider
     final newTimingMeasurement =
         await _db.insertTimingMeasurement(timingMeasurement);
     state = [newTimingMeasurement, ...state];
+    Posthog().capture(
+      eventName: 'measurement_added',
+      properties: {'total_measurements': state.length},
+    );
   }
 
   Future<void> deleteTimingMeasurement(String timingMeasurementId) async {
@@ -40,15 +45,18 @@ class TimingMeasurementsListProvider
     //print(timingMeasurementStatsList[1].toMap());
     return timingMeasurementStatsList;
   }
-  
-  Future<void> updateTimingMeasurement(TimingMeasurement updatedTimingMeasurement) async {
-  await _db.updateTimingMeasurement(updatedTimingMeasurement);
-  final index = state.indexWhere((measurement) => measurement.id == updatedTimingMeasurement.id);
-  if (index != -1) {
-    state[index] = updatedTimingMeasurement;
-    state = List.from(state); // This will notify listeners about state changes
+
+  Future<void> updateTimingMeasurement(
+      TimingMeasurement updatedTimingMeasurement) async {
+    await _db.updateTimingMeasurement(updatedTimingMeasurement);
+    final index = state.indexWhere(
+        (measurement) => measurement.id == updatedTimingMeasurement.id);
+    if (index != -1) {
+      state[index] = updatedTimingMeasurement;
+      state =
+          List.from(state); // This will notify listeners about state changes
+    }
   }
-}
 }
 
 final timingMeasurementsListProvider = StateNotifierProvider.family<

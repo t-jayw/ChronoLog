@@ -2,14 +2,12 @@ import 'package:chronolog/models/timepiece.dart';
 import 'package:flutter/material.dart';
 import 'package:chronolog/components/measurement/timing_measurements_container.dart';
 import 'package:chronolog/components/graphs/timing_run_measurements_offset_graph.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../components/graphs/timing_run_measurements_rate_graph.dart';
-import '../components/timing_run_component.dart';
 import '../components/timing_run_details_header_stats.dart';
-import '../models/timing_measurement.dart';
 import '../models/timing_run.dart';
-import '../providers/timing_measurements_list_provider.dart'; // new import
 
 class TimingRunDetails extends StatefulWidget {
   final TimingRun timingRun;
@@ -28,6 +26,10 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
 
   @override
   Widget build(BuildContext context) {
+    Posthog().screen(
+      screenName: 'timing_run_details',
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Timing Run Details',

@@ -9,7 +9,6 @@ import '../models/timepiece.dart';
 import 'package:file_picker/file_picker.dart';
 import 'models/timing_run.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:restart_app/restart_app.dart';
 
 // When you want to share the file
 
@@ -48,21 +47,23 @@ class DatabaseHelper {
       print("Error during backup: $e");
     }
   }
+
   Future<bool> restoreDatabase() async {
     try {
       final String path = await getDatabasesPath();
       final String dbPath = '$path/timepiece_database.db';
 
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        // The allowedExtensions can be set to restrict the file types.
-      );
+          // The allowedExtensions can be set to restrict the file types.
+          );
 
       if (result != null) {
         File pickedFile = File(result.files.single.path!);
 
         // Ensure the file name is timepiece_database.db
         if (pickedFile.uri.pathSegments.last != 'timepiece_database.db') {
-          print("Invalid file selected. Please choose 'timepiece_database.db'.");
+          print(
+              "Invalid file selected. Please choose 'timepiece_database.db'.");
           return false;
         }
 
@@ -94,7 +95,7 @@ class DatabaseHelper {
       databasePath,
       onCreate: (db, version) async {
         await db.execute(
-          'CREATE TABLE timepieces(id TEXT PRIMARY KEY, brand TEXT, model TEXT, serial TEXT, purchaseDate INTEGER, notes TEXT, imageUrl TEXT, image BLOB)',
+          'CREATE TABLE timepieces(id TEXT PRIMARY KEY, brand TEXT, model TEXT, serial TEXT, purchaseDate INTEGER, notes TEXT, imageUrl TEXT, image BLOB, purchasePrice TEXT, referenceNumber TEXT, caliber TEXT, crystalType TEXT)',
         );
         print('Table timepieces created');
         await db.execute(
@@ -106,14 +107,18 @@ class DatabaseHelper {
         );
         print('Table timing_measurements created');
       },
-      // onUpgrade: (db, oldVersion, newVersion) async {
-      //   if (oldVersion < 2) {
-      //     await db.execute("ALTER TABLE timepieces DROP COLUMN movementType;");
-      //     await db.execute("ALTER TABLE timepieces DROP COLUMN name;");
-
-      //   }
-      // },
-      version: 1, // Increment this
+      onUpgrade: (Database db, int oldVersion, int newVersion) async {
+        if (oldVersion < 2) {
+          await db
+              .execute('ALTER TABLE timepieces ADD COLUMN purchasePrice TEXT');
+          await db.execute(
+              'ALTER TABLE timepieces ADD COLUMN referenceNumber TEXT');
+          await db.execute('ALTER TABLE timepieces ADD COLUMN caliber TEXT');
+          await db
+              .execute('ALTER TABLE timepieces ADD COLUMN crystalType TEXT');
+        }
+      },
+      version: 2, // Increment this
     );
 
     return db;

@@ -1,5 +1,6 @@
 import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 
 import '../../measurement_forms/add_measurement_button_page.dart';
 import '../../measurement_forms/add_measurement_photo_page.dart';
@@ -12,6 +13,10 @@ class MeasurementPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Posthog().screen(
+      screenName: 'measurement_picker',
+    );
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -24,41 +29,84 @@ class MeasurementPicker extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              CustomToolTip(
-                mainAxisAlignment: MainAxisAlignment.center,
-                child: Flexible(
-                  child: Text(
-                    "Choose how to enter your watch's time.",
-                    style: TextStyle(
-                        fontSize: 12.0), // you can style your text here
-                  ),
+              Text('Choose How to Measure'),
+              // CustomToolTip(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   child: Flexible(
+              //     child: Text(
+              //       "Choose an option to measure",
+              //       style: TextStyle(
+              //           fontSize: 12.0), // you can style your text here
+              //     ),
+              //   ),
+              // ),
+              
+              Divider(),
+              Expanded(
+                child: Column(
+                  children: [
+                    buildButton(context, Icons.photo_camera, "Photo",
+                        () async {
+                      Posthog().capture(
+                        eventName: 'measurement_selected',
+                        properties: {
+                          'method': 'photo',
+                        },
+                      );
+
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AddMeasurementPhoto(timingRunId: timingRunId),
+                        ),
+                      );
+                      Navigator.of(context).pop();
+                    }),
+                    CustomToolTip(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      child: Flexible(
+                        child: Text(
+                          "Take a photo and enter the time",
+                          style: TextStyle(
+                              fontSize: 12.0), // you can style your text here
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Divider(),
               Expanded(
-                child: buildButton(
-                    context, Icons.photo_camera, "Measure with Pic", () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AddMeasurementPhoto(timingRunId: timingRunId),
+                child: Column(
+                  children: [
+                    buildButton(context, Icons.touch_app, "Tap",
+                        () async {
+                      Posthog().capture(
+                        eventName: 'measurement_selected',
+                        properties: {
+                          'method': 'tap',
+                        },
+                      );
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              AddMeasurementButtonPage(timingRunId: timingRunId),
+                        ),
+                      );
+                      Navigator.of(context).pop();
+                    }),
+                                        CustomToolTip(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      child: Flexible(
+                        child: Text(
+                          "Tap a button at specific time",
+                          style: TextStyle(
+                              fontSize: 12.0), // you can style your text here
+                        ),
+                      ),
                     ),
-                  );
-                  Navigator.of(context).pop();
-                }),
-              ),
-              Divider(),
-              Expanded(
-                child: buildButton(context, Icons.touch_app, "Measure with Tap",
-                    () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AddMeasurementButtonPage(timingRunId: timingRunId),
-                    ),
-                  );
-                  Navigator.of(context).pop();
-                }),
+                  ],
+                ),
               ),
             ],
           ),

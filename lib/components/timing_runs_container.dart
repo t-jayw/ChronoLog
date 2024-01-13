@@ -1,7 +1,10 @@
+import 'package:chronolog/components/premium/premium_needed_dialog.dart';
 import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ulid/ulid.dart';
 import 'package:chronolog/components/timing_run_component.dart';
 
@@ -9,6 +12,15 @@ import '../models/timepiece.dart';
 import '../models/timing_run.dart';
 import '../providers/timing_run_provider.dart';
 import 'delete_confirmation_dialog.dart';
+
+void _showPremiumNeededDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return PremiumNeededDialogAddTimingRun();
+    },
+  );
+}
 
 class TimingRunsContainer extends ConsumerWidget {
   const TimingRunsContainer({Key? key, required this.timepiece})
@@ -57,9 +69,25 @@ class TimingRunsContainer extends ConsumerWidget {
           padding: const EdgeInsets.all(2.0),
           child: SizedBox(
             child: SecondaryButton(
-              text: 'Start Timing Run',
-              onPressed: () => _addTimingRun(ref),
-            ),
+                text: 'Start Timing Run',
+                onPressed: () async {
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                  int numTimingRuns = timingRuns.length;
+
+                  if (isPremiumActivated != true && numTimingRuns == 1) {
+                    Posthog().capture(
+                      eventName: 'paywall',
+                      properties: {
+                        'reason': 'num_timing_runs_paywall',
+                      },
+                    );
+                    _showPremiumNeededDialog(context);
+                  } else {
+                    _addTimingRun(ref);
+                  }
+                }),
           ),
         ),
         Expanded(
@@ -73,23 +101,26 @@ class TimingRunsContainer extends ConsumerWidget {
               return Dismissible(
                 key: Key(timingRun.id),
                 direction: DismissDirection.endToStart,
-confirmDismiss: (direction) async {
-  if (timingRuns.length <= 1) {
-    // Show the SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Center(child: Text("Can't delete the only timing run!")), duration: Duration(seconds: 3), ),
-    );
-    return false; // Do not allow dismissal if it's the only remaining timing run
-  }
+                confirmDismiss: (direction) async {
+                  if (timingRuns.length <= 1) {
+                    // Show the SnackBar
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Center(
+                            child: Text("Can't delete the only timing run!")),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                    return false; // Do not allow dismissal if it's the only remaining timing run
+                  }
 
-  return await showCupertinoDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return DeleteConfirmationDialog();
-    },
-  );
-},
-
+                  return await showCupertinoDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return DeleteConfirmationDialog();
+                    },
+                  );
+                },
                 onDismissed: (direction) {
                   ref
                       .read(timingRunProvider(timepiece.id).notifier)

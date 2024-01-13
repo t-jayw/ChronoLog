@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../components/premium/premium_features.dart';
-import 'package:flutter/foundation.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,6 +24,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   bool _loadingPackages = true;
   bool _hasPurchased = false;
   bool _isPremiumActive = false;
+  bool _isTrackingDone = false;  // Declare the variable here
 
   @override
   void initState() {
@@ -31,6 +32,13 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     _fetchAvailablePackages();
     _checkPurchasedStatus();
     _checkPremiumStatus();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isTrackingDone) {
+        Posthog().screen(screenName: 'purchase_page');
+        _isTrackingDone = true;
+      }
+    });
   }
 
   Future<void> _checkPurchasedStatus() async {
@@ -38,8 +46,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     final prefs = await SharedPreferences.getInstance();
     try {
       final CustomerInfo customerInfo = await Purchases.getCustomerInfo();
-//      bool isPremium = customerInfo.entitlements.active.containsKey('premium');
-      bool isPremium = true;
+      bool isPremium = customerInfo.entitlements.active.containsKey('premium');
+      // bool isPremium = true;
 
       if (isPremium) {
         print('customerInfo.entitlements.active contains premium');
