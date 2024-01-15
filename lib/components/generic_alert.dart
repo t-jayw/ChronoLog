@@ -18,8 +18,9 @@ Future<void> showGenericAlert({
         title: Center(
           child: Text(
             title,
+            textAlign: TextAlign.center,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.tertiary,
+              color: Theme.of(context).colorScheme.tertiary, 
             ),
           ),
         ),

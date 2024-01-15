@@ -13,9 +13,9 @@ import '../providers/timepiece_list_provider.dart';
 
 class WatchDetails extends ConsumerWidget {
   final Timepiece timepiece;
-  final bool firstAdded; // hack to show a dialog on first added watch
+  bool firstAdded; // hack to show a dialog on first added watch
 
-  const WatchDetails({
+  WatchDetails({
     Key? key,
     required this.timepiece,
     this.firstAdded = false,
@@ -37,11 +37,9 @@ class WatchDetails extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final timepieces = ref.watch(timepieceListProvider);
 
-
-    final updatedTimepiece =  
+    final updatedTimepiece =
         timepieces.firstWhere((tp) => tp.id == timepiece.id);
 
     if (firstAdded) {
@@ -49,6 +47,8 @@ class WatchDetails extends ConsumerWidget {
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         _showFirstAddedDialog(context);
       });
+      // this is to only show the first added dialog once
+      firstAdded = false;
     }
 
     return Scaffold(
@@ -178,7 +178,11 @@ class WatchDetails extends ConsumerWidget {
     showGenericAlert(
       context: context,
       title: "You've added your first watch!",
-      contentLines: ['Now add your first measurement',"", 'More time between measurements will yield more accurate results.'],
+      contentLines: [
+        'Now add your first measurement',
+        "",
+        'More time between measurements will yield more accurate results.'
+      ],
       cancelButtonText: 'OK',
     );
   }
