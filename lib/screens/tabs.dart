@@ -81,7 +81,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
                 bool? isPremiumActivated = prefs.getBool('isPremiumActive');
                 int numWatches = timepieces.length;
 
-                if (isPremiumActivated != true && numWatches >= 1) {
+                if (isPremiumActivated != true && numWatches >= 10) {
                   Posthog().capture(
                     eventName: 'paywall',
                     properties: {

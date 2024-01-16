@@ -164,6 +164,10 @@ class DatabaseHelper {
         notes: maps[i]['notes'],
         imageUrl: maps[i]['imageUrl'],
         image: maps[i]['image'],
+        purchasePrice: maps[i]['purchasePrice'], 
+        referenceNumber: maps[i]['referenceNumber'], 
+        caliber: maps[i]['caliber'], 
+        crystalType: maps[i]['crystalType'], 
       );
     });
   }
@@ -289,7 +293,7 @@ class DatabaseHelper {
 
     // Header
     rows.add([
-      'Timepiece Id', 'Brand', 'Model', 'Serial',
+      'Timepiece Id', 'Brand', 'Model', 'Serial', 'Purchase Price', 'Reference Number', 'Caliber', 'Crystal Type',
       'Timing Run Id', 'Watch Id', 'Start Date',
       'Timing Measurement Id', 'Run Id', 'System Time', 'Input Time',
       'Difference (ms)', 'Tag',
@@ -311,6 +315,10 @@ class DatabaseHelper {
             timepiece.brand,
             timepiece.model,
             timepiece.serial,
+            timepiece.purchasePrice,  
+            timepiece.referenceNumber,  
+            timepiece.caliber,  
+            timepiece.crystalType,  
             run.id,
             run.watch_id,
             run.startDate.toString(),

@@ -80,6 +80,9 @@ final timepieceListProvider =
   return TimepieceListProvider(dbHelper);
 });
 
+final orderedTimepiecesProvider = StateProvider<List<Timepiece>>((ref) {
+  return []; // Initially empty, will be updated later
+});
 
 
 // class TimepieceList extends StateNotifier<List<Timepiece>> {

@@ -12,6 +12,10 @@ import '../components/premium/premium_package_tile.dart';
 Future<void> _setPremiumActive(bool value) async {
   final prefs = await SharedPreferences.getInstance();
   prefs.setBool('premiumActive', value);
+  Posthog().capture(
+    eventName: 'set_premium_active',
+    properties: {},
+  );
 }
 
 class PurchaseScreen extends StatefulWidget {
@@ -24,7 +28,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   bool _loadingPackages = true;
   bool _hasPurchased = false;
   bool _isPremiumActive = false;
-  bool _isTrackingDone = false;  // Declare the variable here
+  bool _isEventFired = false; // Add this flag
 
   @override
   void initState() {
@@ -33,12 +37,10 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     _checkPurchasedStatus();
     _checkPremiumStatus();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_isTrackingDone) {
-        Posthog().screen(screenName: 'purchase_page');
-        _isTrackingDone = true;
-      }
-    });
+    if (!_isEventFired) {
+      Posthog().screen(screenName: 'purchase_page');
+      _isEventFired = true; // Set the flag to true after firing the event
+    }
   }
 
   Future<void> _checkPurchasedStatus() async {
