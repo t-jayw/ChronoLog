@@ -52,7 +52,7 @@ void sendMailWithFeedback() async {
 class InfoPage extends ConsumerWidget {
   InfoPage({Key? key}) : super(key: key);
 
-  final String versionNumber = "1.4.2";
+  final String versionNumber = "1.4.5";
   // replace with actual value
   ThemeModeOption _themeModeOption = ThemeModeOption.system;
 
