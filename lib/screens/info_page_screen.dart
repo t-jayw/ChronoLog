@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:chronolog/components/user_settings/display_mode_section.dart';
 import '../components/premium/premium_list_item.dart';
 import '../database_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,8 +14,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 
 import '../providers/theme_provider.dart';
+import 'manage_settings_screen.dart';
 
-enum ThemeModeOption { system, dark, light }
+Future<void> logAllPreferences() async {
+  final prefs = await SharedPreferences.getInstance();
+  print('--- SharedPreferences State ---');
+  prefs.getKeys().forEach((key) {
+    print('$key: ${prefs.get(key)}');
+  });
+  print('--------------------------------');
+}
 
 void sendMailWithCSV(String csv) async {
   final Uri mailUri = Uri(
@@ -54,53 +63,24 @@ class InfoPage extends ConsumerWidget {
 
   final String versionNumber = "1.4.5";
   // replace with actual value
-  ThemeModeOption _themeModeOption = ThemeModeOption.system;
 
   final DatabaseHelper _db = DatabaseHelper();
 
   Future<bool> _isPremiumActivated() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Print all shared prefs values
-    Set<String> keys = prefs.getKeys();
-    for (String key in keys) {
-      var value = prefs.get(key);
-      print('$key: $value');
-    }
-
     return prefs.getBool('isPremiumActive') ??
         false; // default to false if not found
   }
 
-  void _loadThemeModeOption(BuildContext context, WidgetRef ref) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final themeModeIndex = prefs.getInt('themeModeOption') ?? 0;
-    ref.read(themeModeProvider.notifier).state =
-        ThemeModeOption.values[themeModeIndex];
-  }
 
-  void _updateThemeModeOption(
-      BuildContext context, WidgetRef ref, ThemeModeOption newOption) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('themeModeOption', newOption.index);
-    ref.read(themeModeProvider.notifier).state = newOption;
-    print(ref.read(themeModeProvider));
-  }
-
-  Future<int> _getOpenCount() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('openCount') ?? 0;
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     Posthog().screen(
       screenName: 'info_page',
     );
+    logAllPreferences();
 
-    _loadThemeModeOption(context, ref);
-    _themeModeOption = ref.watch(themeModeProvider);
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -159,17 +139,6 @@ class InfoPage extends ConsumerWidget {
                   },
                 ),
 
-                // ListItem(
-                //   title: 'Purchase Premium',
-                //   iconData: Icons.star_border,
-                //    onTap: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(builder: (context) => PurchaseScreen()),
-                //     );
-                //   },
-                // ),
-
                 ListItem(
                   title: 'Website',
                   iconData: Icons.web_asset,
@@ -214,56 +183,27 @@ class InfoPage extends ConsumerWidget {
                           builder: (context) => ManageDataScreen()),
                     );
                   },
+                ),
+
+                ListItem(
+                  title: 'Manage Settings',
+                  iconData: Icons.dataset,
+                  onTap: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ManageSettingsScreen()),
+                    );
+                  },
                   isLastItem: true,
                 ),
                 // Add more items as needed
               ],
             ),
             SizedBox(height: 20),
-            Container(
-              child: Column(
-                children: [
-                  Text('Display Mode',
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.inverseSurface)),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ToggleButtons(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('System'),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Dark'),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Light'),
-                        ),
-                      ],
-                      isSelected: [
-                        _themeModeOption == ThemeModeOption.system,
-                        _themeModeOption == ThemeModeOption.dark,
-                        _themeModeOption == ThemeModeOption.light,
-                      ],
-                      onPressed: (index) {
-                        _updateThemeModeOption(
-                            context, ref, ThemeModeOption.values[index]);
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface, // This will be the color of the unselected buttons
-                      selectedColor: Theme.of(context)
-                          .colorScheme
-                          .tertiary, // This will be the color of the selected button
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
+
+
             // Expanded(
             //     child: Column(
             //   children: [],

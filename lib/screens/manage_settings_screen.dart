@@ -1,56 +1,22 @@
-import 'dart:io';
-
 import 'package:chronolog/screens/purchase_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 import '../components/generic_alert.dart';
 import '../components/premium/premium_list_item.dart';
 import '../components/premium/premium_needed_dialog.dart';
+import '../components/user_settings/display_mode_section.dart';
+import '../components/user_settings/time_mode_section.dart';
 import '../database_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:share_plus/share_plus.dart';
 
-import '../providers/timepiece_list_provider.dart';
-
-enum ThemeModeOption { system, dark, light }
-
-void sendMailWithCSV(String csv) async {
-  final Uri mailUri = Uri(
-    scheme: 'mailto',
-    path: '',
-    queryParameters: {
-      'subject': 'Exported CSV file',
-      'body': csv,
-    },
-  );
-
-  if (await canLaunch(mailUri.toString())) {
-    await launch(mailUri.toString());
-  } else {
-    throw 'Could not launch ${mailUri.toString()}';
-  }
-}
-
-void sendMailWithFeedback() async {
-  final Uri mailUri = Uri(
-    scheme: 'mailto',
-    path: 'tylerjaywood@gmail.com',
-    queryParameters: {
-      'subject': 'ChronoLog feedback!',
-    },
-  );
-
-  if (await canLaunch(mailUri.toString())) {
-    await launch(mailUri.toString());
-  } else {
-    throw 'Could not launch ${mailUri.toString()}';
-  }
-}
+import '../providers/theme_provider.dart';
+import '../providers/time_mode_provider.dart';
 
 void _showPremiumNeededDialog(BuildContext context) {
   showDialog(
@@ -61,38 +27,63 @@ void _showPremiumNeededDialog(BuildContext context) {
   );
 }
 
-class ManageDataScreen extends ConsumerWidget {
-  ManageDataScreen({Key? key}) : super(key: key);
+class ManageSettingsScreen extends ConsumerWidget {
+  ManageSettingsScreen({Key? key}) : super(key: key);
+  final String versionNumber = "1.4.5";
 
-  final String versionNumber = "1.3.0";
-  // replace with actual value
   ThemeModeOption _themeModeOption = ThemeModeOption.system;
+  TimeModeOption _timeModeOption = TimeModeOption.twelve;
+
+  void _loadThemeModeOption(BuildContext context, WidgetRef ref) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final themeModeIndex = prefs.getInt('themeModeOption') ?? 0;
+    ref.read(themeModeProvider.notifier).state =
+        ThemeModeOption.values[themeModeIndex];
+  }
+
+  void _updateThemeModeOption(
+      BuildContext context, WidgetRef ref, ThemeModeOption newOption) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('themeModeOption', newOption.index);
+    ref.read(themeModeProvider.notifier).state = newOption;
+    print(ref.read(themeModeProvider));
+  }
+
+  void _loadTimeModeOption(BuildContext context, WidgetRef ref) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final timeModeIndex = prefs.getInt('timeModeOption') ?? 0;
+    ref.read(timeModeProvider.notifier).state =
+        TimeModeOption.values[timeModeIndex];
+  }
+
+  void _updateTimeModeOption(
+      BuildContext context, WidgetRef ref, TimeModeOption newOption) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('timeModeOption', newOption.index);
+    ref.read(timeModeProvider.notifier).state = newOption;
+    print(ref.read(timeModeProvider));
+  }
 
   final DatabaseHelper _db = DatabaseHelper();
 
   Future<bool> _isPremiumActivated() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
+
     return prefs.getBool('isPremiumActive') ??
         false; // default to false if not found
   }
 
-
-  Future<String> _saveFile(String fileName, String content) async {
-    final directory =
-        await getTemporaryDirectory(); // You'll need the 'path_provider' package for this
-    final file = File('${directory.path}/$fileName');
-    await file.writeAsString(content);
-    return file.path;
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final timepieceProvider = ref.read(timepieceListProvider.notifier);
+    _loadThemeModeOption(context, ref);
+    _themeModeOption = ref.watch(themeModeProvider);
 
+    _loadTimeModeOption(context, ref);
+    _timeModeOption = ref.watch(timeModeProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Manage Data"),
+        title: Text("Manage Settings"),
       ),
       body: FutureBuilder<bool>(
         future: _isPremiumActivated(),
@@ -155,78 +146,27 @@ class ManageDataScreen extends ConsumerWidget {
                       // Expanded(child: PurchaseOptions()),
                       Stack(
                         children: [
-                          ListGroup(
-                            items: [
-                              // Add more items as needed
-                              ManageDataItem(
-                                title: 'Export Data to CSV',
-                                bodyText:
-                                    'Export CSV formatted data of all measurements', // Example usage
-                                iconData: Icons.email,
-                                onTap: () async {
-                                  String csvData = await _db.exportDataToCsv();
-
-                                  print(csvData);
-                                  String fileName = "exported_data.csv";
-
-                                  final path = await _saveFile(fileName,
-                                      csvData); // We need to save CSV data to a temporary file first
-                                  final xfile = XFile(path);
-                                  final result = await Share.shareXFiles(
-                                    [xfile],
-                                  );
-
-                                  if (result.status ==
-                                      ShareResultStatus.success) {
-                                    print('CSV shared successfully!');
-                                  } else if (result.status ==
-                                      ShareResultStatus.dismissed) {
-                                    print('User dismissed the share sheet.');
-                                  }
-                                },
+                          Column(
+                            children: [
+                              DisplayModeSection(
+                                ref: ref,
+                                themeModeOption: _themeModeOption,
+                                updateThemeModeOption: (newOption) =>
+                                    _updateThemeModeOption(
+                                        context, ref, newOption),
                               ),
-                              ManageDataItem(
-                                title: 'Backup Data',
-                                bodyText:
-                                    'Backup the state of your database to a file and restore on a new device.',
-                                iconData: Icons.download,
-                                onTap: () async {
-                                  print('calling backup db');
-                                  await _db.backupDatabase();
-                                },
-                              ),
-                              ManageDataItem(
-                                title: 'Restore (Caution!)',
-                                bodyText:
-                                    'Choose a previously saved file to restore from. ⚠️Overwrites everything⚠️',
-                                iconData: Icons.upload,
-                                onTap: () async {
-                                  print('restoring backup db');
-                                  bool success = await _db.restoreDatabase();
-
-                                  if (success) {
-                                    timepieceProvider.initTimepieces();
-                                    showGenericAlert(
-                                        context: context,
-                                        title: 'Restore Successful',
-                                        contentLines: [
-                                          'Your database has been backed up successfully.',
-                                        ]);
-                                  } else {
-                                    showGenericAlert(
-                                      context: context,
-                                      title: 'Restore Unsuccessful',
-                                      contentLines: [
-                                        'The app was unable to restore the database from your selected file.'
-                                      ],
-                                    );
-                                  }
-                                },
-                                isLastItem: true,
+                              TimeModeSection(
+                                ref: ref,
+                                timeModeOption: _timeModeOption,
+                                updateTimeModeOption: (newOption) =>
+                                    _updateTimeModeOption(
+                                        context, ref, newOption),
                               ),
                             ],
                           ),
-                          if (!isPremium)
+
+                          //if (!isPremium)
+                          if (false)
                             Positioned.fill(
                               child: Material(
                                 color: Colors.grey.withOpacity(
@@ -325,7 +265,7 @@ class _TimeDisplayState extends State<TimeDisplay> {
 }
 
 class ListGroup extends StatelessWidget {
-  final List<ManageDataItem> items;
+  final List<Widget> items;
 
   ListGroup({required this.items});
 
