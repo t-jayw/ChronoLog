@@ -1,3 +1,4 @@
+import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +14,8 @@ class ManageSettingsWidget extends ConsumerWidget {
 
   Future<bool> _isPremiumActivated() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isPremiumActive') ?? false; // Default to false if not found
+    return prefs.getBool('isPremiumActive') ??
+        false; // Default to false if not found
   }
 
   @override
@@ -31,23 +33,31 @@ class ManageSettingsWidget extends ConsumerWidget {
         children: <Widget>[
           Text(
             'Manage Settings',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
+            style: TextStyle(
+                  fontSize: 30, color: Theme.of(context).colorScheme.tertiary),
+            ),
           SizedBox(height: 20),
           DisplayModeSection(
             ref: ref,
             themeModeOption: themeModeOption,
-            updateThemeModeOption: (newOption) => _updateThemeModeOption(context, ref, newOption),
+            updateThemeModeOption: (newOption) =>
+                _updateThemeModeOption(context, ref, newOption),
           ),
           TimeModeSection(
             ref: ref,
             timeModeOption: timeModeOption,
-            updateTimeModeOption: (newOption) => _updateTimeModeOption(context, ref, newOption),
+            updateTimeModeOption: (newOption) =>
+                _updateTimeModeOption(context, ref, newOption),
           ),
           SizedBox(height: 20),
-          Text(
-            'Version: $versionNumber',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+          PrimaryButton(
+            child: Text(
+              "Close",
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
         ],
       ),
@@ -57,10 +67,12 @@ class ManageSettingsWidget extends ConsumerWidget {
   void _loadThemeModeOption(BuildContext context, WidgetRef ref) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final themeModeIndex = prefs.getInt('themeModeOption') ?? 0;
-    ref.read(themeModeProvider.notifier).state = ThemeModeOption.values[themeModeIndex];
+    ref.read(themeModeProvider.notifier).state =
+        ThemeModeOption.values[themeModeIndex];
   }
 
-  void _updateThemeModeOption(BuildContext context, WidgetRef ref, ThemeModeOption newOption) async {
+  void _updateThemeModeOption(
+      BuildContext context, WidgetRef ref, ThemeModeOption newOption) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('themeModeOption', newOption.index);
     ref.read(themeModeProvider.notifier).state = newOption;
@@ -69,10 +81,12 @@ class ManageSettingsWidget extends ConsumerWidget {
   void _loadTimeModeOption(BuildContext context, WidgetRef ref) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final timeModeIndex = prefs.getInt('timeModeOption') ?? 0;
-    ref.read(timeModeProvider.notifier).state = TimeModeOption.values[timeModeIndex];
+    ref.read(timeModeProvider.notifier).state =
+        TimeModeOption.values[timeModeIndex];
   }
 
-  void _updateTimeModeOption(BuildContext context, WidgetRef ref, TimeModeOption newOption) async {
+  void _updateTimeModeOption(
+      BuildContext context, WidgetRef ref, TimeModeOption newOption) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('timeModeOption', newOption.index);
     ref.read(timeModeProvider.notifier).state = newOption;

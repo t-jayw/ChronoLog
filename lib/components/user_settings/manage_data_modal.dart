@@ -1,6 +1,5 @@
 import 'dart:io';
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../providers/timepiece_list_provider.dart';
+import '../primary_button.dart';
 
 enum ThemeModeOption { system, dark, light }
 
@@ -49,11 +49,11 @@ void sendMailWithFeedback() async {
   }
 }
 
-void _showPremiumNeededDialog(BuildContext context) {
+void _showPremiumNeededDialog(BuildContext context, String primaryText) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return PremiumNeededDialogAddWatch();
+      return PremiumNeededDialog(primaryText: primaryText,);
     },
   );
 }
@@ -107,8 +107,9 @@ class ManageDataModal extends ConsumerWidget {
 
                     Text(
                       'Manage Data',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 30,
+                          color: Theme.of(context).colorScheme.tertiary),
                     ),
                     SizedBox(height: 20),
 
@@ -193,7 +194,7 @@ class ManageDataModal extends ConsumerWidget {
                                   .withOpacity(0.7), // semi-transparent overlay
                               child: InkWell(
                                 onTap: () {
-                                  _showPremiumNeededDialog(context);
+                                  _showPremiumNeededDialog(context, 'foo' );
                                 },
                                 child: Center(
                                   child: Text(
@@ -213,7 +214,17 @@ class ManageDataModal extends ConsumerWidget {
                     //     child: Column(
                     //   children: [],
                     // )),
-                    
+
+                    PrimaryButton(
+                      child: Text(
+                        "Close",
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
                   ],
                 ),
               ),

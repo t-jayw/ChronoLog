@@ -54,7 +54,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return PremiumNeededDialogAddWatch();
+        return PremiumNeededDialog(primaryText: "Free version limited to 1 timepiece",);
       },
     );
   }

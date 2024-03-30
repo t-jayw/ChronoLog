@@ -17,7 +17,7 @@ void _showPremiumNeededDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return PremiumNeededDialogAddTimingRun();
+      return PremiumNeededDialog(primaryText: "Free version limited to 1 timing run per piece",);
     },
   );
 }
