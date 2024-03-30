@@ -1,20 +1,17 @@
-import 'package:chronolog/main.dart';
-import 'package:chronolog/screens/manage_data_screen.dart';
 import 'package:chronolog/screens/purchase_screen.dart';
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:chronolog/components/user_settings/display_mode_section.dart';
 import '../components/premium/premium_list_item.dart';
+import '../components/time_display.dart';
 import '../database_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:posthog_flutter/posthog_flutter.dart';
 
-import '../providers/theme_provider.dart';
-import 'manage_settings_screen.dart';
+import '../components/user_settings/manage_settings_modal.dart';
+import '../components/user_settings/manage_data_modal.dart';
 
 Future<void> logAllPreferences() async {
   final prefs = await SharedPreferences.getInstance();
@@ -71,8 +68,6 @@ class InfoPage extends ConsumerWidget {
     return prefs.getBool('isPremiumActive') ??
         false; // default to false if not found
   }
-
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -177,22 +172,44 @@ class InfoPage extends ConsumerWidget {
                   title: 'Manage Data',
                   iconData: Icons.dataset,
                   onTap: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ManageDataScreen()),
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled:
+                          true, // Set to true to make the bottom sheet full-screen
+                      builder: (BuildContext context) {
+                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                        return DraggableScrollableSheet(
+                          expand: false,
+                          builder: (_, controller) => SingleChildScrollView(
+                            controller: controller,
+                            child:
+                                ManageDataModal(), // Ensure your ManageSettingsScreen is suitable for this context
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
 
                 ListItem(
                   title: 'Manage Settings',
-                  iconData: Icons.dataset,
+                  iconData: Icons.settings,
                   onTap: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ManageSettingsScreen()),
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled:
+                          true, // Set to true to make the bottom sheet full-screen
+                      builder: (BuildContext context) {
+                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                        return DraggableScrollableSheet(
+                          expand: false,
+                          builder: (_, controller) => SingleChildScrollView(
+                            controller: controller,
+                            child:
+                                ManageSettingsWidget(), // Ensure your ManageSettingsScreen is suitable for this context
+                          ),
+                        );
+                      },
                     );
                   },
                   isLastItem: true,
@@ -201,8 +218,6 @@ class InfoPage extends ConsumerWidget {
               ],
             ),
             SizedBox(height: 20),
-
-
 
             // Expanded(
             //     child: Column(
@@ -235,41 +250,6 @@ class InfoPage extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class TimeDisplay extends StatefulWidget {
-  @override
-  _TimeDisplayState createState() => _TimeDisplayState();
-}
-
-class _TimeDisplayState extends State<TimeDisplay> {
-  late DateTime currentTime;
-  final DateFormat formatter = DateFormat('HH:mm:ss');
-
-  @override
-  void initState() {
-    super.initState();
-    currentTime = DateTime.now();
-    Future.delayed(Duration(seconds: 1), updateTime);
-  }
-
-  void updateTime() {
-    if (mounted) {
-      // Check if the State object is in a tree.
-      setState(() {
-        currentTime = DateTime.now();
-        Future.delayed(Duration(seconds: 1), updateTime);
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      'Current Time: ${formatter.format(currentTime)}',
-      style: TextStyle(fontSize: 20),
     );
   }
 }
