@@ -63,7 +63,6 @@ class ManageDataModal extends ConsumerWidget {
 
   final String versionNumber = "1.3.0";
   // replace with actual value
-  ThemeModeOption _themeModeOption = ThemeModeOption.system;
 
   final DatabaseHelper _db = DatabaseHelper();
 

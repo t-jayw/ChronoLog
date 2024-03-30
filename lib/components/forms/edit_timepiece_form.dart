@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:ulid/ulid.dart';
 
 import '../../models/timepiece.dart';
 import '../../providers/timepiece_list_provider.dart';
@@ -79,8 +78,6 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
-      final _timepieceListProvider = ref.watch(timepieceListProvider.notifier);
-
       return Scaffold(
         appBar: AppBar(
           title: Text('Edit Watch',

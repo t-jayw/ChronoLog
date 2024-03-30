@@ -86,8 +86,6 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(

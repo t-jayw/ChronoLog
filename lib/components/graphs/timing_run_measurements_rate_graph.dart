@@ -22,19 +22,13 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
       timingMeasurementsListProvider(runId),
     );
 
-    final firstMeasurementTime =
-        timingMeasurements[0].system_time.millisecondsSinceEpoch.toDouble();
-
     final data = List<TaggedFlSpot>.generate(timingMeasurements.length, (i) {
       final currentSystemTime =
           timingMeasurements[i].system_time.millisecondsSinceEpoch.toDouble();
 
       if (i == timingMeasurements.length - 1) {
         //return FlSpot.nullSpot;
-        return TaggedFlSpot(
-          currentSystemTime,
-          0, ''
-        );
+        return TaggedFlSpot(currentSystemTime, 0, '');
       }
       final currentOffset =
           timingMeasurements[i].difference_ms!.toDouble() / 1000;
@@ -87,17 +81,17 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
     ];
 
     double range = maxY - minY;
-double interval = 1;
+    double interval = 1;
 
-if (range <= 10) {
-  interval = 1;
-} else if (range <= 100) {
-  interval = 10;
-} else if (range <= 1000) {
-  interval = 100;
-} else {
-  interval = 1000;
-}
+    if (range <= 10) {
+      interval = 1;
+    } else if (range <= 100) {
+      interval = 10;
+    } else if (range <= 1000) {
+      interval = 100;
+    } else {
+      interval = 1000;
+    }
 
     return Column(
       children: [
@@ -132,21 +126,24 @@ if (range <= 10) {
                               tooltipPadding:
                                   const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
                               tooltipBorder: BorderSide(color: Colors.black),
-                             getTooltipItems: (List<LineBarSpot> touchedSpots) {
-  if (touchedSpots.isEmpty) {
-    return [];
-  }
+                              getTooltipItems:
+                                  (List<LineBarSpot> touchedSpots) {
+                                if (touchedSpots.isEmpty) {
+                                  return [];
+                                }
 
-  const textStyle = TextStyle(
-    fontSize: 12,
-    fontWeight: FontWeight.w700,
-  );
+                                const textStyle = TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                );
 
-  return touchedSpots.map((touchedSpot) => LineTooltipItem(
-    data[touchedSpot.spotIndex].tag,
-    textStyle,
-  )).toList();
-},
+                                return touchedSpots
+                                    .map((touchedSpot) => LineTooltipItem(
+                                          data[touchedSpot.spotIndex].tag,
+                                          textStyle,
+                                        ))
+                                    .toList();
+                              },
                             ),
                             getTouchedSpotIndicator: (LineChartBarData barData,
                                 List<int> indicators) {
@@ -194,52 +191,50 @@ if (range <= 10) {
                         ],
                         titlesData: FlTitlesData(
                           leftTitles: AxisTitles(
-  axisNameWidget:  Text(
-    'seconds per day',
-    style: TextStyle(
-      fontSize: 10,color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground,
-    ),
-  ),
-  axisNameSize: 25,
-  sideTitles: SideTitles(
-    reservedSize: 35,
-    showTitles: true,
-    interval: interval,
-    getTitlesWidget: (value, meta) {
-      return Text(value.toStringAsFixed(1),
-          style:  TextStyle(
-            fontSize: 10,
-            color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground,
-          ));
-    }),
-),
+                            axisNameWidget: Text(
+                              'seconds per day',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color:
+                                    Theme.of(context).colorScheme.onBackground,
+                              ),
+                            ),
+                            axisNameSize: 25,
+                            sideTitles: SideTitles(
+                                reservedSize: 35,
+                                showTitles: true,
+                                interval: interval,
+                                getTitlesWidget: (value, meta) {
+                                  return Text(value.toStringAsFixed(1),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onBackground,
+                                      ));
+                                }),
+                          ),
                           rightTitles: AxisTitles(
                             sideTitles: SideTitles(showTitles: false),
                           ),
                           topTitles: AxisTitles(
                             axisNameSize: 24,
-                            axisNameWidget:  Text(
+                            axisNameWidget: Text(
                               'Rate',
                               style: TextStyle(
-                                fontSize: 14,color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground,
+                                fontSize: 14,
+                                color:
+                                    Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
                           ),
                           bottomTitles: AxisTitles(
-                            axisNameWidget: Text(
-                              'days',
-                              style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground,
-                                          fontSize: 10)
-                            ),
+                            axisNameWidget: Text('days',
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onBackground,
+                                    fontSize: 10)),
                             axisNameSize: 25,
                             sideTitles: SideTitles(
                               reservedSize: 25,

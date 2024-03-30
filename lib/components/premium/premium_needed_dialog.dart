@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../screens/purchase_screen.dart';
-import '../custom_tool_tip.dart';
 import '../primary_button.dart';
 
 class PremiumNeededDialog extends StatelessWidget {

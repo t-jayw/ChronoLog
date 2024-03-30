@@ -43,8 +43,6 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
         ? 0
         : data.reduce((curr, next) => curr.x > next.x ? curr : next).x;
 
-    FlSpot? lastSpotData = data.isNotEmpty ? data.last : null;
-
     final xData = data.map((e) => e.x).toList();
     final yData = data.map((e) => e.y).toList();
 

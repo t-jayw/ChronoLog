@@ -32,7 +32,6 @@ class _TimeModeSectionState extends State<TimeModeSection> {
     Color textColor = Theme.of(context).colorScheme.tertiary;
     // Adjusts the color for selected text to ensure it is readable in both light and dark themes
     Color selectedTextColor = Theme.of(context).colorScheme.onBackground;
-    Color buttonColor = Theme.of(context).colorScheme.primary;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
