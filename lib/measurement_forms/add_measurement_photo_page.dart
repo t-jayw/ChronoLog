@@ -8,6 +8,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ulid/ulid.dart';
 
+import '../components/measurement/configurable_picker.dart';
 import '../components/measurement/photo_measurement_time_picker.dart';
 import '../components/primary_button.dart';
 import '../components/measurement/tag_selector.dart';
@@ -146,7 +147,6 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.timingRunId);
     return Scaffold(
       appBar: AppBar(
         title: Text('Add New Measurement',
@@ -155,6 +155,8 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
       body: Consumer(builder: (context, ref, _) {
         final timingMeasurementListProvider = ref
             .watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
+        
+        DateTime timeForPicker = DateTime.now();
 
         return Padding(
           padding: const EdgeInsets.all(10.0),
@@ -203,11 +205,15 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
                     ],
                   ),
                   const Divider(), // Add a horizontal line
-
-                  CustomTimePicker(
-                    initialTime: DateTime.now(),
+                  ConfigurablePrecisionTimePicker(
                     onTimeChanged: _updateTime,
+                    initialTime: timeForPicker,
+                    mode: TimePickerMode.image,
                   ),
+                  // CustomTimePicker(
+                  //   initialTime: DateTime.now(),
+                  //   onTimeChanged: _updateTime,
+                  // ),
                   TagSelector(
                     onTagSelected: _updateTag,
                     selectedTag: tag,
