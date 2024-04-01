@@ -10,7 +10,6 @@ import '../providers/timing_run_provider.dart';
 import '../screens/watch_details_screen.dart';
 
 import '../providers/timing_measurements_list_provider.dart';
-import 'custom_tool_tip.dart';
 import 'measurement/measurement_picker.dart';
 
 class NewTimepieceDisplay extends ConsumerWidget {
@@ -46,6 +45,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
     double? secondsPerDayForRun;
     double? totalDurationDays;
     String timeSinceLastMeasurement = '';
+    double? offset;
 
     if (mostRecentRun != null) {
       timingMeasurements =
@@ -59,13 +59,15 @@ class NewTimepieceDisplay extends ConsumerWidget {
         timeSinceLastMeasurement = _formatDuration(
           DateTime.now().difference(timingMeasurements.first.system_time),
         );
+
+        offset = timingMeasurements.last.difference_ms! / 1000;
       }
     }
 
     // Handle all time
 
     return SizedBox(
-      height: 180,
+      height: 140,
       width: double.infinity,
       child: Card(
         child: InkWell(
@@ -79,7 +81,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
           },
           child: Container(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(4.0),
               child: Row(
                 children: [
                   ClipRRect(
@@ -96,7 +98,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -140,41 +142,47 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       .onBackground),
                             ],
                           ),
-                          SizedBox(height: 4),
+                          SizedBox(height: 2),
                           Row(
                             children: [
                               Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${secondsPerDayForRun != null ? secondsPerDayForRun.toStringAsFixed(1) : "0"}',
+                                    '${offset != null ? offset.toStringAsFixed(1) : '--'} s',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 24,
+                                      fontSize: 20,
                                       color: Theme.of(context)
                                           .colorScheme
                                           .tertiary,
                                     ),
                                   ),
                                   Text(
-                                    'sec/day',
+                                    'Last Offset',
                                     style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold),
-                                  ),
+                                      fontSize: 10,
+                                    ),
+                                  )
                                 ],
                               ),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text(
-                                      '${totalDurationDays != null ? totalDurationDays.toStringAsFixed(1) : 0} day${totalDurationDays != 1 ? 's' : ''}',
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                    Text(
-                                      '${timingMeasurements.length} points',
-                                      style: TextStyle(fontSize: 12),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '${totalDurationDays != null ? totalDurationDays.toStringAsFixed(1) : 0} day${totalDurationDays != 1 ? 's' : ''}',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                        Text(' / '),
+                                        Text(
+                                          '${timingMeasurements.length} points',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ],
                                     ),
                                     Text(
                                       timeSinceLastMeasurement,
@@ -191,54 +199,64 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                 alignment: Alignment.bottomRight,
                                 child: Padding(
                                   padding: EdgeInsets.all(2.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment
+                                        .spaceBetween, // This will space out items at start and end of the Row
                                     children: [
-                                      Expanded(child: Container()),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment
+                                            .start, // Align items to the start of the column
                                         children: [
-                                          PrimaryButton(
-                                            child: Text(
-                                              'Add Measurement',
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary),
-                                            ),
-                                            onPressed: () {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return AlertDialog(
-                                                    actions: <Widget>[
-                                                      MeasurementPicker(
-                                                        timingRunId:
-                                                            timingRuns.first.id,
-                                                      )
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                          )
+                                          // Column(
+                                          //   children: [
+                                          //     Text(
+                                          //       '${secondsPerDayForRun != null ? secondsPerDayForRun.toStringAsFixed(1) : "0"}',
+                                          //       style: TextStyle(
+                                          //         fontWeight: FontWeight.bold,
+                                          //         fontSize: 18,
+                                          //         color: Theme.of(context)
+                                          //             .colorScheme
+                                          //             .tertiary,
+                                          //       ),
+                                          //     ),
+                                          //     Text(
+                                          //       's/24h',
+                                          //       style: TextStyle(
+                                          //         fontSize: 10,
+                                          //       ),
+                                          //     )
+                                          //   ],
+                                          // ),
                                         ],
                                       ),
-                                      // CustomToolTip(
-                                      //   mainAxisAlignment:
-                                      //       MainAxisAlignment.end,
-                                      //   child: Text(
-                                      //     "Adds to current timing run",
-                                      //     overflow: TextOverflow.ellipsis,
-                                      //     maxLines: 2,
-                                      //     softWrap: true,
-                                      //     style: TextStyle(
-                                      //         fontSize:
-                                      //             10.0), // you can style your text here
-                                      //   ),
-                                      // ),
+                                      Spacer(), // This will push the button to the end of the row
+                                      PrimaryButton(
+                                        child: Text(
+                                          'Add Measurement',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                actions: <Widget>[
+                                                  MeasurementPicker(
+                                                    timingRunId:
+                                                        timingRuns.first.id,
+                                                  )
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                      // The CustomToolTip widget can be placed outside of the Row if it needs to be aligned differently or inside based on your UI requirement.
                                     ],
                                   ),
                                 ),

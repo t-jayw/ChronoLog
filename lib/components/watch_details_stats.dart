@@ -39,7 +39,6 @@ class WatchDetailStats extends ConsumerWidget {
     int allRunsDuration = 0;
     int allRunsDifferenceInSeconds = 0;
     double allDaysRun = 0;
-    int allSecondsRun = 0;
 
     int mostRecentOffsetInSeconds = 0;
 
@@ -58,7 +57,6 @@ class WatchDetailStats extends ConsumerWidget {
       }
     }
 
-
     timingRuns.forEach((run) {
       int totalDuration;
       double totalDurationDays;
@@ -66,7 +64,7 @@ class WatchDetailStats extends ConsumerWidget {
       final timingMeasurements =
           ref.watch(timingMeasurementsListProvider(run.id));
       totalDuration = calculateTotalDuration(timingMeasurements);
-      allSecondsRun = totalDuration;
+
       totalDurationDays = totalDuration / 60 / 60 / 24;
 
       allMeasurements += timingMeasurements.length;

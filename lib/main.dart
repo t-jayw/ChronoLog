@@ -1,5 +1,4 @@
 import 'package:chronolog/providers/theme_provider.dart';
-import 'package:chronolog/screens/info_page_screen.dart';
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
