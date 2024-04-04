@@ -24,6 +24,7 @@ class PremiumFeatures extends StatelessWidget {
           SizedBox(height: 12), 
 
           // Now using the PremiumFeatureItem widget
+          PremiumFeatureItem(feature: "Ads Free Experience!"),
           PremiumFeatureItem(feature: "Add unlimited watches to your collection."),
           PremiumFeatureItem(feature: "Start unlimited timing runs."),
           PremiumFeatureItem(feature: "Take unlimited measurements."),

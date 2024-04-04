@@ -9,8 +9,7 @@ class CustomToolTip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Flexible(
-      child: Padding(
+    return Padding(
         padding: EdgeInsets.symmetric(horizontal: 4.0),
         child: Row(
           mainAxisAlignment: mainAxisAlignment,
@@ -21,7 +20,7 @@ class CustomToolTip extends StatelessWidget {
             child,
           ],
         ),
-      ),
+      
     );
   }
 }

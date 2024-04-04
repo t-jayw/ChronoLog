@@ -76,22 +76,26 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
             IconButton(
               icon: const Icon(Icons.add), // Plus sign icon
               onPressed: () async {
-                // Make it async
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                bool? isPremiumActivated = prefs.getBool('isPremiumActive');
-                int numWatches = timepieces.length;
+                _navigateToAddWatchScreen(context);
 
-                if (isPremiumActivated != true && numWatches >= 1) {
-                  Posthog().capture(
-                    eventName: 'paywall',
-                    properties: {
-                      'reason': 'num_watches_paywall',
-                    },
-                  );
-                  _showPremiumNeededDialog(context);
-                } else {
-                  _navigateToAddWatchScreen(context);
-                }
+                // Make it async
+                
+                // Turning off paywall
+                // SharedPreferences prefs = await SharedPreferences.getInstance();
+                // bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                // int numWatches = timepieces.length;
+
+                // if (isPremiumActivated != true && numWatches >= 1) {
+                //   Posthog().capture(
+                //     eventName: 'paywall',
+                //     properties: {
+                //       'reason': 'num_watches_paywall',
+                //     },
+                //   );
+                //   _showPremiumNeededDialog(context);
+                // } else {
+                //   _navigateToAddWatchScreen(context);
+                // }
               },
             ),
         ],

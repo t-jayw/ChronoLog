@@ -110,37 +110,39 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                                     height: 180,
                                   )),
                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          PrimaryButton(
-                            child: Text(
-                              'Add From Camera',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                            ), // Use image icon
-                            onPressed: () {
-                              _pickAndCropImage(ImageSource.camera);
-                            },
+                          // Camera Button
+                          FloatingActionButton(
+                            heroTag: "btn1",
+                            onPressed: () =>
+                                _pickAndCropImage(ImageSource.camera),
+                            child: Icon(Icons.camera_alt,
+                                color: Theme.of(context).colorScheme.onPrimary),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.tertiary,
+                            mini:
+                                true, // Use 'mini' for a smaller button if you prefer
                           ),
-                          PrimaryButton(
-                            child: Text(
-                              'Add From Photo Roll',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                            ), // Use image icon
-                            onPressed: () {
-                              _pickAndCropImage(ImageSource.gallery);
-                            },
+                          // Photo Roll Button
+                          FloatingActionButton(
+                            heroTag: "btn2",
+                            onPressed: () =>
+                                _pickAndCropImage(ImageSource.gallery),
+                            child: Icon(Icons.photo_library,
+                                color: Theme.of(context).colorScheme.onPrimary),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.tertiary,
+                            mini: true, // Similarly, use 'mini' for consistency
                           ),
                         ],
                       ),
                       TextFormField(
-                        decoration: const InputDecoration(labelText: 'Brand'),
+                        decoration: InputDecoration(
+                            labelText: 'Brand',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.tertiary)),
                         initialValue: brand,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -156,7 +158,10 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                                 Theme.of(context).colorScheme.inverseSurface),
                       ),
                       TextFormField(
-                        decoration: const InputDecoration(labelText: 'Model'),
+                        decoration: InputDecoration(
+                            labelText: 'Model',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.tertiary)),
                         initialValue: model,
                         onSaved: (value) {
                           model = value ?? '';
@@ -166,9 +171,10 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                                 Theme.of(context).colorScheme.inverseSurface),
                       ),
                       TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Serial',
-                        ),
+                        decoration: InputDecoration(
+                            labelText: 'Serial',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.tertiary)),
                         initialValue: serial,
                         onSaved: (value) {
                           serial = value ?? '';
@@ -192,34 +198,46 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                         },
                       ),
                       TextFormField(
-                        decoration:
-                            const InputDecoration(labelText: 'Purchase Price'),
+                        decoration: InputDecoration(
+                            labelText: 'Purchase Price',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.tertiary)),
                         initialValue: purchasePrice,
                         onSaved: (value) => purchasePrice = value ?? '',
                         // Add any validators if needed
                       ),
                       TextFormField(
-                        decoration: const InputDecoration(
-                            labelText: 'Reference Number'),
+                        decoration: InputDecoration(
+                            labelText: 'Reference Number',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.tertiary)),
                         initialValue: referenceNumber,
                         onSaved: (value) => referenceNumber = value ?? '',
                         // Add any validators if needed
                       ),
                       TextFormField(
-                        decoration: const InputDecoration(labelText: 'Caliber'),
+                        decoration: InputDecoration(
+                            labelText: 'Caliber',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.tertiary)),
                         initialValue: caliber,
                         onSaved: (value) => caliber = value ?? '',
                         // Add any validators if needed
                       ),
                       TextFormField(
-                        decoration:
-                            const InputDecoration(labelText: 'Crystal Type'),
+                        decoration: InputDecoration(
+                            labelText: 'Crystal Type',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.tertiary)),
                         initialValue: crystalType,
                         onSaved: (value) => crystalType = value ?? '',
                         // Add any validators if needed
                       ),
                       TextFormField(
-                        decoration: const InputDecoration(labelText: 'Notes'),
+                        decoration: InputDecoration(
+                            labelText: 'Notes',
+                            labelStyle: TextStyle(
+                                color: Theme.of(context).colorScheme.tertiary)),
                         initialValue: notes,
                         onSaved: (value) {
                           notes = value ?? '';

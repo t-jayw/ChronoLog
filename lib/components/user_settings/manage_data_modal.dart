@@ -53,7 +53,9 @@ void _showPremiumNeededDialog(BuildContext context, String primaryText) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return PremiumNeededDialog(primaryText: primaryText,);
+      return PremiumNeededDialog(
+        primaryText: primaryText,
+      );
     },
   );
 }
@@ -98,133 +100,142 @@ class ManageDataModal extends ConsumerWidget {
           children: [
             SingleChildScrollView(
               child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    //TimeDisplay(),
-                    SizedBox(height: 20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Theme.of(context)
+                        .dialogBackgroundColor, // Set the background color here
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      //TimeDisplay(),
+                      SizedBox(height: 20),
 
-                    Text(
-                      'Manage Data',
-                      style: TextStyle(
-                          fontSize: 30,
-                          color: Theme.of(context).colorScheme.tertiary),
-                    ),
-                    SizedBox(height: 20),
+                      Text(
+                        'Manage Data',
+                        style: TextStyle(
+                            fontSize: 30,
+                            color: Theme.of(context).colorScheme.tertiary),
+                      ),
+                      SizedBox(height: 20),
 
-                    // Expanded(child: PurchaseOptions()),
-                    Stack(
-                      children: [
-                        ListGroup(
-                          items: [
-                            // Add more items as needed
-                            ManageDataItem(
-                              title: 'Export Data to CSV',
-                              bodyText:
-                                  'Export CSV formatted data of all measurements', // Example usage
-                              iconData: Icons.email,
-                              onTap: () async {
-                                String csvData = await _db.exportDataToCsv();
+                      // Expanded(child: PurchaseOptions()),
+                      Stack(
+                        children: [
+                          ListGroup(
+                            items: [
+                              // Add more items as needed
+                              ManageDataItem(
+                                title: 'Export Data to CSV',
+                                bodyText:
+                                    'Export CSV formatted data of all measurements', // Example usage
+                                iconData: Icons.email,
+                                onTap: () async {
+                                  String csvData = await _db.exportDataToCsv();
 
-                                print(csvData);
-                                String fileName = "exported_data.csv";
+                                  print(csvData);
+                                  String fileName = "exported_data.csv";
 
-                                final path = await _saveFile(fileName,
-                                    csvData); // We need to save CSV data to a temporary file first
-                                final xfile = XFile(path);
-                                final result = await Share.shareXFiles(
-                                  [xfile],
-                                );
-
-                                if (result.status ==
-                                    ShareResultStatus.success) {
-                                  print('CSV shared successfully!');
-                                } else if (result.status ==
-                                    ShareResultStatus.dismissed) {
-                                  print('User dismissed the share sheet.');
-                                }
-                              },
-                            ),
-                            ManageDataItem(
-                              title: 'Backup Data',
-                              bodyText:
-                                  'Backup the state of your database to a file and restore on a new device.',
-                              iconData: Icons.download,
-                              onTap: () async {
-                                print('calling backup db');
-                                await _db.backupDatabase();
-                              },
-                            ),
-                            ManageDataItem(
-                              title: 'Restore (Caution!)',
-                              bodyText:
-                                  'Choose a previously saved file to restore from. ⚠️Overwrites everything⚠️',
-                              iconData: Icons.upload,
-                              onTap: () async {
-                                print('restoring backup db');
-                                bool success = await _db.restoreDatabase();
-
-                                if (success) {
-                                  timepieceProvider.initTimepieces();
-                                  showGenericAlert(
-                                      context: context,
-                                      title: 'Restore Successful',
-                                      contentLines: [
-                                        'Your database has been backed up successfully.',
-                                      ]);
-                                } else {
-                                  showGenericAlert(
-                                    context: context,
-                                    title: 'Restore Unsuccessful',
-                                    contentLines: [
-                                      'The app was unable to restore the database from your selected file.'
-                                    ],
+                                  final path = await _saveFile(fileName,
+                                      csvData); // We need to save CSV data to a temporary file first
+                                  final xfile = XFile(path);
+                                  final result = await Share.shareXFiles(
+                                    [xfile],
                                   );
-                                }
-                              },
-                              isLastItem: true,
-                            ),
-                          ],
-                        ),
-                        if (!isPremium)
-                          Positioned.fill(
-                            child: Material(
-                              color: Colors.grey
-                                  .withOpacity(0.7), // semi-transparent overlay
-                              child: InkWell(
-                                onTap: () {
-                                  _showPremiumNeededDialog(context, 'foo' );
+
+                                  if (result.status ==
+                                      ShareResultStatus.success) {
+                                    print('CSV shared successfully!');
+                                  } else if (result.status ==
+                                      ShareResultStatus.dismissed) {
+                                    print('User dismissed the share sheet.');
+                                  }
                                 },
-                                child: Center(
-                                  child: Text(
-                                    "",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 20),
+                              ),
+                              ManageDataItem(
+                                title: 'Backup Data',
+                                bodyText:
+                                    'Backup the state of your database to a file and restore on a new device.',
+                                iconData: Icons.download,
+                                onTap: () async {
+                                  print('calling backup db');
+                                  await _db.backupDatabase();
+                                },
+                              ),
+                              ManageDataItem(
+                                title: 'Restore (Caution!)',
+                                bodyText:
+                                    'Choose a previously saved file to restore from. ⚠️Overwrites everything⚠️',
+                                iconData: Icons.upload,
+                                onTap: () async {
+                                  print('restoring backup db');
+                                  bool success = await _db.restoreDatabase();
+
+                                  if (success) {
+                                    timepieceProvider.initTimepieces();
+                                    showGenericAlert(
+                                        context: context,
+                                        title: 'Restore Successful',
+                                        contentLines: [
+                                          'Your database has been backed up successfully.',
+                                        ]);
+                                  } else {
+                                    showGenericAlert(
+                                      context: context,
+                                      title: 'Restore Unsuccessful',
+                                      contentLines: [
+                                        'The app was unable to restore the database from your selected file.'
+                                      ],
+                                    );
+                                  }
+                                },
+                                isLastItem: true,
+                              ),
+                            ],
+                          ),
+                          if (!isPremium)
+                            Positioned.fill(
+                              child: Material(
+                                color: Colors.grey.withOpacity(
+                                    0.7), // semi-transparent overlay
+                                child: InkWell(
+                                  onTap: () {
+                                    _showPremiumNeededDialog(
+                                        context, 'Premium Required');
+                                  },
+                                  child: Center(
+                                    child: Text(
+                                      "",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
-                      ],
-                    ),
-                    SizedBox(height: 20),
-
-                    // Expanded(
-                    //     child: Column(
-                    //   children: [],
-                    // )),
-
-                    PrimaryButton(
-                      child: Text(
-                        "Close",
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary),
+                            )
+                        ],
                       ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
+                      SizedBox(height: 20),
+
+                      // Expanded(
+                      //     child: Column(
+                      //   children: [],
+                      // )),
+
+                      PrimaryButton(
+                        child: Text(
+                          "Close",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),

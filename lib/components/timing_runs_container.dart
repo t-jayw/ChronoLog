@@ -3,21 +3,22 @@ import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ulid/ulid.dart';
 import 'package:chronolog/components/timing_run_component.dart';
 
 import '../models/timepiece.dart';
 import '../models/timing_run.dart';
 import '../providers/timing_run_provider.dart';
+import 'ads/footer_banner_ad.dart';
 import 'delete_confirmation_dialog.dart';
 
 void _showPremiumNeededDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return PremiumNeededDialog(primaryText: "Free version limited to 1 timing run per piece",);
+      return PremiumNeededDialog(
+        primaryText: "Free version limited to 1 timing run per piece",
+      );
     },
   );
 }
@@ -71,22 +72,24 @@ class TimingRunsContainer extends ConsumerWidget {
             child: SecondaryButton(
                 text: 'Start Timing Run',
                 onPressed: () async {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  bool? isPremiumActivated = prefs.getBool('isPremiumActive');
-                  int numTimingRuns = timingRuns.length;
+                  _addTimingRun(ref);
+                  // turning off paywall
+                  // SharedPreferences prefs =
+                  //     await SharedPreferences.getInstance();
+                  // bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                  // int numTimingRuns = timingRuns.length;
 
-                  if (isPremiumActivated != true && numTimingRuns == 1) {
-                    Posthog().capture(
-                      eventName: 'paywall',
-                      properties: {
-                        'reason': 'num_timing_runs_paywall',
-                      },
-                    );
-                    _showPremiumNeededDialog(context);
-                  } else {
-                    _addTimingRun(ref);
-                  }
+                  // if (isPremiumActivated != true && numTimingRuns == 1) {
+                  //   Posthog().capture(
+                  //     eventName: 'paywall',
+                  //     properties: {
+                  //       'reason': 'num_timing_runs_paywall',
+                  //     },
+                  //   );
+                  //   _showPremiumNeededDialog(context);
+                  // } else {
+                  //   _addTimingRun(ref);
+                  // }
                 }),
           ),
         ),
@@ -128,7 +131,7 @@ class TimingRunsContainer extends ConsumerWidget {
                 },
                 background: Container(
                   alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 8.0),
+                  padding: const EdgeInsets.only(right: 4.0),
                   child: Icon(Icons.delete,
                       color: Theme.of(context).colorScheme.error, size: 40),
                 ),
@@ -140,6 +143,7 @@ class TimingRunsContainer extends ConsumerWidget {
             },
           ),
         ),
+        FooterBannerAdWidget(),
       ],
     );
   }

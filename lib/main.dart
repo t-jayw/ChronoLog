@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:chronolog/providers/theme_provider.dart';
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -77,17 +80,19 @@ final theme = ThemeData(
 
 final darkTheme = ThemeData(
   brightness: Brightness.dark,
+  scaffoldBackgroundColor:
+      Color.fromRGBO(36, 35, 35, 1), // Custom background color
+  dialogBackgroundColor: Color.fromRGBO(51, 43, 43, 1),
   colorScheme: ColorScheme.dark(
     primary: Color.fromRGBO(17, 6, 6, 1),
     secondary: Color.fromRGBO(221, 204, 51, 1),
-    // tertiary: Color.fromARGB(255, 143, 240, 188),
     tertiary: Color.fromRGBO(178, 227, 232, 1),
     error: Color.fromARGB(158, 172, 17, 12),
   ),
   splashColor: Colors.transparent,
   appBarTheme: const AppBarTheme(
       iconTheme: IconThemeData(
-        color: Colors.white, // change this to preferred icon color
+        color: Colors.white,
       ),
       titleTextStyle: TextStyle(fontFamily: 'NewYork', fontSize: 20)),
   fontFamily: 'SFProText',
@@ -96,23 +101,20 @@ final darkTheme = ThemeData(
       backgroundColor: MaterialStateProperty.resolveWith<Color>(
         (Set<MaterialState> states) {
           if (states.contains(MaterialState.pressed)) {
-            return Color.fromARGB(
-                255, 34, 34, 34); // the color when button is pressed
+            return Color.fromARGB(255, 34, 34, 34);
           }
-          return Color.fromARGB(255, 73, 124, 73); // default color
+          return Color.fromARGB(255, 73, 124, 73);
         },
       ),
-      foregroundColor:
-          MaterialStateProperty.all<Color>(Colors.white), // text color
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
     ),
   ),
   cardTheme: CardTheme(
-    color: Color.fromARGB(255, 90, 85, 85),
-    elevation: 5,
+    color: Color.fromARGB(255, 45, 44, 44),
+    elevation: 2,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
   ),
-  // the rest of your theme data...
   textSelectionTheme: TextSelectionThemeData(
     cursorColor: Color.fromARGB(255, 143, 240, 188),
   ),
@@ -122,14 +124,21 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initPlatformState();
 
+  MobileAds.instance.initialize();
+
   final prefs = await SharedPreferences.getInstance();
   int openCount = prefs.getInt('openCount') ?? 0;
   openCount++;
   await prefs.setInt('openCount', openCount);
 
+  // Fetch theme mode from SharedPreferences
+  final themeModeIndex = prefs.getInt('themeModeOption') ??
+      0; // Default to 0 which we'll consider as system mode
+  ThemeModeOption themeModeOption = ThemeModeOption.values[themeModeIndex];
+
   runApp(
     ProviderScope(
-      child: App(openCount: openCount),
+      child: App(openCount: openCount, themeModeOption: themeModeOption),
     ),
   );
 
@@ -138,13 +147,18 @@ void main() async {
 
 class App extends ConsumerWidget {
   final int openCount;
-  bool isDialogShown = false; // add this flag
+  bool isDialogShown = false;
+  final ThemeModeOption themeModeOption;
 
-  App({Key? key, required this.openCount}) : super(key: key);
+  App({Key? key, required this.openCount, required this.themeModeOption})
+      : super(key: key); // Modify this line
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Use themeModeOption to determine the theme mode
+
     final themeModeOption = ref.watch(themeModeProvider);
+
 
     ThemeMode themeMode;
     switch (themeModeOption) {
@@ -160,6 +174,7 @@ class App extends ConsumerWidget {
       default:
         themeMode = ThemeMode.system;
     }
+
 
     return MaterialApp(
       theme: theme,

@@ -1,3 +1,4 @@
+import 'package:chronolog/components/measurement/measurement_selector_modal.dart';
 import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import for Riverpod
@@ -10,7 +11,6 @@ import '../providers/timing_run_provider.dart';
 import '../screens/watch_details_screen.dart';
 
 import '../providers/timing_measurements_list_provider.dart';
-import 'measurement/measurement_picker.dart';
 
 class NewTimepieceDisplay extends ConsumerWidget {
   final Timepiece timepiece;
@@ -67,7 +67,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
     // Handle all time
 
     return SizedBox(
-      height: 140,
+      height: 130,
       width: double.infinity,
       child: Card(
         child: InkWell(
@@ -152,7 +152,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                     '${offset != null ? offset.toStringAsFixed(1) : '--'} s',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 20,
+                                      fontSize: 18,
                                       color: Theme.of(context)
                                           .colorScheme
                                           .tertiary,
@@ -232,25 +232,32 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       Spacer(), // This will push the button to the end of the row
                                       PrimaryButton(
                                         child: Text(
-                                          'Add Measurement',
+                                          '➕ Measurement',
                                           style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 10,
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .onPrimary,
                                           ),
                                         ),
-                                        onPressed: () {
-                                          showDialog(
+                                        onPressed: () async {
+                                          showModalBottomSheet(
                                             context: context,
+                                            isScrollControlled:
+                                                true, // Set to true to make the bottom sheet full-screen
                                             builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                actions: <Widget>[
-                                                  MeasurementPicker(
+                                              // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                                              return DraggableScrollableSheet(
+                                                expand: false,
+                                                builder: (_, controller) =>
+                                                    SingleChildScrollView(
+                                                  controller: controller,
+                                                  child:
+                                                      MeasurementSelectorModal(
                                                     timingRunId:
                                                         timingRuns.first.id,
-                                                  )
-                                                ],
+                                                  ), // Ensure your ManageSettingsScreen is suitable for this context
+                                                ),
                                               );
                                             },
                                           );

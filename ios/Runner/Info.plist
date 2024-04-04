@@ -69,5 +69,7 @@
 	<string>https://app.posthog.com</string>
 	<key>com.posthog.posthog.TRACK_APPLICATION_LIFECYCLE_EVENTS</key>
 	<false/>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3836871285810522~2978678597</string>
 </dict>
 </plist>

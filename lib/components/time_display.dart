@@ -7,6 +7,8 @@ import '../providers/time_mode_provider.dart';
 class TimeDisplay extends ConsumerWidget {
   const TimeDisplay({super.key});
 
+  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Subscribe to the timeModeProvider
@@ -37,6 +39,7 @@ class _TimeDisplayContent extends StatefulWidget {
 
 class _TimeDisplayContentState extends State<_TimeDisplayContent> {
   late DateTime currentTime;
+  bool _isActive = true;
 
   @override
   void initState() {
@@ -45,13 +48,21 @@ class _TimeDisplayContentState extends State<_TimeDisplayContent> {
     _updateTimePeriodically();
   }
 
+    @override
+  void dispose() {
+    _isActive = false; // Mark the widget as inactive to stop periodic updates
+    super.dispose();
+  }
+
   void _updateTimePeriodically() {
-    if (mounted) {
+    if (_isActive) { // Check if the widget is still active before updating and scheduling another update
       Future.delayed(Duration(seconds: 1), () {
-        setState(() {
-          currentTime = DateTime.now();
-        });
-        _updateTimePeriodically();
+        if (_isActive) { // Check again because the widget's state might have changed during the delay
+          setState(() {
+            currentTime = DateTime.now();
+          });
+          _updateTimePeriodically();
+        }
       });
     }
   }

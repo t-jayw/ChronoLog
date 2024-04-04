@@ -8,7 +8,7 @@ import '../../providers/theme_provider.dart';
 import '../../providers/time_mode_provider.dart';
 
 class ManageSettingsWidget extends ConsumerWidget {
-  final String versionNumber = "1.4.5";
+  final String versionNumber = "1.4.6";
 
   ManageSettingsWidget({Key? key}) : super(key: key);
 
@@ -28,14 +28,19 @@ class ManageSettingsWidget extends ConsumerWidget {
 
     return Container(
       padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Theme.of(context)
+            .dialogBackgroundColor, // Set the background color here
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Text(
             'Manage Settings',
             style: TextStyle(
-                  fontSize: 30, color: Theme.of(context).colorScheme.tertiary),
-            ),
+                fontSize: 30, color: Theme.of(context).colorScheme.tertiary),
+          ),
           SizedBox(height: 20),
           DisplayModeSection(
             ref: ref,

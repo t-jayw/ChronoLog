@@ -3,6 +3,7 @@ import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../components/ads/footer_banner_ad.dart';
 import '../components/premium/premium_list_item.dart';
 import '../components/time_display.dart';
 import '../database_helpers.dart';
@@ -58,7 +59,7 @@ void sendMailWithFeedback() async {
 class InfoPage extends ConsumerWidget {
   InfoPage({Key? key}) : super(key: key);
 
-  final String versionNumber = "1.4.5";
+  final String versionNumber = "1.4.6";
   // replace with actual value
 
   final DatabaseHelper _db = DatabaseHelper();
@@ -217,7 +218,7 @@ class InfoPage extends ConsumerWidget {
                 // Add more items as needed
               ],
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
 
             // Expanded(
             //     child: Column(
@@ -226,7 +227,7 @@ class InfoPage extends ConsumerWidget {
             Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
+                  padding: const EdgeInsets.only(bottom: 4.0),
                   child: Text(
                     'Made with ⛰️ in Boulder, CO',
                     style: TextStyle(
@@ -238,13 +239,14 @@ class InfoPage extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20.0),
                   child: Text(
-                    '© 2023 Tyler Wood',
+                    '© 2024 Tyler Wood',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
+                FooterBannerAdWidget(),
               ],
             ),
           ],

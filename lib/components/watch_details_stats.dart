@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -118,7 +117,7 @@ class StatsGrid extends StatelessWidget {
     String rate = rateSecPerDay.toStringAsFixed(1);
 
     return Container(
-      padding: EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(4.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -136,14 +135,13 @@ class StatsGrid extends StatelessWidget {
               label: 'Offset:',
               color: Theme.of(context).colorScheme.tertiary,
               labelSize: 14),
-          Divider(),
+          Divider(height: 8,),
 
           Text('All Runs', style: TextStyle(fontSize: 16)),
           TextWithLabel(
-            value: '$rate',
+            value: '$rate s/d',
             label: 'Sec/Day:',
             color: Theme.of(context).colorScheme.tertiary,
-            labelSize: 20,
           ),
 
           TextWithLabel(
