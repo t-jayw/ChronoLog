@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,7 +10,6 @@ import '../components/generic_alert.dart';
 import '../components/timing_runs_container.dart';
 import '../components/watch_details_stats.dart';
 import '../models/timepiece.dart';
-import '../models/timing_measurement.dart';
 import '../providers/timepiece_list_provider.dart';
 
 class WatchDetails extends ConsumerWidget {

@@ -56,7 +56,7 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
 
     return Column(
       children: [
-        SizedBox(height: 4),
+        //SizedBox(height: 0),
         Container(
           height: 250,
           // decoration: const BoxDecoration(
@@ -73,7 +73,7 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0.0, 8.0, 18.0, 8.0),
+                    padding: const EdgeInsets.fromLTRB(0.0, 4.0, 18.0, 4.0),
                     child: LineChart(
                       LineChartData(
                         minX: minX,
@@ -157,8 +157,8 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
                               begin: Alignment.topCenter,
                               end: Alignment.center,
                               colors: <Color>[
-                                Color(0xff1f005c),
-                                Color(0xff5b0060),
+                                //Color(0xff1f005c),
+                                //Color(0xff5b0060),
                                 Color(0xff870160),
                                 Color(0xffac255e),
                                 Color(0xffca485c),
@@ -175,27 +175,28 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
                         ],
                         titlesData: FlTitlesData(
                           leftTitles: AxisTitles(
-                            axisNameWidget:  Text(
+                            axisNameWidget: Text(
                               'seconds',
                               style: TextStyle(
-                                fontSize: 10,color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground,
+                                fontSize: 10,
+                                color:
+                                    Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
-                            axisNameSize: 25,
+                            axisNameSize: 20,
                             sideTitles: SideTitles(
-                              reservedSize: 35,
+                              reservedSize: 32,
                               showTitles: true,
                               interval: (maxY - minY) /
                                   4, // The interval you're interested in
                               getTitlesWidget: (value, meta) {
                                 return Text(
                                   value.toStringAsFixed(1),
-                                  style:  TextStyle(
-                                    fontSize: 10,color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onBackground,
                                   ),
                                 );
                               },
@@ -205,28 +206,28 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
                             sideTitles: SideTitles(showTitles: false),
                           ),
                           topTitles: AxisTitles(
-                            axisNameSize: 24,
+                            axisNameSize: 20,
                             axisNameWidget: Text(
                               'Offset',
                               style: TextStyle(
-                                fontSize: 14,color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground,
+                                fontSize: 12,
+                                color:
+                                    Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
                           ),
                           bottomTitles: AxisTitles(
-                            axisNameWidget:  Text(
+                            axisNameWidget: Text(
                               'days',
                               style: TextStyle(
-                                fontSize: 10,color: Theme.of(context)
-                                              .colorScheme
-                                              .onBackground,
+                                fontSize: 10,
+                                color:
+                                    Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
-                            axisNameSize: 25,
+                            axisNameSize: 14,
                             sideTitles: SideTitles(
-                              reservedSize: 25,
+                              reservedSize: 20,
                               showTitles: true,
                               getTitlesWidget: (value, meta) {
                                 String textVal = "";
@@ -239,7 +240,7 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
                                 }
                                 return Padding(
                                   padding: const EdgeInsets.fromLTRB(
-                                      0, 8.0, 0.0, 0.0),
+                                      0, 4.0, 0.0, 0.0),
                                   child: Text(textVal,
                                       style: TextStyle(
                                           color: Theme.of(context)

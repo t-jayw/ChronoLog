@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/models/timepiece.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 
+
 import '../database_helpers.dart';
 import 'dbHelperProvider.dart';
 
@@ -16,6 +17,7 @@ class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
   Future<void> initTimepieces() async {
     state = await _db.getTimepieces();
   }
+
 
   void reorderTimepieces(int oldIndex, int newIndex) {
     final Timepiece timepiece = state[oldIndex];
@@ -36,12 +38,19 @@ class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
       Posthog().capture(
         eventName: 'timepiece_added',
         properties: {
-          'brand': timepiece.brand, 
+          'brand': timepiece.brand,
           'name': timepiece.model,
           'total_timepieces': state.length,
-          'timepieces': stateString},
+          'timepieces': stateString
+        },
       );
-      
+
+      Posthog().capture(
+        eventName: 'new_timepiece',
+        properties: timepiece
+            .toMap(), // Convert the Timepiece to a map and use it directly
+      );
+
     } else {
       // Handle duplicate timepiece
       // For example, you can show a snackbar or display an error message

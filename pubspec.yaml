@@ -65,6 +65,7 @@ dependencies:
   restart_app: ^1.2.1
   posthog_flutter: ^3.1.0
   google_mobile_ads: ^4.0.0
+  flutter_image_compress: ^2.2.0
 
 
 dev_dependencies:

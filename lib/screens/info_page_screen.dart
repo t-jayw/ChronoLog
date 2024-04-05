@@ -77,31 +77,27 @@ class InfoPage extends ConsumerWidget {
     );
     logAllPreferences();
 
-    return SingleChildScrollView(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return  Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            SizedBox(height: 20),
             Text(
               'ChronoLog',
               style: TextStyle(
-                  fontSize: 30, color: Theme.of(context).colorScheme.tertiary),
+                  fontSize: 24, color: Theme.of(context).colorScheme.tertiary),
             ),
             Text(
               'Version: $versionNumber',
+              style: TextStyle(fontSize: 12),
             ),
             FutureBuilder<String>(
               future: _db.getDatabaseVersion(),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.hasData) {
-                  return Text(
-                    'DB version: ${snapshot.data}',
-                  );
+                  return Text('DB version: ${snapshot.data}',
+                      style: TextStyle(fontSize: 12));
                 } else if (snapshot.hasError) {
-                  return Text(
-                    'Error: ${snapshot.error}',
-                  );
+                  return Text('Error: ${snapshot.error}',
+                      style: TextStyle(fontSize: 12));
                 }
                 // By default, show a loading spinner.
                 return CircularProgressIndicator();
@@ -110,7 +106,7 @@ class InfoPage extends ConsumerWidget {
 
             TimeDisplay(),
 
-            SizedBox(height: 20),
+            SizedBox(height: 12),
             PremiumButton(
               isPremiumActivated: _isPremiumActivated,
               onTapPremium: () {
@@ -246,13 +242,13 @@ class InfoPage extends ConsumerWidget {
                     ),
                   ),
                 ),
+                SizedBox(height: 8),
                 FooterBannerAdWidget(),
               ],
             ),
           ],
-        ),
-      ),
-    );
+        );
+      
   }
 }
 

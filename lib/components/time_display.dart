@@ -71,7 +71,7 @@ class _TimeDisplayContentState extends State<_TimeDisplayContent> {
   Widget build(BuildContext context) {
     return Text(
       widget.formatter.format(currentTime),
-      style: TextStyle(fontSize: 20),
+      style: TextStyle(fontSize: 24),
     );
   }
 }

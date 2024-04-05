@@ -95,7 +95,7 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
 
     return Column(
       children: [
-        SizedBox(height: 4),
+        //SizedBox(height: 4),
         Container(
           height: 250,
           child: Card(
@@ -103,7 +103,7 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0.0, 8.0, 18.0, 8.0),
+                    padding: const EdgeInsets.fromLTRB(0.0, 4.0, 18.0, 8.0),
                     child: LineChart(
                       LineChartData(
                         minX: minX,
@@ -133,7 +133,7 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
                                 }
 
                                 const textStyle = TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                 );
 
@@ -173,8 +173,8 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
                               begin: Alignment.topCenter,
                               end: Alignment.center,
                               colors: <Color>[
-                                Color(0xff1f005c),
-                                Color(0xff5b0060),
+                                // Color(0xff1f005c),
+                                // Color(0xff5b0060),
                                 Color(0xff870160),
                                 Color(0xffac255e),
                                 Color(0xffca485c),
@@ -199,9 +199,9 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
                                     Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
-                            axisNameSize: 25,
+                            axisNameSize: 20,
                             sideTitles: SideTitles(
-                                reservedSize: 35,
+                                reservedSize: 32,
                                 showTitles: true,
                                 interval: interval,
                                 getTitlesWidget: (value, meta) {
@@ -218,11 +218,11 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
                             sideTitles: SideTitles(showTitles: false),
                           ),
                           topTitles: AxisTitles(
-                            axisNameSize: 24,
+                            axisNameSize: 20,
                             axisNameWidget: Text(
                               'Rate',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 12,
                                 color:
                                     Theme.of(context).colorScheme.onBackground,
                               ),
@@ -235,9 +235,9 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
                                         .colorScheme
                                         .onBackground,
                                     fontSize: 10)),
-                            axisNameSize: 25,
+                            axisNameSize: 20,
                             sideTitles: SideTitles(
-                              reservedSize: 25,
+                              reservedSize: 22,
                               showTitles: true,
                               getTitlesWidget: (value, meta) {
                                 String textVal = "";
@@ -250,7 +250,7 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
                                 }
                                 return Padding(
                                   padding: const EdgeInsets.fromLTRB(
-                                      0, 8.0, 0.0, 0.0),
+                                      0, 4.0, 0.0, 0.0),
                                   child: Text(textVal,
                                       style: TextStyle(
                                           color: Theme.of(context)

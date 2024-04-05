@@ -2,7 +2,6 @@ import 'package:chronolog/components/measurement/measurement_selector_modal.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/providers/timing_measurements_list_provider.dart';
-import 'package:intl/intl.dart';
 
 import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';
@@ -127,32 +126,45 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                     ),
                     if (widget.isMostRecent ?? false)
                       PrimaryButton(
-                        onPressed: () 
-                         async {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled:
-                          true, // Set to true to make the bottom sheet full-screen
-                      builder: (BuildContext context) {
-                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                        return DraggableScrollableSheet(
-                          expand: false,
-                          builder: (_, controller) => SingleChildScrollView(
-                            controller: controller,
-                            child:
-                                MeasurementSelectorModal(timingRunId: widget.timingRun.id,), // Ensure your ManageSettingsScreen is suitable for this context
-                          ),
-                        );
-                      },
-                    );
-                  },
-                        
-                       
-                        child: Text('➕Measurement',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color:
-                                    Theme.of(context).colorScheme.onPrimary)),
+                        onPressed: () async {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled:
+                                true, // Set to true to make the bottom sheet full-screen
+                            builder: (BuildContext context) {
+                              // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                              return DraggableScrollableSheet(
+                                expand: false,
+                                builder: (_, controller) =>
+                                    SingleChildScrollView(
+                                  controller: controller,
+                                  child: MeasurementSelectorModal(
+                                    timingRunId: widget.timingRun.id,
+                                  ), // Ensure your ManageSettingsScreen is suitable for this context
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize
+                              .min, // Use min to prevent the row from expanding
+                          children: [
+                            Icon(Icons.add,
+                                size: 20,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimary), // Addition sign icon
+                            SizedBox(width: 4), // Space between icon and text
+                            Text(
+                              'Measurement',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                   ],
                 ),

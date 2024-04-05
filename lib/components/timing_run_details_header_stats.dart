@@ -36,15 +36,15 @@ class _TimingRunDetailHeaderStatsState extends ConsumerState<TimingRunDetailHead
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white, // Or any other color you want
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 7,
-            offset: Offset(0, 3),
-          ),
-        ],
+        color: Theme.of(context).cardTheme.color, // Or any other color you want
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.grey.withOpacity(0.5),
+        //     spreadRadius: 2,
+        //     blurRadius: 7,
+        //     offset: Offset(0, 3),
+        //   ),
+        // ],
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

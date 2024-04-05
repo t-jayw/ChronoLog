@@ -1,6 +1,20 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 class Timepiece {
+  final String id;
+  final String brand;
+  final String model;
+  final String serial;
+  final DateTime purchaseDate;
+  final String? notes;
+  final String? imageUrl;
+  final Uint8List? image;
+  final String? purchasePrice;
+  final String? referenceNumber;
+  final String? caliber;
+  final String? crystalType;
+
   const Timepiece({
     required this.id,
     required this.brand,
@@ -10,24 +24,11 @@ class Timepiece {
     this.notes,
     this.imageUrl,
     this.image,
-    this.purchasePrice, // New field
-    this.referenceNumber, // New field
-    this.caliber, // New field
-    this.crystalType, // New field
+    this.purchasePrice,
+    this.referenceNumber,
+    this.caliber,
+    this.crystalType,
   });
-
-  final String id;
-  final String brand;
-  final String model;
-  final String serial;
-  final DateTime purchaseDate;
-  final String? notes;
-  final String? imageUrl;
-  final Uint8List? image;
-  final String? purchasePrice; // New field
-  final String? referenceNumber; // New field
-  final String? caliber; // New field
-  final String? crystalType; // New field
 
   Timepiece copyWith({
     String? id,
@@ -38,10 +39,10 @@ class Timepiece {
     String? notes,
     String? imageUrl,
     Uint8List? image,
-    String? purchasePrice, // New field
-    String? referenceNumber, // New field
-    String? caliber, // New field
-    String? crystalType, // New field
+    String? purchasePrice,
+    String? referenceNumber,
+    String? caliber,
+    String? crystalType,
   }) {
     return Timepiece(
       id: id ?? this.id,
@@ -65,14 +66,14 @@ class Timepiece {
       'brand': brand,
       'model': model,
       'serial': serial,
-      'purchaseDate': purchaseDate.millisecondsSinceEpoch,
+      'purchaseDate': purchaseDate.toIso8601String(),
       'notes': notes,
       'imageUrl': imageUrl,
-      'image': image,
-      'purchasePrice': purchasePrice, 
-      'referenceNumber': referenceNumber, 
-      'caliber': caliber, 
-      'crystalType': crystalType, 
+      'image': image != null ? base64Encode(image!) : null,
+      'purchasePrice': purchasePrice,
+      'referenceNumber': referenceNumber,
+      'caliber': caliber,
+      'crystalType': crystalType,
     };
   }
 
@@ -82,10 +83,10 @@ class Timepiece {
       brand: map['brand'],
       model: map['model'],
       serial: map['serial'],
-      purchaseDate: DateTime.fromMillisecondsSinceEpoch(map['purchaseDate']),
+      purchaseDate: DateTime.parse(map['purchaseDate']),
       notes: map['notes'],
       imageUrl: map['imageUrl'],
-      image: map['image'],
+      image: map['image'] != null ? base64Decode(map['image']) : null,
       purchasePrice: map['purchasePrice'],
       referenceNumber: map['referenceNumber'],
       caliber: map['caliber'],
@@ -93,8 +94,12 @@ class Timepiece {
     );
   }
 
+  String toJson() => json.encode(toMap());
+
+  factory Timepiece.fromJson(String source) => Timepiece.fromMap(json.decode(source));
+
   @override
   String toString() {
-    return 'Timepiece(id: $id, brand: $brand, model: $model, image: ${image != null ? 'Image available' : 'No image'}, purchasePrice: $purchasePrice, referenceNumber: $referenceNumber, caliber: $caliber, crystalType: $crystalType)';
+    return 'Timepiece(id: $id, brand: $brand, model: $model, serial: $serial, purchaseDate: $purchaseDate, notes: $notes, imageUrl: $imageUrl, purchasePrice: $purchasePrice, referenceNumber: $referenceNumber, caliber: $caliber, crystalType: $crystalType)';
   }
 }

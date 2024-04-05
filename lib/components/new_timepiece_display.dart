@@ -60,7 +60,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
           DateTime.now().difference(timingMeasurements.first.system_time),
         );
 
-        offset = timingMeasurements.last.difference_ms! / 1000;
+        offset = timingMeasurements.first.difference_ms! / 1000;
       }
     }
 
@@ -231,14 +231,28 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       ),
                                       Spacer(), // This will push the button to the end of the row
                                       PrimaryButton(
-                                        child: Text(
-                                          '➕ Measurement',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                          ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize
+                                              .min, // Use min to prevent the row from expanding
+                                          children: [
+                                            Icon(Icons.add,
+                                                size: 20,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary), // Addition sign icon
+                                            SizedBox(
+                                                width:
+                                                    4), // Space between icon and text
+                                            Text(
+                                              'Measurement',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                         onPressed: () async {
                                           showModalBottomSheet(

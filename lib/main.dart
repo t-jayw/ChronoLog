@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:chronolog/database_helpers.dart';
+import 'package:chronolog/models/timepiece.dart';
 import 'package:chronolog/providers/theme_provider.dart';
+import 'package:chronolog/providers/timepiece_list_provider.dart';
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +14,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/screens/tabs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ulid/ulid.dart';
 
 import 'components/show_review_dialog.dart';
 
@@ -120,6 +124,8 @@ final darkTheme = ThemeData(
   ),
 );
 
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initPlatformState();
@@ -131,10 +137,22 @@ void main() async {
   openCount++;
   await prefs.setInt('openCount', openCount);
 
+  // Attempt to fetch a stored unique identifier for the user, or generate a new one.
+  String userId = prefs.getString('userId') ?? Ulid().toString();
+  await prefs.setString(
+      'userId', userId); // Save it back in case it was generated new
+  // Identify the user in PostHog
+  Posthog().identify(userId: userId);
+
   // Fetch theme mode from SharedPreferences
   final themeModeIndex = prefs.getInt('themeModeOption') ??
       0; // Default to 0 which we'll consider as system mode
   ThemeModeOption themeModeOption = ThemeModeOption.values[themeModeIndex];
+
+
+
+  // Backfill timepieces to Posthog
+  await backfillTimepiecesToPosthog();
 
   runApp(
     ProviderScope(
@@ -143,6 +161,8 @@ void main() async {
   );
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  
 }
 
 class App extends ConsumerWidget {
@@ -159,7 +179,6 @@ class App extends ConsumerWidget {
 
     final themeModeOption = ref.watch(themeModeProvider);
 
-
     ThemeMode themeMode;
     switch (themeModeOption) {
       case ThemeModeOption.system:
@@ -174,7 +193,6 @@ class App extends ConsumerWidget {
       default:
         themeMode = ThemeMode.system;
     }
-
 
     return MaterialApp(
       theme: theme,
@@ -208,3 +226,24 @@ class App extends ConsumerWidget {
     );
   }
 }
+
+  Future<void> backfillTimepiecesToPosthog() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool backfillCompleted =
+        prefs.getBool('timepieceBackfillCompleted') ?? false;
+
+    if (!backfillCompleted | true) {
+      // Assume you have a function to get all timepieces. You might need to adjust this part.
+      final List<Timepiece> timepieces = await DatabaseHelper().getTimepieces();
+      for (var timepiece in timepieces) {
+        print("backfilling timepiece");
+        print(timepiece.toString());
+        Posthog().capture(
+          eventName: 'new_timepiece_backfill',
+          properties: timepiece.toMap(),
+        );
+      }
+      // Mark the backfill as completed to prevent it from running again
+      await prefs.setBool('timepieceBackfillCompleted', true);
+    }
+  }
