@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:chronolog/database_helpers.dart';
 import 'package:chronolog/models/timepiece.dart';
@@ -7,6 +8,7 @@ import 'package:chronolog/providers/timepiece_list_provider.dart';
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -124,8 +126,6 @@ final darkTheme = ThemeData(
   ),
 );
 
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initPlatformState();
@@ -149,8 +149,6 @@ void main() async {
       0; // Default to 0 which we'll consider as system mode
   ThemeModeOption themeModeOption = ThemeModeOption.values[themeModeIndex];
 
-
-
   // Backfill timepieces to Posthog
   await backfillTimepiecesToPosthog();
 
@@ -161,8 +159,6 @@ void main() async {
   );
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-  
 }
 
 class App extends ConsumerWidget {
@@ -227,23 +223,48 @@ class App extends ConsumerWidget {
   }
 }
 
-  Future<void> backfillTimepiecesToPosthog() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool backfillCompleted =
-        prefs.getBool('timepieceBackfillCompleted') ?? false;
+Future<void> backfillTimepiecesToPosthog() async {
+  final prefs = await SharedPreferences.getInstance();
+  bool backfillCompleted = prefs.getBool('timepieceBackfillCompleted') ?? false;
 
-    if (!backfillCompleted | true) {
-      // Assume you have a function to get all timepieces. You might need to adjust this part.
-      final List<Timepiece> timepieces = await DatabaseHelper().getTimepieces();
-      for (var timepiece in timepieces) {
-        print("backfilling timepiece");
-        print(timepiece.toString());
+  if (!backfillCompleted) {
+    // Assume you have a function to get all timepieces. You might need to adjust this part.
+    final List<Timepiece> timepieces = await DatabaseHelper().getTimepieces();
+    for (var timepiece in timepieces) {
+      print("backfilling timepiece");
+      print(timepiece.toString());
+
+      String imageBase64 = '';
+
+      // Check if the image is not null
+      if (timepiece.image != null) {
+        // Compress the image
+        List<int> compressedImage = await FlutterImageCompress.compressWithList(
+          timepiece.image!,
+          minWidth: 300,
+          minHeight: 300,
+        );
+
+        // Convert the compressed image to a base64 string
+        imageBase64 = base64Encode(compressedImage);
+      }
+
+      // Create a new map from the timepiece map
+      Map<String, dynamic> timepieceMap = timepiece.toMap();
+
+      // Replace the image Uint8List with the base64 string
+      timepieceMap['image'] = imageBase64;
+
+      try {
         Posthog().capture(
           eventName: 'new_timepiece_backfill',
-          properties: timepiece.toMap(),
+          properties: timepieceMap,
         );
+      } catch (e) {
+        print('Error capturing event: $e');
       }
-      // Mark the backfill as completed to prevent it from running again
-      await prefs.setBool('timepieceBackfillCompleted', true);
     }
+    // Mark the backfill as completed to prevent it from running again
+    await prefs.setBool('timepieceBackfillCompleted', true);
   }
+}

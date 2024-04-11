@@ -1,7 +1,7 @@
 import 'package:chronolog/components/measurement/measurement_selector_modal.dart';
 import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import for Riverpod
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';
@@ -177,9 +177,9 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                           '${totalDurationDays != null ? totalDurationDays.toStringAsFixed(1) : 0} day${totalDurationDays != 1 ? 's' : ''}',
                                           style: TextStyle(fontSize: 12),
                                         ),
-                                        Text(' / '),
+                                        Text(' | '),
                                         Text(
-                                          '${timingMeasurements.length} points',
+                                          '${secondsPerDayForRun != null ? secondsPerDayForRun.toStringAsFixed(1) : "0"} sec/day',
                                           style: TextStyle(fontSize: 12),
                                         ),
                                       ],

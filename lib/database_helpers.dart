@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
@@ -148,13 +149,18 @@ class DatabaseHelper {
     );
   }
 
-  Future<List<Timepiece>> getTimepieces() async {
-    final db = await database;
+Future<List<Timepiece>> getTimepieces() async {
+  final db = await database;
+  final List<Map<String, dynamic>> maps = await db.query('timepieces');
 
-    final List<Map<String, dynamic>> maps = await db.query('timepieces');
+  return List.generate(maps.length, (i) {
+    // // Print the type of the image field
+    // print('Type of image field: ${maps[i]['image'].runtimeType}');
 
-    return List.generate(maps.length, (i) {
-      return Timepiece(
+    // // You can also print the content to see what it looks like
+    // print('Content of image field: ${maps[i]['image']}');
+
+    return Timepiece(
         id: maps[i]['id'],
         brand: maps[i]['brand'],
         model: maps[i]['model'],
@@ -169,8 +175,9 @@ class DatabaseHelper {
         caliber: maps[i]['caliber'], 
         crystalType: maps[i]['crystalType'], 
       );
-    });
-  }
+  });
+}
+
 
   Future<List<TimingRun>> getTimingRunsByWatchId(String watchId) async {
     final db = await database;

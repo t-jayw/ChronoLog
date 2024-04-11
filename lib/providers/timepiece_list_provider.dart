@@ -1,8 +1,10 @@
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/models/timepiece.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
-
 
 import '../database_helpers.dart';
 import 'dbHelperProvider.dart';
@@ -17,7 +19,6 @@ class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
   Future<void> initTimepieces() async {
     state = await _db.getTimepieces();
   }
-
 
   void reorderTimepieces(int oldIndex, int newIndex) {
     final Timepiece timepiece = state[oldIndex];
@@ -35,22 +36,37 @@ class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
 
       String stateString = state.map((tp) => tp.toString()).join(', ');
 
-      Posthog().capture(
-        eventName: 'timepiece_added',
-        properties: {
-          'brand': timepiece.brand,
-          'name': timepiece.model,
-          'total_timepieces': state.length,
-          'timepieces': stateString
-        },
-      );
+      // Convert the image to a base64 string
 
-      Posthog().capture(
-        eventName: 'new_timepiece',
-        properties: timepiece
-            .toMap(), // Convert the Timepiece to a map and use it directly
-      );
+      if (timepiece.imageUrl != null) {
+        final result = await FlutterImageCompress.compressAndGetFile(
+          timepiece.imageUrl!,
+          "/tmp/compressed.jpg",
+          minWidth: 300,
+          minHeight: 300,
+        );
 
+        if (result != null) {
+          // Convert the image to a base64 string
+          final bytes = await result.readAsBytes();
+          final base64Image = base64Encode(bytes);
+
+          Posthog().capture(
+            eventName: 'timepiece_added',
+            properties: {
+              'id': timepiece.id,
+              'brand': timepiece.brand,
+              'name': timepiece.model,
+              'total_timepieces': state.length,
+              'image': base64Image, // Send the base64 string to Posthog
+            },
+          );
+        } else {
+          print('Image compression failed.');
+        }
+      } else {
+        print('Image URL is null.');
+      }
     } else {
       // Handle duplicate timepiece
       // For example, you can show a snackbar or display an error message

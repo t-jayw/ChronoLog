@@ -113,33 +113,34 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                     SizedBox(
                       height: 8,
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        PrimaryButton(
-                          child: Text(
-                            'Photo From Camera',
-                            style: TextStyle(
-                                fontSize: 16,
+                                          Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Camera Button
+                          FloatingActionButton(
+                            heroTag: "btn1",
+                            onPressed: () =>
+                                _pickAndCropImage(ImageSource.camera),
+                            child: Icon(Icons.camera_alt,
                                 color: Theme.of(context).colorScheme.onPrimary),
-                          ), // Use image icon
-                          onPressed: () {
-                            _pickAndCropImage(ImageSource.camera);
-                          },
-                        ),
-                        PrimaryButton(
-                          child: Text(
-                            'Photo From Photo Roll',
-                            style: TextStyle(
-                                fontSize: 16,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.tertiary,
+                            mini:
+                                true, // Use 'mini' for a smaller button if you prefer
+                          ),
+                          // Photo Roll Button
+                          FloatingActionButton(
+                            heroTag: "btn2",
+                            onPressed: () =>
+                                _pickAndCropImage(ImageSource.gallery),
+                            child: Icon(Icons.photo_library,
                                 color: Theme.of(context).colorScheme.onPrimary),
-                          ), // Use image icon
-                          onPressed: () {
-                            _pickAndCropImage(ImageSource.gallery);
-                          },
-                        ),
-                      ],
-                    ),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.tertiary,
+                            mini: true, // Similarly, use 'mini' for consistency
+                          ),
+                        ],
+                      ),
                     TextFormField(
                       decoration:
                           const InputDecoration(labelText: 'Brand (required)'),

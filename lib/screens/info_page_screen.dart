@@ -72,6 +72,7 @@ class InfoPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('info_page');
     Posthog().screen(
       screenName: 'info_page',
     );

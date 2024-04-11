@@ -36,6 +36,36 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
 
   String tag = '';
 
+  @override
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Instructions'),
+            content: Text('Take a photo of your watch face and note the time it shows.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      _pickImage(ImageSource.camera);
+    });
+  }
+
   void _updateTime(DateTime newTime) {
     setState(() {
       selectedTime = newTime;
@@ -155,7 +185,7 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
       body: Consumer(builder: (context, ref, _) {
         final timingMeasurementListProvider = ref
             .watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
-        
+
         DateTime timeForPicker = DateTime.now();
 
         return Padding(
@@ -176,8 +206,8 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
                         _pickImage(ImageSource.camera);
                       },
                       child: Container(
-                        height: 150,
-                        width: 150,
+                        height: 100,
+                        width: 100,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Theme.of(context).colorScheme.primary,
@@ -191,17 +221,17 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      PrimaryButton(
-                        child: Text(
-                          'Take Photo',
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context).colorScheme.onPrimary),
-                        ),
-                        onPressed: () {
-                          _pickImage(ImageSource.camera);
-                        },
-                      ),
+                      // PrimaryButton(
+                      //   child: Text(
+                      //     'Take Photo',
+                      //     style: TextStyle(
+                      //         fontSize: 16,
+                      //         color: Theme.of(context).colorScheme.onPrimary),
+                      //   ),
+                      //   onPressed: () {
+                      //     _pickImage(ImageSource.camera);
+                      //   },
+                      // ),
                     ],
                   ),
                   const Divider(), // Add a horizontal line
