@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../components/forms/edit_timepiece_form.dart';
 import '../components/generic_alert.dart';
@@ -92,9 +93,8 @@ class WatchDetails extends ConsumerWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      GestureDetector(
-                        onTap: () => _openFullSizeImage(context, updatedTimepiece.image),
-                        child: ClipRRect(
+                      Stack(children: [
+                        ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: updatedTimepiece.image != null
                               ? Image.memory(
@@ -108,7 +108,32 @@ class WatchDetails extends ConsumerWidget {
                                   height: 180,
                                 ),
                         ),
-                      ),
+                        Positioned(
+                          right: 5,
+                          bottom: 5,
+                          child: IconButton(
+                            icon: Icon(Icons.zoom_in),
+                            color: Colors.white,
+                            onPressed: () {
+                              _openFullSizeImage(
+                                  context, updatedTimepiece.image);
+                            },
+                          ),
+                        ),
+
+                        // Icon at the bottom left
+                        Positioned(
+                          left: 5,
+                          bottom: 5,
+                          child: IconButton(
+                            icon: Icon(Icons.share),
+                            color: Colors.white,
+                            onPressed: () {
+                              Share.shareFiles(['imagePath'], text: 'Check out this image!');
+                            },
+                          ),
+                        ),
+                      ]),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -192,42 +217,42 @@ class WatchDetails extends ConsumerWidget {
     );
   }
 
-void _openFullSizeImage(BuildContext context, Uint8List? imageBytes) {
-  if (imageBytes == null) return;
+  void _openFullSizeImage(BuildContext context, Uint8List? imageBytes) {
+    if (imageBytes == null) return;
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Dialog(
-        backgroundColor: Colors.transparent,
-        child: GestureDetector(
-          onTap: () => Navigator.of(context).pop(), // Optional: tap anywhere to close
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Image.memory(
-                imageBytes,
-                fit: BoxFit.contain,
-              ),
-              Positioned(
-                right: 0,
-                top: 0,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: CircleAvatar(
-                    radius: 14, // Size of close button
-                    backgroundColor: Colors.black.withOpacity(0.6), // Semi-transparent background
-                    child: Icon(Icons.close, size: 18, color: Colors.white),
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: GestureDetector(
+            onTap: () =>
+                Navigator.of(context).pop(), // Optional: tap anywhere to close
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Image.memory(
+                  imageBytes,
+                  fit: BoxFit.contain,
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: CircleAvatar(
+                      radius: 14, // Size of close button
+                      backgroundColor: Colors.black
+                          .withOpacity(0.6), // Semi-transparent background
+                      child: Icon(Icons.close, size: 18, color: Colors.white),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
-
-
+        );
+      },
+    );
+  }
 }
