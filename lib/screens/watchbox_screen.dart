@@ -85,7 +85,7 @@ class WatchboxScreen extends ConsumerWidget {
                       onDismissed: (_) {
                         ref
                             .read(timepieceListProvider.notifier)
-                            .removeTimepiece(timepiece.id);
+                            .removeTimepiece(timepiece);
                         orderedTimepieces.removeAt(index);
                         saveOrder(orderedTimepieces.map((e) => e.id).toList());
                       },

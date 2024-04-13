@@ -44,12 +44,12 @@ class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
     }
   }
 
-  Future<void> removeTimepiece(String id) async {
-    await _db.removeTimepiece(id);
-    state = state.where((timepiece) => timepiece.id != id).toList();
+  Future<void> removeTimepiece(Timepiece timepiece) async {
+    await _db.removeTimepiece(timepiece.id);
+    state = state.where((timepiece) => timepiece.id != timepiece.id).toList();
 
     final supabase = ref.read(supabaseManagerProvider);
-    await supabase.insertEvent({'id': id}, 'timepieces_events',
+    await supabase.insertEvent(timepiece, 'timepieces_events',
         customEventType: 'delete_timepiece');
   }
 

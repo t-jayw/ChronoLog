@@ -39,8 +39,7 @@ class SupabaseManager {
       } else {
         print(response.toString());
       }
-    }
-    else {
+    } else {
       print('No response -- probably good');
     }
   }
@@ -66,12 +65,12 @@ class SupabaseManager {
         quality: 90,
       );
       data['image_b64_500'] = base64Encode(compressedImage);
-      data.remove('image'); // Ensure the original image field is removed
     }
 
     // Adding user_id if the item is a Timepiece
     if (item is Timepiece) {
       data['user_id'] = prefs.getString('userId');
+      data.remove('image'); // Ensure the original image field is removed
     }
 
     // Adding a received timestamp
