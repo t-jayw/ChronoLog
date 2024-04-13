@@ -234,7 +234,7 @@ Future<void> backfillTimepiecesToSupabase() async {
   bool backfillCompleted = prefs.getBool('timepieceBackfillCompleted') ?? false;
 
     if (!backfillCompleted 
-  //| true
+  | true
   ) {
     final List<Timepiece> timepieces = await DatabaseHelper().getTimepieces();
 
@@ -268,7 +268,7 @@ Future<void> backfillTimingRunsToSupabase(watchId) async {
       prefs.getBool('timingRunsBackfillCompleted') ?? false;
 
     if (!backfillCompleted 
-  //| true
+  | true
   ) {
    
     final List<TimingRun> timingRuns =
@@ -301,7 +301,7 @@ Future<void> backfillTimingMeasurementsToSupabase(runId) async {
       prefs.getBool('timingMeasurementsBackfillCompleted') ?? false;
 
   if (!backfillCompleted
-      //| true
+      | true
       ) {
     final List<TimingMeasurement> timingMeasurements =
         await DatabaseHelper().getTimingMeasurementsByRunId(runId);
