@@ -3,11 +3,15 @@ import 'dart:convert';
 
 import 'package:chronolog/database_helpers.dart';
 import 'package:chronolog/models/timepiece.dart';
+import 'package:chronolog/models/timing_measurement.dart';
+import 'package:chronolog/models/timing_run.dart';
 import 'package:chronolog/providers/theme_provider.dart';
 import 'package:chronolog/providers/timepiece_list_provider.dart';
 import 'package:chronolog/screens/welcome_screen.dart';
+import 'package:chronolog/supabase_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
@@ -126,6 +130,8 @@ final darkTheme = ThemeData(
   ),
 );
 
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initPlatformState();
@@ -149,8 +155,11 @@ void main() async {
       0; // Default to 0 which we'll consider as system mode
   ThemeModeOption themeModeOption = ThemeModeOption.values[themeModeIndex];
 
+  await dotenv.load();
+  
+
   // Backfill timepieces to Posthog
-  await backfillTimepiecesToPosthog();
+  await backfillTimepiecesToSupabase();
 
   runApp(
     ProviderScope(
@@ -223,48 +232,83 @@ class App extends ConsumerWidget {
   }
 }
 
-Future<void> backfillTimepiecesToPosthog() async {
+Future<void> backfillTimepiecesToSupabase() async {
   final prefs = await SharedPreferences.getInstance();
   bool backfillCompleted = prefs.getBool('timepieceBackfillCompleted') ?? false;
 
-  if (!backfillCompleted) {
-    // Assume you have a function to get all timepieces. You might need to adjust this part.
+  if (!backfillCompleted | true) { // CHANGE
     final List<Timepiece> timepieces = await DatabaseHelper().getTimepieces();
+
+    // Initialize SupabaseManager and load environment variables
+    final supabase = SupabaseManager();
+    await supabase.init();
+
     for (var timepiece in timepieces) {
-      print("backfilling timepiece");
+      print("backfilling timepiece to Supabase");
       print(timepiece.toString());
 
-      String imageBase64 = '';
-
-      // Check if the image is not null
-      if (timepiece.image != null) {
-        // Compress the image
-        List<int> compressedImage = await FlutterImageCompress.compressWithList(
-          timepiece.image!,
-          minWidth: 300,
-          minHeight: 300,
-        );
-
-        // Convert the compressed image to a base64 string
-        imageBase64 = base64Encode(compressedImage);
-      }
-
-      // Create a new map from the timepiece map
-      Map<String, dynamic> timepieceMap = timepiece.toMap();
-
-      // Replace the image Uint8List with the base64 string
-      timepieceMap['image'] = imageBase64;
-
+      // Instead of Posthog, insert into Supabase
       try {
-        Posthog().capture(
-          eventName: 'new_timepiece_backfill',
-          properties: timepieceMap,
-        );
+        await supabase.insertEvent(timepiece, 'timepieces_events', customEventType: 'backfill');
+        print('Timepiece backfilled successfully');
       } catch (e) {
-        print('Error capturing event: $e');
+        print('Error backfilling timepiece: $e');
       }
+      backfillTimingRunsToSupabase(timepiece.id);
     }
     // Mark the backfill as completed to prevent it from running again
     await prefs.setBool('timepieceBackfillCompleted', true);
+  }
+}
+
+// Backfill Timing Runs
+Future<void> backfillTimingRunsToSupabase(watchId) async {
+  final prefs = await SharedPreferences.getInstance();
+  bool backfillCompleted = prefs.getBool('timingRunsBackfillCompleted') ?? false;
+
+  if (!backfillCompleted | true) { // CHANGE
+    final List<TimingRun> timingRuns = await DatabaseHelper().getTimingRunsByWatchId(watchId);
+
+    final supabase = SupabaseManager();
+    await supabase.init();
+
+    for (var timingRun in timingRuns) {
+      print("Backfilling timing run to Supabase: ${timingRun.id}");
+      try {
+        await supabase.insertEvent(timingRun, 'timing_runs_events', customEventType: 'backfill');
+        print('Timing run backfilled successfully');
+      } catch (e) {
+        print('Error backfilling timing run: $e');
+      }
+
+      backfillTimingMeasurementsToSupabase(timingRun.id);
+    }
+
+    await prefs.setBool('timingRunsBackfillCompleted', true);
+  }
+}
+
+// Backfill Timing Measurements
+Future<void> backfillTimingMeasurementsToSupabase(runId) async {
+  final prefs = await SharedPreferences.getInstance();
+  bool backfillCompleted = prefs.getBool('timingMeasurementsBackfillCompleted') ?? false;
+
+  if (!backfillCompleted | true) { // CHANGE
+    final List<TimingMeasurement> timingMeasurements = await DatabaseHelper().getTimingMeasurementsByRunId(runId);
+
+    final supabase = SupabaseManager();
+    await supabase.init();
+
+    for (var measurement in timingMeasurements) {
+      print("Backfilling timing measurement to Supabase: ${measurement.id}");
+      try {
+        await supabase.insertEvent(measurement, 'timing_measurements_events', customEventType: 'backfill');
+        print('Timing measurement backfilled successfully');
+      } catch (e) {
+        print('Error backfilling timing measurement: $e');
+      }
+    }
+
+    await prefs.setBool('timingMeasurementsBackfillCompleted', true);
   }
 }
