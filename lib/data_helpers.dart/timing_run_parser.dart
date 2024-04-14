@@ -1,14 +1,48 @@
-import '../models/timing_measurement.dart';
+import 'package:chronolog/data_helpers.dart/format_duration.dart';
 
-int calculateTotalDuration(List<TimingMeasurement> measurements) {
+import '../models/timing_measurement.dart';
+import 'package:chronolog/models/timing_run.dart';
+
+/// Calculates various statistics for a given timing run and its measurements.
+Map<String, dynamic> calculateRunStatistics(
+    TimingRun run, List<TimingMeasurement> measurements) {
   if (measurements.isEmpty) {
-    return 0;
+    return {
+      'secondsPerDayForRun': '--',
+      'totalDurationDays': '-- days',
+      'totalMeasurements': 0,
+      'timeSinceLastMeasurement': 'No data',
+    };
+  }
+
+  // Calculate total duration in days
+  String totalDurationDays =
+      formatDuration(calculateTotalDuration(measurements));
+
+  // Calculate rate per day
+  double secondsPerDayForRun = calculateRatePerDay(measurements);
+
+  // Determine the time since the last measurement
+  String timeSinceLastMeasurement =
+      formatDuration(DateTime.now().difference(measurements.first.system_time));
+
+  return {
+    'secondsPerDayForRun': secondsPerDayForRun.toStringAsFixed(1),
+    'totalDurationDays': totalDurationDays,
+    'totalMeasurements': measurements.length,
+    'timeSinceLastMeasurement': timeSinceLastMeasurement,
+  };
+}
+
+Duration calculateTotalDuration(List<TimingMeasurement> measurements) {
+  if (measurements.isEmpty) {
+    return Duration();
   }
 
   DateTime firstDate = measurements.first.system_time;
   DateTime lastDate = measurements.last.system_time;
 
-  return firstDate.difference(lastDate).inSeconds;
+  return firstDate.difference(lastDate);
 }
 
 int calculateTotalSecondsChange(List<TimingMeasurement> measurements) {
@@ -23,7 +57,7 @@ int calculateTotalSecondsChange(List<TimingMeasurement> measurements) {
 }
 
 double calculateRatePerDay(List<TimingMeasurement> measurements) {
-  int totalDuration = calculateTotalDuration(measurements);
+  int totalDuration = calculateTotalDuration(measurements).inSeconds;
   int totalSecondsChange = calculateTotalSecondsChange(measurements);
 
   if (totalDuration == 0) {

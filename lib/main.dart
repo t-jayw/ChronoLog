@@ -45,6 +45,7 @@ final theme = ThemeData(
     secondary: Color.fromRGBO(177, 164, 42, 1),
     tertiary: Color.fromRGBO(35, 80, 52, 1),
     error: Color.fromARGB(255, 243, 165, 163),
+    tertiaryContainer: Color.fromARGB(255, 219, 217, 217)
   ),
   splashColor: Colors.transparent,
   fontFamily: 'SFProText',

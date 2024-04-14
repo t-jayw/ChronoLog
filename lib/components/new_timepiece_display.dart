@@ -47,6 +47,8 @@ class NewTimepieceDisplay extends ConsumerWidget {
     String timeSinceLastMeasurement = '';
     double? offset;
 
+  /// USE timing run parser stats
+
     if (mostRecentRun != null) {
       timingMeasurements =
           ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
@@ -54,7 +56,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
       if (timingMeasurements.isNotEmpty) {
         secondsPerDayForRun = calculateRatePerDay(timingMeasurements);
         totalDurationDays =
-            calculateTotalDuration(timingMeasurements) / 60 / 60 / 24;
+            calculateTotalDuration(timingMeasurements).inSeconds / 60 / 60 / 24;
 
         timeSinceLastMeasurement = _formatDuration(
           DateTime.now().difference(timingMeasurements.first.system_time),

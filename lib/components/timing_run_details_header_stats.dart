@@ -30,7 +30,7 @@ class _TimingRunDetailHeaderStatsState extends ConsumerState<TimingRunDetailHead
     TimingMeasurement? mostRecentMeasurement = timingMeasurements.isNotEmpty ? timingMeasurements.first : null;
 
     double? secondsPerDayForRun = mostRecentMeasurement != null ? calculateRatePerDay(timingMeasurements) : null;
-    double? totalDurationDays = mostRecentMeasurement != null ? calculateTotalDuration(timingMeasurements) / 86400 : null; // 60 * 60 * 24
+    double? totalDurationDays = mostRecentMeasurement != null ? calculateTotalDuration(timingMeasurements).inSeconds / 86400 : null; // 60 * 60 * 24
     String timeSinceLastMeasurement = mostRecentMeasurement != null ? _formatDuration(DateTime.now().difference(mostRecentMeasurement.system_time)) : "Just now";
 
     return Container(

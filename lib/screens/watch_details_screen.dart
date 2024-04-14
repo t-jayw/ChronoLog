@@ -1,14 +1,11 @@
-import 'dart:io';
+
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:chronolog/components/watch_detail_share_content.dart';
+import 'package:chronolog/components/share_content/share_modal_frame.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../components/forms/edit_timepiece_form.dart';
 import '../components/generic_alert.dart';
@@ -16,8 +13,6 @@ import '../components/timing_runs_container.dart';
 import '../components/watch_details_stats.dart';
 import '../models/timepiece.dart';
 import '../providers/timepiece_list_provider.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:widgets_to_image/widgets_to_image.dart';
 
 class WatchDetails extends ConsumerWidget {
   final Timepiece timepiece;
@@ -122,7 +117,7 @@ class WatchDetails extends ConsumerWidget {
                               icon: Icon(Icons.share),
                               color: Colors.white,
                               onPressed: () =>
-                                  shareContent(context, updatedTimepiece)),
+                                  showShareModal(context, updatedTimepiece)),
                         ),
                       ]),
                       Expanded(
@@ -248,35 +243,11 @@ class WatchDetails extends ConsumerWidget {
   }
 }
 
-// Function to dynamically create and share the content
-void shareContent(BuildContext context, Timepiece timepiece) async {
-  // Create controller to capture widget to image
-  WidgetsToImageController controller = WidgetsToImageController();
-  Widget widgetToCapture = WidgetsToImage(
-    controller: controller,
-    child: WatchDetailShareContent(timepiece: timepiece),
-  );
-
-  // Ensure widget is built to capture the image
-  await showDialog<void>(
+void showShareModal(BuildContext context, Timepiece timepiece) {
+  showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
-      return Dialog(
-        child: widgetToCapture,
-      );
+      return ShareModalFrame(timepiece: timepiece);
     },
   );
-
-  // Attempt to capture the widget after it has been rendered
-  Uint8List? bytes = await controller.capture();
-  if (bytes != null) {
-    final Directory tempDir = await getTemporaryDirectory();
-    final File file = File('${tempDir.path}/shared_watch_detail.png');
-    await file.writeAsBytes(bytes);
-
-    // Share the file
-    Share.shareFiles([file.path], text: 'Check out this watch!');
-  } else {
-    print("Failed to capture image for sharing.");
-  }
 }

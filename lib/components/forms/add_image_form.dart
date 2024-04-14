@@ -8,10 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../models/timepiece.dart';
 import '../../providers/timepiece_list_provider.dart';
 
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-
-
-
 class AddImageForm extends StatefulWidget {
   final Timepiece timepiece;
 

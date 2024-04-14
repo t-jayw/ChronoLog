@@ -5,7 +5,6 @@ import 'package:chronolog/providers/timing_measurements_list_provider.dart';
 
 import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';
-import '../models/timing_measurement.dart';
 import '../models/timing_run.dart';
 import '../screens/timing_run_details_screen.dart';
 import 'primary_button.dart';
@@ -29,32 +28,12 @@ class TimingRunComponent extends ConsumerStatefulWidget {
 class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
   bool showTimingMeasurements = false;
 
-  String _formatDuration(Duration d) {
-    if (d.inDays > 0) return '${d.inDays} day${d.inDays != 1 ? 's' : ''} ago';
-    if (d.inHours > 0)
-      return '${d.inHours} hour${d.inHours != 1 ? 's' : ''} ago';
-    if (d.inMinutes > 0)
-      return '${d.inMinutes} minute${d.inMinutes != 1 ? 's' : ''} ago';
-    return 'Just now';
-  }
-
   @override
   Widget build(BuildContext context) {
     final timingMeasurements =
         ref.watch(timingMeasurementsListProvider(widget.timingRun.id));
-    final TimingMeasurement? mostRecentMeasurement =
-        timingMeasurements.isNotEmpty ? timingMeasurements.first : null;
 
-    final double? secondsPerDayForRun = mostRecentMeasurement != null
-        ? calculateRatePerDay(timingMeasurements)
-        : null;
-    final double? totalDurationDays = mostRecentMeasurement != null
-        ? calculateTotalDuration(timingMeasurements) / 60 / 60 / 24
-        : null;
-    final String timeSinceLastMeasurement = mostRecentMeasurement != null
-        ? _formatDuration(
-            DateTime.now().difference(mostRecentMeasurement.system_time))
-        : '';
+    var stats = calculateRunStatistics(widget.timingRun, timingMeasurements);
 
     return InkWell(
       onTap: () => Navigator.push(
@@ -90,7 +69,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            '${secondsPerDayForRun?.toStringAsFixed(1) ?? "0"}',
+                            '${stats['secondsPerDayForRun']}',
                             style: TextStyle(
                                 fontSize: 24,
                                 color: Theme.of(context).colorScheme.tertiary,
@@ -107,7 +86,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                            '${totalDurationDays?.toStringAsFixed(1) ?? "0"} days',
+                            '${stats['totalDurationDays']}',
                             style: TextStyle(
                                 fontSize: 18,
                                 color: Theme.of(context).colorScheme.tertiary,
@@ -117,7 +96,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                                 color:
                                     Theme.of(context).colorScheme.onBackground,
                                 fontSize: 12)),
-                        Text(timeSinceLastMeasurement,
+                        Text(stats['timeSinceLastMeasurement'],
                             style: TextStyle(
                                 color:
                                     Theme.of(context).colorScheme.onBackground,

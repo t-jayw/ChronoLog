@@ -62,7 +62,7 @@ class WatchDetailStats extends ConsumerWidget {
 
       final timingMeasurements =
           ref.watch(timingMeasurementsListProvider(run.id));
-      totalDuration = calculateTotalDuration(timingMeasurements);
+      totalDuration = calculateTotalDuration(timingMeasurements).inSeconds;
 
       totalDurationDays = totalDuration / 60 / 60 / 24;
 
