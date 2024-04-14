@@ -33,7 +33,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
     final timingMeasurements =
         ref.watch(timingMeasurementsListProvider(widget.timingRun.id));
 
-    var stats = calculateRunStatistics(widget.timingRun, timingMeasurements);
+      TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
 
     return InkWell(
       onTap: () => Navigator.push(
@@ -69,7 +69,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            '${stats['secondsPerDayForRun']}',
+                            timingRunStats.formattedSecondsPerDayForRun(),
                             style: TextStyle(
                                 fontSize: 24,
                                 color: Theme.of(context).colorScheme.tertiary,
@@ -86,7 +86,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                            '${stats['totalDurationDays']}',
+                            timingRunStats.formattedTotalDuration(),
                             style: TextStyle(
                                 fontSize: 18,
                                 color: Theme.of(context).colorScheme.tertiary,
@@ -96,7 +96,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                                 color:
                                     Theme.of(context).colorScheme.onBackground,
                                 fontSize: 12)),
-                        Text(stats['timeSinceLastMeasurement'],
+                        Text(timingRunStats.formattedTimeSinceLastMeasurement(),
                             style: TextStyle(
                                 color:
                                     Theme.of(context).colorScheme.onBackground,

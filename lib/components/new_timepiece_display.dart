@@ -18,19 +18,6 @@ class NewTimepieceDisplay extends ConsumerWidget {
   const NewTimepieceDisplay({Key? key, required this.timepiece})
       : super(key: key);
 
-  String _formatDuration(Duration d) {
-    String result = '';
-    if (d.inDays > 0) {
-      result = '${d.inDays} day${d.inDays != 1 ? 's' : ''} ago';
-    } else if (d.inHours > 0) {
-      result = '${d.inHours} hour${d.inHours != 1 ? 's' : ''} ago';
-    } else if (d.inMinutes > 0) {
-      result = '${d.inMinutes} minute${d.inMinutes != 1 ? 's' : ''} ago';
-    } else {
-      result = 'Just now';
-    }
-    return result;
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,9 +29,6 @@ class NewTimepieceDisplay extends ConsumerWidget {
         timingRuns.isNotEmpty ? timingRuns.first : null;
 
     List<TimingMeasurement> timingMeasurements = [];
-    double? secondsPerDayForRun;
-    double? totalDurationDays;
-    String timeSinceLastMeasurement = '';
     double? offset;
 
   /// USE timing run parser stats
@@ -52,19 +36,10 @@ class NewTimepieceDisplay extends ConsumerWidget {
     if (mostRecentRun != null) {
       timingMeasurements =
           ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
-
-      if (timingMeasurements.isNotEmpty) {
-        secondsPerDayForRun = calculateRatePerDay(timingMeasurements);
-        totalDurationDays =
-            calculateTotalDuration(timingMeasurements).inSeconds / 60 / 60 / 24;
-
-        timeSinceLastMeasurement = _formatDuration(
-          DateTime.now().difference(timingMeasurements.first.system_time),
-        );
-
-        offset = timingMeasurements.first.difference_ms! / 1000;
-      }
     }
+    
+    TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
+
 
     // Handle all time
 
@@ -176,18 +151,18 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          '${totalDurationDays != null ? totalDurationDays.toStringAsFixed(1) : 0} day${totalDurationDays != 1 ? 's' : ''}',
+                                          timingRunStats.formattedTotalDuration(),
                                           style: TextStyle(fontSize: 12),
                                         ),
                                         Text(' | '),
                                         Text(
-                                          '${secondsPerDayForRun != null ? secondsPerDayForRun.toStringAsFixed(1) : "0"} sec/day',
+                                          '${timingRunStats.formattedSecondsPerDayForRun()} sec/day',
                                           style: TextStyle(fontSize: 12),
                                         ),
                                       ],
                                     ),
                                     Text(
-                                      timeSinceLastMeasurement,
+                                      timingRunStats.formattedTimeSinceLastMeasurement(),
                                       style: TextStyle(fontSize: 12),
                                     ),
                                   ],

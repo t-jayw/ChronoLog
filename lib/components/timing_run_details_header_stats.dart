@@ -29,9 +29,8 @@ class _TimingRunDetailHeaderStatsState extends ConsumerState<TimingRunDetailHead
     final timingMeasurements = ref.watch(timingMeasurementsListProvider(widget.timingRun.id));
     TimingMeasurement? mostRecentMeasurement = timingMeasurements.isNotEmpty ? timingMeasurements.first : null;
 
-    double? secondsPerDayForRun = mostRecentMeasurement != null ? calculateRatePerDay(timingMeasurements) : null;
-    double? totalDurationDays = mostRecentMeasurement != null ? calculateTotalDuration(timingMeasurements).inSeconds / 86400 : null; // 60 * 60 * 24
-    String timeSinceLastMeasurement = mostRecentMeasurement != null ? _formatDuration(DateTime.now().difference(mostRecentMeasurement.system_time)) : "Just now";
+    TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
+
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -53,10 +52,10 @@ class _TimingRunDetailHeaderStatsState extends ConsumerState<TimingRunDetailHead
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatColumn(context, 'sec/day', '${secondsPerDayForRun?.toStringAsFixed(1) ?? "0"}', true),
-              _buildStatColumn(context, 'Days', '${totalDurationDays?.toStringAsFixed(1) ?? "0"}', false),
-              _buildStatColumn(context, 'Points', '${timingMeasurements.length}', false),
-              _buildStatColumn(context, 'Last', timeSinceLastMeasurement, false),
+              _buildStatColumn(context, '', timingRunStats.formattedSecondsPerDayForRun(), true),
+              _buildStatColumn(context, '', timingRunStats.formattedTotalDuration(), false),
+              _buildStatColumn(context, 'Points', timingRunStats.totalPoints.toString(), false),
+              _buildStatColumn(context, 'Last', timingRunStats.formattedTimeSinceLastMeasurement(), false),
             ],
           ),
           if (widget.isMostRecent ?? false) _buildAddMeasurementButton(context),

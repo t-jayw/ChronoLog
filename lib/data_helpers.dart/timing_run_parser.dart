@@ -1,74 +1,63 @@
 import 'package:chronolog/data_helpers.dart/format_duration.dart';
+import 'package:chronolog/models/timing_measurement.dart';
+import 'package:intl/intl.dart';  // Import intl for date formatting
 
-import '../models/timing_measurement.dart';
-import 'package:chronolog/models/timing_run.dart';
+class TimingRunStatistics {
 
-/// Calculates various statistics for a given timing run and its measurements.
-Map<String, dynamic> calculateRunStatistics(
-    TimingRun run, List<TimingMeasurement> measurements) {
-  if (measurements.isEmpty) {
-    return {
-      'secondsPerDayForRun': '--',
-      'totalDurationDays': '-- days',
-      'totalMeasurements': 0,
-      'timeSinceLastMeasurement': 'No data',
-    };
+  final List<TimingMeasurement> measurements;
+  late final double secondsPerDayForRun;
+  late final Duration totalDuration;
+  late final int totalMeasurements;
+  late final int totalSecondsChange;
+  late final Duration timeSinceLastMeasurement;
+  late final int totalPoints;
+  late final String firstMeasurementDateTime;
+
+  TimingRunStatistics(this.measurements) {
+    totalMeasurements = measurements.length;
+    totalDuration = _calculateTotalDuration(measurements);
+    totalSecondsChange = _calculateTotalSecondsChange(measurements);
+    secondsPerDayForRun = _calculateRatePerDay();
+    timeSinceLastMeasurement = _calculateTimeSinceLastMeasurement();
+    totalPoints = _calculateTotalPoints(measurements);
+    firstMeasurementDateTime = _formatFirstMeasurementDateTime();
   }
 
-  // Calculate total duration in days
-  String totalDurationDays =
-      formatDuration(calculateTotalDuration(measurements));
-
-  // Calculate rate per day
-  double secondsPerDayForRun = calculateRatePerDay(measurements);
-
-  // Determine the time since the last measurement
-  String timeSinceLastMeasurement =
-      formatDuration(DateTime.now().difference(measurements.first.system_time));
-
-  return {
-    'secondsPerDayForRun': secondsPerDayForRun.toStringAsFixed(1),
-    'totalDurationDays': totalDurationDays,
-    'totalMeasurements': measurements.length,
-    'timeSinceLastMeasurement': timeSinceLastMeasurement,
-  };
-}
-
-Duration calculateTotalDuration(List<TimingMeasurement> measurements) {
-  if (measurements.isEmpty) {
-    return Duration();
+  Duration _calculateTotalDuration(List<TimingMeasurement> measurements) {
+    if (measurements.isEmpty) return Duration();
+    DateTime firstDate = measurements.first.system_time;
+    DateTime lastDate = measurements.last.system_time;
+    return firstDate.difference(lastDate);
   }
 
-  DateTime firstDate = measurements.first.system_time;
-  DateTime lastDate = measurements.last.system_time;
-
-  return firstDate.difference(lastDate);
-}
-
-int calculateTotalSecondsChange(List<TimingMeasurement> measurements) {
-  if (measurements.isEmpty) {
-    return 0;
+  int _calculateTotalPoints(List<TimingMeasurement> measurements) {
+    return measurements.length;
   }
 
-  int totalChange =
-      measurements.first.difference_ms! - measurements.last.difference_ms!;
-
-  return totalChange ~/ 1000;
-}
-
-double calculateRatePerDay(List<TimingMeasurement> measurements) {
-  int totalDuration = calculateTotalDuration(measurements).inSeconds;
-  int totalSecondsChange = calculateTotalSecondsChange(measurements);
-
-  if (totalDuration == 0) {
-    return 0;
+  int _calculateTotalSecondsChange(List<TimingMeasurement> measurements) {
+    if (measurements.isEmpty) return 0;
+    return measurements.first.difference_ms! - measurements.last.difference_ms!;
   }
 
-  // convert total duration from seconds to days
-  double totalDurationInDays = totalDuration / (24 * 60 * 60);
+  double _calculateRatePerDay() {
+    if (totalDuration == 0) return 0.0;
+    double totalDurationInDays = totalDuration.inSeconds / (24 * 60 * 60);
+    return totalSecondsChange / totalDurationInDays;
+  }
 
-  // calculate rate of change per day
-  double ratePerDay = totalSecondsChange / totalDurationInDays;
+  Duration _calculateTimeSinceLastMeasurement() {
+    if (measurements.isEmpty) return Duration.zero;
+    return DateTime.now().difference(measurements.last.system_time);
+  }
 
-  return ratePerDay;
+  String _formatFirstMeasurementDateTime() {
+    if (measurements.isEmpty) return "No Data";
+    // Format the first measurement's date and time for display
+    return DateFormat('yyyy-MM-dd').format(measurements.first.system_time.toLocal());
+  }
+
+  // Formatting methods to expose data as string for UI or logging
+  String formattedSecondsPerDayForRun() => secondsPerDayForRun.toStringAsFixed(1);
+  String formattedTotalDuration() => formatDuration(totalDuration);
+  String formattedTimeSinceLastMeasurement() => formatDuration(timeSinceLastMeasurement); 
 }
