@@ -33,7 +33,8 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
     final timingMeasurements =
         ref.watch(timingMeasurementsListProvider(widget.timingRun.id));
 
-      TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
+    TimingRunStatistics timingRunStats =
+        TimingRunStatistics(timingMeasurements);
 
     return InkWell(
       onTap: () => Navigator.push(
@@ -68,8 +69,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                            timingRunStats.formattedSecondsPerDayForRun(),
+                        Text(timingRunStats.formattedSecondsPerDayForRun(),
                             style: TextStyle(
                                 fontSize: 24,
                                 color: Theme.of(context).colorScheme.tertiary,
@@ -85,22 +85,54 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                            timingRunStats.formattedTotalDuration(),
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Theme.of(context).colorScheme.tertiary,
-                                fontWeight: FontWeight.bold)),
-                        Text('${timingMeasurements.length} points',
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.onBackground,
-                                fontSize: 12)),
-                        Text(timingRunStats.formattedTimeSinceLastMeasurement(),
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.onBackground,
-                                fontSize: 12)),
+                        Row(
+                          children: [
+                            Text(timingRunStats.formattedTotalDuration(),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
+                                    fontWeight: FontWeight.bold)),
+                            Text(' duration',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                )),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text('${timingMeasurements.length}',
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onBackground,
+                                    fontSize: 12)),
+                            Text(' points',
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onBackground,
+                                    fontSize: 10)),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                                timingRunStats
+                                    .formattedTimeSinceLastMeasurement(),
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onBackground,
+                                    fontSize: 12)),
+                            Text(' ago',
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onBackground,
+                                    fontSize: 10)),
+                          ],
+                        ),
                       ],
                     ),
                     if (widget.isMostRecent ?? false)

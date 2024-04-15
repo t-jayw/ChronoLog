@@ -18,7 +18,6 @@ class NewTimepieceDisplay extends ConsumerWidget {
   const NewTimepieceDisplay({Key? key, required this.timepiece})
       : super(key: key);
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<TimingRun> timingRuns =
@@ -29,17 +28,17 @@ class NewTimepieceDisplay extends ConsumerWidget {
         timingRuns.isNotEmpty ? timingRuns.first : null;
 
     List<TimingMeasurement> timingMeasurements = [];
-    double? offset;
 
-  /// USE timing run parser stats
+    /// USE timing run parser stats
 
     if (mostRecentRun != null) {
       timingMeasurements =
           ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
+      if (timingMeasurements.length > 0) {}
     }
-    
-    TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
 
+    TimingRunStatistics timingRunStats =
+        TimingRunStatistics(timingMeasurements);
 
     // Handle all time
 
@@ -119,147 +118,143 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       .onBackground),
                             ],
                           ),
-                          SizedBox(height: 2),
+                          Divider(
+                            height: 1,
+                            thickness: .4,
+                          ),
+                          SizedBox(height: 5),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '${offset != null ? offset.toStringAsFixed(1) : '--'} s',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Last Offset',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                    ),
-                                  )
-                                ],
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          timingRunStats.formattedTotalDuration(),
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                        Text(' | '),
-                                        Text(
-                                          '${timingRunStats.formattedSecondsPerDayForRun()} sec/day',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      timingRunStats.formattedTimeSinceLastMeasurement(),
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                  ],
+                              Text(
+                                'Active Timing Run',
+                                style: TextStyle(
+                                  fontSize: 10,
                                 ),
                               ),
                             ],
                           ),
-                          if (mostRecentRun != null)
-                            Expanded(
-                              child: Container(
-                                alignment: Alignment.bottomRight,
-                                child: Padding(
-                                  padding: EdgeInsets.all(2.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment
-                                        .spaceBetween, // This will space out items at start and end of the Row
+                          SizedBox(height: 2),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment
-                                            .start, // Align items to the start of the column
-                                        children: [
-                                          // Column(
-                                          //   children: [
-                                          //     Text(
-                                          //       '${secondsPerDayForRun != null ? secondsPerDayForRun.toStringAsFixed(1) : "0"}',
-                                          //       style: TextStyle(
-                                          //         fontWeight: FontWeight.bold,
-                                          //         fontSize: 18,
-                                          //         color: Theme.of(context)
-                                          //             .colorScheme
-                                          //             .tertiary,
-                                          //       ),
-                                          //     ),
-                                          //     Text(
-                                          //       's/24h',
-                                          //       style: TextStyle(
-                                          //         fontSize: 10,
-                                          //       ),
-                                          //     )
-                                          //   ],
-                                          // ),
-                                        ],
-                                      ),
-                                      Spacer(), // This will push the button to the end of the row
-                                      PrimaryButton(
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize
-                                              .min, // Use min to prevent the row from expanding
-                                          children: [
-                                            Icon(Icons.add,
-                                                size: 20,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary), // Addition sign icon
-                                            SizedBox(
-                                                width:
-                                                    4), // Space between icon and text
-                                            Text(
-                                              'Measurement',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary,
-                                              ),
-                                            ),
-                                          ],
+                                      Text(
+                                        '${timingRunStats.formattedSecondsPerDayForRun()}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary,
                                         ),
-                                        onPressed: () async {
-                                          showModalBottomSheet(
-                                            context: context,
-                                            isScrollControlled:
-                                                true, // Set to true to make the bottom sheet full-screen
-                                            builder: (BuildContext context) {
-                                              // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                                              return DraggableScrollableSheet(
-                                                expand: false,
-                                                builder: (_, controller) =>
-                                                    SingleChildScrollView(
-                                                  controller: controller,
-                                                  child:
-                                                      MeasurementSelectorModal(
-                                                    timingRunId:
-                                                        timingRuns.first.id,
-                                                  ), // Ensure your ManageSettingsScreen is suitable for this context
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
                                       ),
-                                      // The CustomToolTip widget can be placed outside of the Row if it needs to be aligned differently or inside based on your UI requirement.
+                                      Text(
+                                        ' sec/day',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                        ),
+                                      ),
                                     ],
                                   ),
-                                ),
+                                ],
                               ),
-                            ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '${timingRunStats.formattedLatestOffset()}',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                          Text(
+                                            ' offset',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '${timingRunStats.formattedTimeSinceLastMeasurement()}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        ' ago',
+                                        style: TextStyle(fontSize: 10),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              PrimaryButton(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize
+                                      .min, // Use min to prevent the row from expanding
+                                  children: [
+                                    Icon(Icons.add,
+                                        size: 16,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary), // Addition sign icon
+                                    SizedBox(
+                                        width:
+                                            2), // Space between icon and text
+                                    Text(
+                                      '',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onPressed: () async {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled:
+                                        true, // Set to true to make the bottom sheet full-screen
+                                    builder: (BuildContext context) {
+                                      // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                                      return DraggableScrollableSheet(
+                                        expand: false,
+                                        builder: (_, controller) =>
+                                            SingleChildScrollView(
+                                          controller: controller,
+                                          child: MeasurementSelectorModal(
+                                            timingRunId: timingRuns.first.id,
+                                          ), // Ensure your ManageSettingsScreen is suitable for this context
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),

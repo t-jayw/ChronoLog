@@ -1,3 +1,6 @@
+import 'package:chronolog/components/share_content/share_content_stats.dart';
+import 'package:chronolog/data_helpers.dart/format_duration.dart';
+import 'package:chronolog/data_helpers.dart/timepiece_aggregate_stats.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,24 +11,6 @@ import '../models/timing_run.dart';
 import '../providers/timing_measurements_list_provider.dart';
 import '../providers/timing_run_provider.dart';
 
-String formatDuration(Duration d) {
-  if (d.inDays > 365) {
-    return '${d.inDays ~/ 365} year${d.inDays ~/ 365 != 1 ? 's' : ''}';
-  } else if (d.inDays > 30) {
-    return '${d.inDays ~/ 30} month${d.inDays ~/ 30 != 1 ? 's' : ''}';
-  } else if (d.inDays > 7) {
-    return '${d.inDays ~/ 7} week${d.inDays ~/ 7 != 1 ? 's' : ''}';
-  } else if (d.inDays > 0) {
-    return '${d.inDays} day${d.inDays != 1 ? 's' : ''}';
-  } else if (d.inHours > 0) {
-    return '${d.inHours} hour${d.inHours != 1 ? 's' : ''}';
-  } else if (d.inMinutes > 0) {
-    return '${d.inMinutes} min${d.inMinutes != 1 ? 's' : ''}';
-  } else {
-    return '${d.inSeconds} sec${d.inSeconds != 1 ? 's' : ''}';
-  }
-}
-
 class WatchDetailStats extends ConsumerWidget {
   final Timepiece timepiece;
   WatchDetailStats({Key? key, required this.timepiece}) : super(key: key);
@@ -34,67 +19,33 @@ class WatchDetailStats extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final timingRuns = ref.watch(timingRunProvider(timepiece.id));
 
-    int allMeasurements = 0;
-    int allRunsDuration = 0;
-    int allRunsDifferenceInSeconds = 0;
-    double allDaysRun = 0;
+    TimingRun? mostRecentRun = timingRuns.first;
 
-    int mostRecentOffsetInSeconds = 0;
+    List<TimingMeasurement> mostRecentRunMeasurements =
+        ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
 
-    TimingRun? mostRecentRun;
-    List<TimingMeasurement> mostRecentRunMeasurements = [];
+    final TimingRunStatistics timingRunStats =
+        TimingRunStatistics(mostRecentRunMeasurements);
 
-    if (timingRuns.isNotEmpty) {
-      mostRecentRun = timingRuns.first;
-      mostRecentRunMeasurements =
-          ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
-      if (mostRecentRunMeasurements.isNotEmpty) {
-        mostRecentOffsetInSeconds = mostRecentRunMeasurements
-            .first.user_input_time!
-            .difference(mostRecentRunMeasurements.first.system_time)
-            .inSeconds;
-      }
-    }
-
-    timingRuns.forEach((run) {
-      int totalDuration;
-      double totalDurationDays;
-
-      final timingMeasurements =
-          ref.watch(timingMeasurementsListProvider(run.id));
-
-      TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
-
-      totalDuration = timingRunStats.totalDuration.inSeconds;
-
-      totalDurationDays = totalDuration / 60 / 60 / 24;
-
-      allMeasurements += timingMeasurements.length;
-      allRunsDuration += totalDuration;
-      allDaysRun += totalDurationDays;
-      allRunsDifferenceInSeconds +=
-          timingRunStats.totalSecondsChange;
-    });
-
-    double secPerDay =
-        allDaysRun != 0.0 ? allRunsDifferenceInSeconds / allDaysRun : 0.0;
+    final TimepieceAggregateStats timepieceStats =
+        TimepieceAggregateStats(timepiece, ref);
 
     if (timingRuns.isEmpty) {
       return StatsGrid(
         runs: 0,
         points: 0,
         duration: 0,
-        totalSecondsChanged: 0,
+        offset: '--',
         rateSecPerDay: 0,
       );
     }
 
     return StatsGrid(
       runs: timingRuns.length,
-      points: allMeasurements,
-      duration: allRunsDuration,
-      totalSecondsChanged: mostRecentOffsetInSeconds,
-      rateSecPerDay: secPerDay,
+      points: timepieceStats.totalMeasurements,
+      duration: timepieceStats.totalDuration.inSeconds,
+      offset: timingRunStats.formattedLatestOffset(),
+      rateSecPerDay: timepieceStats.averageSecondsPerDay,
     );
   }
 }
@@ -103,7 +54,7 @@ class StatsGrid extends StatelessWidget {
   final int runs;
   final int points;
   final int duration;
-  final int totalSecondsChanged;
+  final String offset;
   final double rateSecPerDay;
 
   StatsGrid(
@@ -111,7 +62,7 @@ class StatsGrid extends StatelessWidget {
       required this.runs,
       required this.points,
       required this.duration,
-      required this.totalSecondsChanged,
+      required this.offset,
       required this.rateSecPerDay})
       : super(key: key);
 
@@ -134,11 +85,13 @@ class StatsGrid extends StatelessWidget {
           // ),
           TextWithLabel(
               value:
-                  '${formatDuration(Duration(seconds: totalSecondsChanged))}',
+                 offset ,
               label: 'Offset:',
               color: Theme.of(context).colorScheme.tertiary,
               labelSize: 14),
-          Divider(height: 8,),
+          Divider(
+            height: 8,
+          ),
 
           Text('All Runs', style: TextStyle(fontSize: 16)),
           TextWithLabel(

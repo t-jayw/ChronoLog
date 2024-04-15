@@ -82,12 +82,18 @@ class WatchboxScreen extends ConsumerWidget {
                               DeleteConfirmationDialog(),
                         );
                       },
-                      onDismissed: (_) {
-                        ref
-                            .read(timepieceListProvider.notifier)
-                            .removeTimepiece(timepiece);
-                        orderedTimepieces.removeAt(index);
-                        saveOrder(orderedTimepieces.map((e) => e.id).toList());
+                      onDismissed: (_) async {
+                        
+                          ref
+                              .read(timepieceListProvider.notifier)
+                              .removeTimepiece(timepiece);
+                          // Remove from ordered list
+                          orderedTimepieces.removeAt(index);
+                          // Update the shared preferences asynchronously
+                          await saveOrder(
+                              orderedTimepieces.map((e) => e.id).toList());
+                          // Optionally, force a refresh or handle UI updates as needed
+
                       },
                       background: Container(
                         alignment: Alignment.centerRight,

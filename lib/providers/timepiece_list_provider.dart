@@ -1,4 +1,3 @@
-
 import 'package:chronolog/providers/posthog_manager_provider.dart';
 import 'package:chronolog/providers/supabase_manager_provider.dart';
 import 'package:collection/collection.dart';
@@ -44,13 +43,16 @@ class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
     }
   }
 
-  Future<void> removeTimepiece(Timepiece timepiece) async {
-    await _db.removeTimepiece(timepiece.id);
-    state = state.where((timepiece) => timepiece.id != timepiece.id).toList();
+  Future<void> removeTimepiece(Timepiece timepieceToRemove) async {
 
     final supabase = ref.read(supabaseManagerProvider);
-    await supabase.insertEvent(timepiece, 'timepieces_events',
+    await supabase.insertEvent(timepieceToRemove, 'timepieces_events',
         customEventType: 'delete_timepiece');
+        
+    await _db.removeTimepiece(timepieceToRemove.id);
+
+    state = state.where((item) => item.id != timepieceToRemove.id).toList();
+
   }
 
   Future<void> updateTimepiece(Timepiece updatedTimepiece) async {

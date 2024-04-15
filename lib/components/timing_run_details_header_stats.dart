@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/providers/timing_measurements_list_provider.dart';
-import 'package:intl/intl.dart';
 
 import '../data_helpers.dart/timing_run_parser.dart';
-import '../models/timing_measurement.dart';
 import '../models/timing_run.dart';
 import 'measurement/measurement_selector_modal.dart';
 import 'primary_button.dart'; // Assuming you have this file
@@ -27,7 +25,6 @@ class _TimingRunDetailHeaderStatsState extends ConsumerState<TimingRunDetailHead
   @override
   Widget build(BuildContext context) {
     final timingMeasurements = ref.watch(timingMeasurementsListProvider(widget.timingRun.id));
-    TimingMeasurement? mostRecentMeasurement = timingMeasurements.isNotEmpty ? timingMeasurements.first : null;
 
     TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
 
@@ -52,8 +49,8 @@ class _TimingRunDetailHeaderStatsState extends ConsumerState<TimingRunDetailHead
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatColumn(context, '', timingRunStats.formattedSecondsPerDayForRun(), true),
-              _buildStatColumn(context, '', timingRunStats.formattedTotalDuration(), false),
+              _buildStatColumn(context, 'Rate', timingRunStats.formattedSecondsPerDayForRun(), true),
+              _buildStatColumn(context, 'Duration', timingRunStats.formattedTotalDuration(), false),
               _buildStatColumn(context, 'Points', timingRunStats.totalPoints.toString(), false),
               _buildStatColumn(context, 'Last', timingRunStats.formattedTimeSinceLastMeasurement(), false),
             ],

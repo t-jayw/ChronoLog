@@ -1,4 +1,4 @@
-import 'package:chronolog/data_helpers.dart/format_duration.dart';
+import 'package:chronolog/data_helpers.dart/timepiece_aggregate_stats.dart';
 import 'package:chronolog/data_helpers.dart/timing_run_parser.dart';
 import 'package:chronolog/models/timepiece.dart';
 import 'package:chronolog/models/timing_measurement.dart';
@@ -16,43 +16,16 @@ class ShareModalStats extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final timingRuns = ref.watch(timingRunProvider(timepiece.id));
 
-    int allMeasurements = 0;
-    int allRunsDuration = 0;
-    int allRunsDifferenceInSeconds = 0;
-    double allDaysRun = 0;
+    TimingRun? mostRecentRun = timingRuns.first;
 
-    TimingRun? mostRecentRun;
-    List<TimingMeasurement> mostRecentRunMeasurements = [];
+    List<TimingMeasurement> mostRecentRunMeasurements =
+        ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
 
-    if (timingRuns.isEmpty) {
-    } else {
-      mostRecentRun = timingRuns.first;
-      mostRecentRunMeasurements =
-          ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
+    final TimingRunStatistics timingRunStats =
+        TimingRunStatistics(mostRecentRunMeasurements);
 
-      timingRuns.forEach((run) {
-        int totalDuration;
-        double totalDurationDays;
-
-        final timingMeasurements =
-            ref.watch(timingMeasurementsListProvider(run.id));
-
-        TimingRunStatistics timingRunStats =
-            TimingRunStatistics(timingMeasurements);
-
-        totalDuration = timingRunStats.totalDuration.inSeconds;
-
-        totalDurationDays = totalDuration / 60 / 60 / 24;
-
-        allMeasurements += timingMeasurements.length;
-        allRunsDuration += totalDuration;
-        allDaysRun += totalDurationDays;
-        allRunsDifferenceInSeconds += timingRunStats.totalSecondsChange;
-      });
-    }
-    double secPerDay =
-        allDaysRun != 0.0 ? allRunsDifferenceInSeconds / allDaysRun : 0.0;
-
+    final TimepieceAggregateStats timepieceStats =
+        TimepieceAggregateStats(timepiece, ref);
     if (timingRuns.isEmpty) {
       return AllRunsStatsGrid(
         runs: 0,
@@ -81,52 +54,70 @@ class MostRecentRunShareStats extends StatelessWidget {
     TimingRunStatistics timingRunStats =
         TimingRunStatistics(timingRunMeasurements);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text('Change: ',
-                    style: TextStyle(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+
+        children: [
+          Column(
+            children: [
+              Text(timingRunStats.formattedSecondsPerDayForRun(),
+                  style: TextStyle(
+                      fontSize: 24,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      fontWeight: FontWeight.bold)),
+              Text('sec/day',
+                  style: TextStyle(
                       fontSize: 12,
-                    )),
-                Text('${timingRunStats.formattedSecondsPerDayForRun()} s/d',
-                    style: TextStyle(
-                      fontSize: 18,
-                    )),
-              ],
-            ),
-            Row(
-              children: [
-                Text('Duration: ', style: TextStyle(fontSize: 12)),
-                Text(timingRunStats.formattedTotalDuration(),
-                    style: TextStyle(fontSize: 18)),
-              ],
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Row(
-              children: [
-                Text(timingRunStats.totalPoints.toString(),
-                    style: TextStyle(fontSize: 18)),
-                Text(' Measurements', style: TextStyle(fontSize: 12)),
-              ],
-            ),
-            Row(
-              children: [
-                Text(timingRunStats.firstMeasurementDateTime,
-                    style: TextStyle(fontSize: 12)),
-                Text(' Started', style: TextStyle(fontSize: 12)),
-              ],
-            ),
-          ],
-        ),
-      ],
+                      color: Theme.of(context).colorScheme.onBackground)),
+            ],
+          ),
+          Spacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(timingRunStats.formattedTotalDuration(),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.tertiary,
+                          fontWeight: FontWeight.bold)),
+                  Text(' duration',
+                      style: TextStyle(
+                        fontSize: 10,
+                      )),
+                ],
+              ),
+              Row(
+                children: [
+                  Text('${timingRunStats.totalPoints}',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onBackground,
+                          fontSize: 12)),
+                  Text(' points',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onBackground,
+                          fontSize: 10)),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(timingRunStats.formattedTimeSinceLastMeasurement(),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onBackground,
+                          fontSize: 12)),
+                  Text(' ago',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onBackground,
+                          fontSize: 10)),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

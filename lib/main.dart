@@ -157,7 +157,7 @@ void main() async {
   await dotenv.load();
 
   // Backfill timepieces to Posthog
-  await backfillTimepiecesToSupabase();
+  //await backfillTimepiecesToSupabase();
 
   runApp(
     ProviderScope(
