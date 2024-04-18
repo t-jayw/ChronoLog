@@ -8,7 +8,7 @@ import 'package:fl_chart/fl_chart.dart';
 class TaggedFlSpot extends FlSpot {
   final String tag;
 
-  TaggedFlSpot(double x, double y, this.tag) : super(x, y);
+  TaggedFlSpot(double x, double y, this.tag,) : super(x, y);
 }
 
 class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
@@ -22,13 +22,16 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
       timingMeasurementsListProvider(runId),
     );
 
-    final data = timingMeasurements.map((measurement) {
-      final systemTime =
-          measurement.system_time.millisecondsSinceEpoch.toDouble();
+    List<TaggedFlSpot> createDataPoints(List<TimingMeasurement> measurements) {
+    return measurements.map((measurement) {
+      final systemTime = measurement.system_time.millisecondsSinceEpoch.toDouble();
       final offset = measurement.difference_ms!.toDouble() / 1000;
-      final tag = measurement.tag != null ? measurement.tag : 'No Tag';
-      return TaggedFlSpot(systemTime, offset, tag!);
+      final tag = measurement.tag ?? 'No Tag';
+      return TaggedFlSpot(systemTime, offset, tag);
     }).toList();
+  }
+
+  List<TaggedFlSpot> data = createDataPoints(timingMeasurements);
 
     double minY = data.isEmpty
         ? -1
@@ -129,7 +132,7 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
                                 (int index) {
                                   final line = FlLine(
                                       color: Colors.grey,
-                                      strokeWidth: 1,
+                                      strokeWidth: .5,
                                       dashArray: [2, 4]);
                                   return TouchedSpotIndicatorData(
                                     line,
@@ -149,8 +152,8 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
                           LineChartBarData(
                             spots: data,
                             isCurved: true,
-                            curveSmoothness: .05,
-                            preventCurveOverShooting: true,
+                            curveSmoothness: .15,
+                            preventCurveOverShooting: false,
                             isStrokeCapRound: true,
                             color: Colors.orangeAccent,
                             gradient: const LinearGradient(
@@ -168,9 +171,20 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
                               ], // Gradient from https://learnui.design/tools/gradient-generator.html
                               tileMode: TileMode.mirror,
                             ),
-                            barWidth: 2,
-                            dotData: FlDotData(show: true),
+                            barWidth: 1,
+                            dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 1, // Adjust the radius to increase or decrease the size of the dot
+                          color: Colors.orangeAccent,
+                          strokeWidth: 2,
+                          strokeColor: Theme.of(context).colorScheme.tertiary,
+                        );
+                      },
+                    ),
                             belowBarData: BarAreaData(show: false),
+
                           ),
                         ],
                         titlesData: FlTitlesData(
@@ -256,14 +270,14 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
                           drawVerticalLine: true,
                           drawHorizontalLine: true,
                           horizontalInterval: (maxY - minY) /
-                              6, // The interval you're interested in
+                              3, // The interval you're interested in
                         ),
                         borderData: FlBorderData(show: true),
                         extraLinesData: ExtraLinesData(horizontalLines: [
                           HorizontalLine(
                             y: 0,
                             color: Colors.black,
-                            strokeWidth: 1,
+                            strokeWidth: .5,
                           ),
                         ]),
                       ),

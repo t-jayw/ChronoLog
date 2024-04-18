@@ -2,6 +2,21 @@ import 'package:chronolog/data_helpers.dart/format_duration.dart';
 import 'package:chronolog/models/timing_measurement.dart';
 import 'package:intl/intl.dart'; // Import intl for date formatting
 
+class CertificationStandard {
+  String name;
+  double minRate;
+  double maxRate;
+
+  CertificationStandard(this.name, this.minRate, this.maxRate);
+
+  bool isCompliant(double rate) {
+    return rate >= minRate && rate <= maxRate;
+  }
+}
+
+
+
+
 class TimingRunStatistics {
   final List<TimingMeasurement> measurements;
   late final double secondsPerDayForRun;
@@ -71,7 +86,7 @@ class TimingRunStatistics {
 
   double _calculateLatestOffsetSeconds() {
     if (measurements.isEmpty) return 0.0;
-    return measurements.last.difference_ms! /
+    return measurements.first.difference_ms! /
         1000.0; // Convert milliseconds to seconds
   }
 
@@ -95,4 +110,45 @@ class TimingRunStatistics {
   String formattedEndDate() {
     return DateFormat('dd MMM yyyy').format(endDate);
   }
+
+  double calculateRatePerDay() {
+    if (measurements.isEmpty) return 0.0;
+    // Assuming you have a way to calculate this value
+    return measurements.first.difference_ms! / 1000.0;  // Simplified example
+  }
+
+// Certification Standards
+  List<CertificationStandard> standards = [
+    CertificationStandard('COSC', -4, 6),
+    CertificationStandard('METAS', 0, 5),
+    CertificationStandard('Superlative Chronometer', -2, 2),
+  ];
+
+  bool isCoscCompliant() {
+    return standards.firstWhere((standard) => standard.name == 'COSC').isCompliant(secondsPerDayForRun);
+  }
+
+  bool isMetasCompliant() {
+    return standards.firstWhere((standard) => standard.name == 'METAS').isCompliant(secondsPerDayForRun);
+  }
+
+  bool isSuperlativeChronometer() {
+    return standards.firstWhere((standard) => standard.name == 'Superlative Chronometer').isCompliant(secondsPerDayForRun);
+  }
+
+  List<String> checkCompliance() {
+    List<String> complianceStatuses = [];
+    if (isCoscCompliant()) {
+      complianceStatuses.add('COSC');
+    }
+    if (isMetasCompliant()) {
+      complianceStatuses.add('METAS');
+    }
+    if (isSuperlativeChronometer()) {
+      complianceStatuses.add('Superlative');
+    }
+    print(complianceStatuses);
+    return complianceStatuses;
+  }
 }
+

@@ -98,6 +98,7 @@ flutter:
     - assets/images/placeholder.png
     - assets/fonts/SFProText-Regular.ttf
     - assets/fonts/NewYork-Regular.ttf
+    - assets/images/wathclogo-40@2x.png
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

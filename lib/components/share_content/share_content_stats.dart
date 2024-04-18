@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:chronolog/components/graphs/offset_custom_line_chart.dart';
 import 'package:chronolog/data_helpers.dart/timepiece_aggregate_stats.dart';
 import 'package:chronolog/data_helpers.dart/timing_run_parser.dart';
 import 'package:chronolog/models/timepiece.dart';
@@ -21,20 +24,6 @@ class ShareModalStats extends ConsumerWidget {
     List<TimingMeasurement> mostRecentRunMeasurements =
         ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
 
-    final TimingRunStatistics timingRunStats =
-        TimingRunStatistics(mostRecentRunMeasurements);
-
-    final TimepieceAggregateStats timepieceStats =
-        TimepieceAggregateStats(timepiece, ref);
-    if (timingRuns.isEmpty) {
-      return AllRunsStatsGrid(
-        runs: 0,
-        points: 0,
-        duration: 0,
-        rateSecPerDay: 0,
-      );
-    }
-
     return MostRecentRunShareStats(
         timingRun: timingRuns.first,
         timingRunMeasurements: mostRecentRunMeasurements);
@@ -45,22 +34,39 @@ class MostRecentRunShareStats extends StatelessWidget {
   final TimingRun timingRun;
   final List<TimingMeasurement> timingRunMeasurements;
 
-  const MostRecentRunShareStats(
-      {Key? key, required this.timingRun, required this.timingRunMeasurements})
-      : super(key: key);
+  const MostRecentRunShareStats({
+    Key? key,
+    required this.timingRun,
+    required this.timingRunMeasurements,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     TimingRunStatistics timingRunStats =
         TimingRunStatistics(timingRunMeasurements);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+    List<Widget> certificationWidgets = [SizedBox(height: 2)];
 
+    List<String> complianceStatuses = timingRunStats.checkCompliance() ?? [];
+    for (var status in complianceStatuses) {
+      certificationWidgets.add(
+        Row(
+          children: [
+            Icon(Icons.check, color: Colors.green, size: 8,),
+            SizedBox(width: 4),
+            Text(status, style: TextStyle(fontSize: 8)),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(0.0),
+      child: Row(
         children: [
+          // Stats Column
           Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(timingRunStats.formattedSecondsPerDayForRun(),
                   style: TextStyle(
@@ -71,78 +77,25 @@ class MostRecentRunShareStats extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onBackground)),
-            ],
-          ),
-          Spacer(),
-          Column(
+                    Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(timingRunStats.formattedTotalDuration(),
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.tertiary,
-                          fontWeight: FontWeight.bold)),
-                  Text(' duration',
-                      style: TextStyle(
-                        fontSize: 10,
-                      )),
-                ],
-              ),
-              Row(
-                children: [
-                  Text('${timingRunStats.totalPoints}',
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
-                          fontSize: 12)),
-                  Text(' points',
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
-                          fontSize: 10)),
-                ],
-              ),
-              Row(
-                children: [
-                  Text(timingRunStats.formattedTimeSinceLastMeasurement(),
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
-                          fontSize: 12)),
-                  Text(' ago',
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
-                          fontSize: 10)),
-                ],
-              ),
+            children: certificationWidgets,
+          )
             ],
           ),
+
+          SizedBox(width: 2),
+          OffsetCustomLineChart(runId: timingRun.id),
+                    SizedBox(width: 26),
+
         ],
       ),
     );
   }
 }
 
-class AllRunsStatsGrid extends StatelessWidget {
-  final int runs;
-  final int points;
-  final int duration;
-
-  final double rateSecPerDay;
-
-  AllRunsStatsGrid(
-      {Key? key,
-      required this.runs,
-      required this.points,
-      required this.duration,
-      required this.rateSecPerDay})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    String rate = rateSecPerDay.toStringAsFixed(1);
-
-    return Container(
-      padding: EdgeInsets.all(4.0),
-    );
-  }
-}
+        // Column(
+        //     mainAxisAlignment: MainAxisAlignment.center,
+        //     children: certificationWidgets,
+        //   )
+        //   else   

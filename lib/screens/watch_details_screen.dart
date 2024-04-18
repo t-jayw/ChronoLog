@@ -17,7 +17,6 @@ import '../providers/timepiece_list_provider.dart';
 class WatchDetails extends ConsumerWidget {
   final Timepiece timepiece;
   bool firstAdded; // hack to show a dialog on first added watch
-  final GlobalKey _shareKey = GlobalKey();
 
   WatchDetails({
     Key? key,
@@ -88,17 +87,17 @@ class WatchDetails extends ConsumerWidget {
                               ? Image.memory(
                                   updatedTimepiece.image!,
                                   fit: BoxFit.cover,
-                                  height: 180,
+                                  height: 160,
                                 )
                               : Image.asset(
                                   'assets/images/placeholder.png',
                                   fit: BoxFit.cover,
-                                  height: 180,
+                                  height: 160,
                                 ),
                         ),
                         Positioned(
-                          right: 5,
-                          bottom: 5,
+                          right: 0,
+                          bottom: 0,
                           child: IconButton(
                             icon: Icon(Icons.zoom_in),
                             color: Colors.white,
@@ -111,10 +110,10 @@ class WatchDetails extends ConsumerWidget {
 
                         // Icon at the bottom left
                         Positioned(
-                          left: 5,
-                          bottom: 5,
+                          left: 0,
+                          bottom: 0,
                           child: IconButton(
-                              icon: Icon(Icons.share),
+                              icon: Icon(Icons.upload),
                               color: Colors.white,
                               onPressed: () =>
                                   showShareModal(context, updatedTimepiece)),
