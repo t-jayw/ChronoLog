@@ -102,14 +102,14 @@ class CustomLineChart extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 15,
+                reservedSize: 20,
                 getTitlesWidget: (value, meta) {
                   if (value == minY || value == maxY) {
                     return Text(
                       '${value.toStringAsFixed(0)}', // Customize format as needed
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.onBackground,
-                          fontSize: 10),
+                          fontSize: 8),
                     );
                   }
                   return const Text('');
@@ -130,7 +130,7 @@ class CustomLineChart extends StatelessWidget {
                         dateFormatter.format(
                             DateTime.fromMillisecondsSinceEpoch(value.toInt())),
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 8,
                           color: Theme.of(context).colorScheme.onBackground,
                         ),
                       ),

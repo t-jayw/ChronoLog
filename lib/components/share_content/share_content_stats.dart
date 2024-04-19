@@ -9,6 +9,7 @@ import 'package:chronolog/models/timing_run.dart';
 import 'package:chronolog/providers/timing_measurements_list_provider.dart';
 import 'package:chronolog/providers/timing_run_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ShareModalStats extends ConsumerWidget {
@@ -52,9 +53,13 @@ class MostRecentRunShareStats extends StatelessWidget {
       certificationWidgets.add(
         Row(
           children: [
-            Icon(Icons.check, color: Colors.green, size: 8,),
+            Icon(
+              Icons.check,
+              color: Colors.green,
+              size: 10,
+            ),
             SizedBox(width: 4),
-            Text(status, style: TextStyle(fontSize: 8)),
+            Text(status, style: TextStyle(fontSize: 10)),
           ],
         ),
       );
@@ -62,32 +67,42 @@ class MostRecentRunShareStats extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(0.0),
-      child: Row(
+      child: Column(
         children: [
-          // Stats Column
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(timingRunStats.formattedSecondsPerDayForRun(),
-                  style: TextStyle(
-                      fontSize: 24,
-                      color: Theme.of(context).colorScheme.tertiary,
-                      fontWeight: FontWeight.bold)),
-              Text('sec/day',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onBackground)),
-                    Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: certificationWidgets,
-          )
+              Row(
+                children: [
+                  Text(timingRunStats.formattedSecondsPerDayForRun(),
+                      style: TextStyle(
+                          fontSize: 24,
+                          color: Theme.of(context).colorScheme.tertiary,
+                          fontWeight: FontWeight.bold)),
+                  SizedBox(width: 4),
+                  Text('sec/day',
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onBackground)),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: certificationWidgets,
+              ),
             ],
           ),
+          Expanded(
+            child: Row(
+              children: [
+                // Stats Column
 
-          SizedBox(width: 2),
-          OffsetCustomLineChart(runId: timingRun.id),
-                    SizedBox(width: 26),
-
+                SizedBox(width: 20),
+                OffsetCustomLineChart(runId: timingRun.id),
+                SizedBox(width: 20),
+              ],
+            ),
+          ),
         ],
       ),
     );
