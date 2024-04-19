@@ -86,6 +86,7 @@ class MostRecentRunShareStats extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onBackground)),
                 ],
               ),
+              if (certificationWidgets.length > 1)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: certificationWidgets,

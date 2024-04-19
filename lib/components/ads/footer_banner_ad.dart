@@ -1,5 +1,6 @@
-
 import 'dart:io';
+import 'package:chronolog/components/premium/premium_list_item.dart';
+import 'package:chronolog/screens/purchase_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/widgets.dart';
@@ -15,7 +16,6 @@ class FooterBannerAdWidget extends StatefulWidget {
     this.adSize = AdSize.banner,
     this.adUnitId = 'ca-app-pub-3836871285810522/1271162483',
   }) : super(key: key);
-
 
   @override
   _FooterBannerAdWidgetState createState() => _FooterBannerAdWidgetState();
@@ -82,12 +82,30 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
     }
 
     return SafeArea(
-      child: Container(
-        width: widget.adSize.width.toDouble(),
-        height: widget.adSize.height.toDouble(),
-        child: _bannerAd == null
-            ? SizedBox.shrink() // Optionally, you can add a placeholder here.
-            : AdWidget(ad: _bannerAd!),
+      child: Column(
+        children: [
+          MiniPremiumButton(
+            isPremiumActivated: () async {
+              return false;
+            },
+            onTapPremium: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PurchaseScreen()),
+              );
+            },
+          ),
+          SizedBox(height: 8),
+          Container(
+            width: widget.adSize.width.toDouble(),
+            height: widget.adSize.height.toDouble(),
+            child: _bannerAd == null
+                ? SizedBox
+                    .shrink() // Optionally, you can add a placeholder here.
+                : AdWidget(ad: _bannerAd!),
+          ),
+          SizedBox(height: 8),
+        ],
       ),
     );
   }

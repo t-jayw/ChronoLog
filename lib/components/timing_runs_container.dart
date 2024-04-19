@@ -3,6 +3,8 @@ import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ulid/ulid.dart';
 import 'package:chronolog/components/timing_run_component.dart';
 
@@ -17,7 +19,7 @@ void _showPremiumNeededDialog(BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return PremiumNeededDialog(
-        primaryText: "Free version limited to 1 timing run per piece",
+        primaryText: "Free version limited to 3 timing run per timepiece",
       );
     },
   );
@@ -72,24 +74,24 @@ class TimingRunsContainer extends ConsumerWidget {
             child: SecondaryButton(
                 text: 'Start Timing Run',
                 onPressed: () async {
-                  _addTimingRun(ref);
-                  // turning off paywall
-                  // SharedPreferences prefs =
-                  //     await SharedPreferences.getInstance();
-                  // bool? isPremiumActivated = prefs.getBool('isPremiumActive');
-                  // int numTimingRuns = timingRuns.length;
+                  // _addTimingRun(ref);
+                  // turning on paywall
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                  int numTimingRuns = timingRuns.length;
 
-                  // if (isPremiumActivated != true && numTimingRuns == 1) {
-                  //   Posthog().capture(
-                  //     eventName: 'paywall',
-                  //     properties: {
-                  //       'reason': 'num_timing_runs_paywall',
-                  //     },
-                  //   );
-                  //   _showPremiumNeededDialog(context);
-                  // } else {
-                  //   _addTimingRun(ref);
-                  // }
+                  if (isPremiumActivated != true && numTimingRuns == 3) {
+                    Posthog().capture(
+                      eventName: 'paywall',
+                      properties: {
+                        'reason': 'num_timing_runs_paywall',
+                      },
+                    );
+                    _showPremiumNeededDialog(context);
+                  } else {
+                    _addTimingRun(ref);
+                  }
                 }),
           ),
         ),

@@ -54,7 +54,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return PremiumNeededDialog(primaryText: "Free version limited to 1 timepiece",);
+        return PremiumNeededDialog(primaryText: "Free version limited to 3 timepieces",);
       },
     );
   }
@@ -76,26 +76,26 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
             IconButton(
               icon: const Icon(Icons.add), // Plus sign icon
               onPressed: () async {
-                _navigateToAddWatchScreen(context);
+                // _navigateToAddWatchScreen(context);
 
                 // Make it async
                 
-                // Turning off paywall
-                // SharedPreferences prefs = await SharedPreferences.getInstance();
-                // bool? isPremiumActivated = prefs.getBool('isPremiumActive');
-                // int numWatches = timepieces.length;
+                // Turning on paywall
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                int numWatches = timepieces.length;
 
-                // if (isPremiumActivated != true && numWatches >= 1) {
-                //   Posthog().capture(
-                //     eventName: 'paywall',
-                //     properties: {
-                //       'reason': 'num_watches_paywall',
-                //     },
-                //   );
-                //   _showPremiumNeededDialog(context);
-                // } else {
-                //   _navigateToAddWatchScreen(context);
-                // }
+                if (isPremiumActivated != true && numWatches >= 3) {
+                  Posthog().capture(
+                    eventName: 'paywall',
+                    properties: {
+                      'reason': 'num_watches_paywall',
+                    },
+                  );
+                  _showPremiumNeededDialog(context);
+                } else {
+                  _navigateToAddWatchScreen(context);
+                }
               },
             ),
         ],

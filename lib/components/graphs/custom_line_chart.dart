@@ -52,7 +52,7 @@ class CustomLineChart extends StatelessWidget {
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              curveSmoothness: .15,
+              curveSmoothness: .1,
               color: Colors.orangeAccent,
                             gradient: const LinearGradient(
                               begin: Alignment.topCenter,

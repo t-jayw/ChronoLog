@@ -152,7 +152,7 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
                           LineChartBarData(
                             spots: data,
                             isCurved: true,
-                            curveSmoothness: .15,
+                            curveSmoothness: .1,
                             preventCurveOverShooting: false,
                             isStrokeCapRound: true,
                             color: Colors.orangeAccent,

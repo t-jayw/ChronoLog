@@ -25,10 +25,11 @@ class PremiumFeatures extends StatelessWidget {
 
           // Now using the PremiumFeatureItem widget
           PremiumFeatureItem(feature: "Ads Free Experience!"),
-          PremiumFeatureItem(feature: "Add unlimited watches to your collection."),
+          PremiumFeatureItem(feature: "Help Tyler buy a new watch!"),
+          PremiumFeatureItem(feature: "Add unlimited watches."),
           PremiumFeatureItem(feature: "Start unlimited timing runs."),
           PremiumFeatureItem(feature: "Take unlimited measurements."),
-          PremiumFeatureItem(feature: "Support continued development of the project."),
+          PremiumFeatureItem(feature: "Support continued development."),
           PremiumFeatureItem(feature: "Prioritized feedback and first look at all new features."),
         ],
       ),

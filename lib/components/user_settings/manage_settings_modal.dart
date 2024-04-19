@@ -8,7 +8,6 @@ import '../../providers/theme_provider.dart';
 import '../../providers/time_mode_provider.dart';
 
 class ManageSettingsWidget extends ConsumerWidget {
-  final String versionNumber = "1.4.6";
 
   ManageSettingsWidget({Key? key}) : super(key: key);
 
