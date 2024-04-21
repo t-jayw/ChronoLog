@@ -50,9 +50,9 @@ class _TimingRunDetailHeaderStatsState extends ConsumerState<TimingRunDetailHead
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildStatColumn(context, 'sec/day', timingRunStats.formattedSecondsPerDayForRun(), true),
-              _buildStatColumn(context, 'Duration', timingRunStats.formattedTotalDuration(), false),
-              _buildStatColumn(context, 'Points', timingRunStats.totalPoints.toString(), false),
-              _buildStatColumn(context, 'Last Measured', timingRunStats.formattedTimeSinceLastMeasurement(), false),
+              _buildStatColumn(context, 'Duration', timingRunStats.formattedTotalDuration(), true),
+              _buildStatColumn(context, 'Points', timingRunStats.totalPoints.toString(), true),
+              _buildStatColumn(context, 'Last Measured', timingRunStats.formattedTimeSinceLastMeasurement(), true),
             ],
           ),
           if (widget.isMostRecent ?? false) _buildAddMeasurementButton(context),

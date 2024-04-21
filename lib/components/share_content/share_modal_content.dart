@@ -76,12 +76,17 @@ class ShareModalContent extends StatelessWidget {
                             fontSize: 20,
                           ),
                         ),
+                        Divider(
+                          height: 0,
+                          thickness: 1,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 8), // Spacing between the top row and stats
+              SizedBox(height: 2), // Spacing between the top row and stats
               Expanded(child: ShareModalStats(timepiece: timepiece)),
 
               Divider(),
@@ -95,15 +100,28 @@ class ShareModalContent extends StatelessWidget {
                     //mainAxisSize: MainAxisSize.min,
                     children: [
                       Image.asset('assets/images/wathclogo-40@2x.png',
-                          width: 22), // Your app icon
+                          width: 20), // Your app icon
                       SizedBox(width: 8),
-                      Text(
-                        "ChronoLog - Watch Accuracy",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            "ChronoLog",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                          ),
+Text(
+                            " - Watch Accuracy",
+                            style: TextStyle(
+                              fontSize: 12,
+
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                          ),
+                          
+                        ],
                       ),
                     ],
                   ),

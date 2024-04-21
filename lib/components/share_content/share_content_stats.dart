@@ -48,11 +48,12 @@ class MostRecentRunShareStats extends StatelessWidget {
 
     List<Widget> certificationWidgets = [SizedBox(height: 2)];
 
-    List<String> complianceStatuses = timingRunStats.checkCompliance() ?? [];
+    List<String> complianceStatuses = timingRunStats.checkCompliance();
     for (var status in complianceStatuses) {
       certificationWidgets.add(
         Row(
           children: [
+            SizedBox(width: 4),
             Icon(
               Icons.check,
               color: Colors.green,
@@ -66,17 +67,17 @@ class MostRecentRunShareStats extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(0.0),
+      padding: const EdgeInsets.all(4.0),
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Row(
                 children: [
                   Text(timingRunStats.formattedSecondsPerDayForRun(),
                       style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 18,
                           color: Theme.of(context).colorScheme.tertiary,
                           fontWeight: FontWeight.bold)),
                   SizedBox(width: 4),
@@ -86,11 +87,12 @@ class MostRecentRunShareStats extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onBackground)),
                 ],
               ),
+              Spacer(),
               if (certificationWidgets.length > 1)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: certificationWidgets,
-              ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: certificationWidgets,
+                ),
             ],
           ),
           Expanded(
@@ -98,9 +100,9 @@ class MostRecentRunShareStats extends StatelessWidget {
               children: [
                 // Stats Column
 
-                SizedBox(width: 20),
+                SizedBox(width: 8),
                 OffsetCustomLineChart(runId: timingRun.id),
-                SizedBox(width: 20),
+                SizedBox(width: 12),
               ],
             ),
           ),

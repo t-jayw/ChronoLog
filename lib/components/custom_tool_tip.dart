@@ -15,7 +15,7 @@ class CustomToolTip extends StatelessWidget {
           mainAxisAlignment: mainAxisAlignment,
           children: [
             Icon(Icons.lightbulb_outline,
-                size: 14.0, color: Theme.of(context).colorScheme.secondary),
+                size: 12.0, color: Theme.of(context).colorScheme.secondary),
             SizedBox(width: 5.0), // control space between icon and text
             child,
           ],

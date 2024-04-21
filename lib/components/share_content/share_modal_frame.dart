@@ -1,3 +1,4 @@
+import 'package:chronolog/components/custom_tool_tip.dart';
 import 'package:chronolog/components/primary_button.dart';
 import 'package:chronolog/components/share_content/share_modal_content.dart';
 import 'package:flutter/material.dart';
@@ -27,19 +28,15 @@ class ShareModalFrame extends StatelessWidget {
       if (byteData != null) {
         Uint8List pngBytes = byteData.buffer.asUint8List();
 
-        // Saving the file locally to temp directory
         final directory = await getTemporaryDirectory();
         File imgFile = File('${directory.path}/share.png');
         await imgFile.writeAsBytes(pngBytes);
 
-        // Sharing the file
         Share.shareFiles([imgFile.path], text: 'Check out my watch accuracy!');
       } else {
-        // Handle the case where byte data could not be obtained
         debugPrint('Failed to obtain byte data from the image');
       }
     } else {
-      // Handle the case where the repaint boundary is not available
       debugPrint('Repaint boundary was not available');
     }
   }
@@ -56,23 +53,38 @@ class ShareModalFrame extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            Container(
-              child: ShareModalContent(
-                  timepiece: timepiece, repaintBoundaryKey: repaintBoundaryKey),
-            ),
-            SizedBox(height: 8),
-            PrimaryButton(
-              child: Text('Share',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary)),
-              onPressed: shareContent,
-            ),
-            SizedBox(height: 8),
-          ],
+      body: Container(
+        height: 450,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              CustomToolTip(
+                  child: Text(
+                    "Sharing the active Timing Run",
+                    style: TextStyle(
+                        fontSize: 10.0), // you can style your text here
+                  ),
+                  mainAxisAlignment: MainAxisAlignment.center),
+              SizedBox(height: 8),
+              Expanded(
+                child: Container(
+                  child: ShareModalContent(
+                      timepiece: timepiece,
+                      repaintBoundaryKey: repaintBoundaryKey),
+                ),
+              ),
+              SizedBox(height: 16),
+              PrimaryButton(
+                child: Text('Share',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.inversePrimary)),
+                onPressed: shareContent,
+              ),
+              SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );

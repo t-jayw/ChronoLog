@@ -54,7 +54,7 @@ class MiniPremiumButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 child: Text(
                   "Premium users don't see ads!",
-                  style: TextStyle(fontSize: 12.0, decoration: TextDecoration.underline),
+                  style: TextStyle(fontSize: 14.0, decoration: TextDecoration.underline),
                 ),
               ),
             );

@@ -1,3 +1,4 @@
+import 'package:chronolog/components/custom_tool_tip.dart';
 import 'package:chronolog/components/premium/premium_needed_dialog.dart';
 import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -51,23 +52,15 @@ class TimingRunsContainer extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.lightbulb_outline, size: 14.0, color: Colors.yellow),
-              SizedBox(
-                  width:
-                      5.0), // you can control the space between the icon and text by adjusting the width
-              Text(
-                "Start a new timing run after setting your watch",
-                style:
-                    TextStyle(fontSize: 12.0), // you can style your text here
-              ),
-            ],
-          ),
-        ),
+        Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: CustomToolTip(
+                child: Text(
+                  "Start a new timing run after setting your watch",
+                  style:
+                      TextStyle(fontSize: 10.0), // you can style your text here
+                ),
+                mainAxisAlignment: MainAxisAlignment.center)),
         Padding(
           padding: const EdgeInsets.all(2.0),
           child: SizedBox(

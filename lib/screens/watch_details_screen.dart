@@ -1,4 +1,3 @@
-
 import 'dart:typed_data';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -113,10 +112,16 @@ class WatchDetails extends ConsumerWidget {
                           left: 0,
                           bottom: 0,
                           child: IconButton(
-                              icon: Icon(Icons.upload),
-                              color: Colors.white,
-                              onPressed: () =>
-                                  showShareModal(context, updatedTimepiece)),
+                            icon: Icon(Icons.upload),
+                            color: Colors.white,
+                            onPressed: () => showShareModal(context, updatedTimepiece),
+                            // onPressed: () => Navigator.of(context).push(
+                            //   MaterialPageRoute(
+                            //     builder: (context) => ShareModalFrame(
+                            //         timepiece: updatedTimepiece),
+                            //   ),
+                            // ),
+                          ),
                         ),
                       ]),
                       Expanded(

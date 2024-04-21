@@ -62,7 +62,7 @@ class WatchboxScreen extends ConsumerWidget {
                   child: Text(
                     "Hold and drag to reorder",
                     style: TextStyle(
-                        fontSize: 12.0), // you can style your text here
+                        fontSize: 10.0), // you can style your text here
                   ),
                 ),
               ),
