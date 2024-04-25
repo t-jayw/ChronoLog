@@ -114,7 +114,8 @@ class WatchDetails extends ConsumerWidget {
                           child: IconButton(
                             icon: Icon(Icons.upload),
                             color: Colors.white,
-                            onPressed: () => showShareModal(context, updatedTimepiece),
+                            onPressed: () =>
+                                showShareModal(context, updatedTimepiece),
                             // onPressed: () => Navigator.of(context).push(
                             //   MaterialPageRoute(
                             //     builder: (context) => ShareModalFrame(
@@ -250,8 +251,16 @@ class WatchDetails extends ConsumerWidget {
 void showShareModal(BuildContext context, Timepiece timepiece) {
   showModalBottomSheet(
     context: context,
+    isScrollControlled: true, // Allows the modal to take up full screen height
     builder: (BuildContext context) {
-      return ShareModalFrame(timepiece: timepiece);
+      // Calculate three-quarters of the screen height
+//      final height = MediaQuery.of(context).size.height * 0.66;
+      final height = 500.0;
+
+      return Container(
+        height: height, // Use the calculated height here
+        child: ShareModalFrame(timepiece: timepiece),
+      );
     },
   );
 }

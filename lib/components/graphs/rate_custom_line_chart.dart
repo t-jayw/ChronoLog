@@ -2,6 +2,7 @@ import 'package:chronolog/components/graphs/custom_line_chart.dart';
 import 'package:chronolog/components/graphs/offset_custom_line_chart.dart';
 import 'package:chronolog/models/timing_measurement.dart';
 import 'package:chronolog/providers/timing_measurements_list_provider.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -56,11 +57,11 @@ class RateCustomLineChart extends ConsumerWidget {
     });
 
     // Optionally, add a final spot with zero change or just end the data list
-    final lastMeasurement = timingMeasurements.last;
-    final lastSystemTime =
-        lastMeasurement.system_time.millisecondsSinceEpoch.toDouble();
-    data.add(TaggedFlSpot(lastSystemTime, 0, lastMeasurement.tag ?? 'No Tag'));
+    // final lastMeasurement = timingMeasurements.last;
+    // final lastSystemTime =
+    //     lastMeasurement.system_time.millisecondsSinceEpoch.toDouble();
+    // data.add(TaggedFlSpot(lastSystemTime, 0, lastMeasurement.tag ?? 'No Tag'));
 
-    return data;
+    return data;// Remove the first element
   }
 }

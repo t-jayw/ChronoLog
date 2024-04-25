@@ -125,15 +125,15 @@ class TimingRunStatistics {
   ];
 
   bool isCoscCompliant() {
-    return standards.firstWhere((standard) => standard.name == 'COSC').isCompliant(secondsPerDayForRun);
+    return totalMeasurements >= 2 && standards.firstWhere((standard) => standard.name == 'COSC').isCompliant(secondsPerDayForRun);
   }
 
   bool isMetasCompliant() {
-    return standards.firstWhere((standard) => standard.name == 'METAS').isCompliant(secondsPerDayForRun);
+    return totalMeasurements >= 2 && standards.firstWhere((standard) => standard.name == 'METAS').isCompliant(secondsPerDayForRun);
   }
 
   bool isSuperlativeChronometer() {
-    return standards.firstWhere((standard) => standard.name == 'Superlative Chronometer').isCompliant(secondsPerDayForRun);
+    return totalMeasurements >= 2 && standards.firstWhere((standard) => standard.name == 'Superlative Chronometer').isCompliant(secondsPerDayForRun);
   }
 
   List<String> checkCompliance() {

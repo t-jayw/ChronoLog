@@ -20,7 +20,7 @@ void _showPremiumNeededDialog(BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return PremiumNeededDialog(
-        primaryText: "Free version limited to 3 timing run per timepiece",
+        primaryText: "Free version limited to 2 timing run per timepiece",
       );
     },
   );
@@ -53,14 +53,15 @@ class TimingRunsContainer extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: CustomToolTip(
-                child: Text(
-                  "Start a new timing run after setting your watch",
-                  style:
-                      TextStyle(fontSize: 10.0), // you can style your text here
-                ),
-                mainAxisAlignment: MainAxisAlignment.center)),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: CustomToolTip(
+              child: Text(
+                "Start a new timing run after setting your watch",
+                style:
+                    TextStyle(fontSize: 10.0), // you can style your text here
+              ),
+              mainAxisAlignment: MainAxisAlignment.center),
+        ),
         Padding(
           padding: const EdgeInsets.all(2.0),
           child: SizedBox(
@@ -74,7 +75,7 @@ class TimingRunsContainer extends ConsumerWidget {
                   bool? isPremiumActivated = prefs.getBool('isPremiumActive');
                   int numTimingRuns = timingRuns.length;
 
-                  if (isPremiumActivated != true && numTimingRuns == 3) {
+                  if (isPremiumActivated != true && numTimingRuns == 2) {
                     Posthog().capture(
                       eventName: 'paywall',
                       properties: {

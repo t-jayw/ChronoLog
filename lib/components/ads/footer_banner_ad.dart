@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:chronolog/components/premium/premium_list_item.dart';
 import 'package:chronolog/screens/purchase_screen.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +23,12 @@ class FooterBannerAdWidget extends StatefulWidget {
 class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
   BannerAd? _bannerAd;
   bool _isPremiumUser = false;
+  bool _isOpenedMoreThanTwo = false;
 
   @override
   void initState() {
     super.initState();
-    _checkPremiumStatusAndLoadAd();
+    _checkStatusesAndLoadAd();
   }
 
   @override
@@ -37,13 +37,22 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
     super.dispose();
   }
 
-  Future<void> _checkPremiumStatusAndLoadAd() async {
+  Future<bool> _isPremiumActivated() async {
     final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isPremiumActive') ?? false;
+  }
+
+  Future<void> _checkStatusesAndLoadAd() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    int openCount = prefs.getInt('openCount') ?? 0;
     // Use the premium status check you provided
     _isPremiumUser = prefs.getBool('isPremiumActive') ?? false;
-    _isPremiumUser = false;
+    _isOpenedMoreThanTwo = openCount > 2;
+    // for testing
+    // _isPremiumUser = false;
 
-    if (!_isPremiumUser) {
+    if (!_isPremiumUser && _isOpenedMoreThanTwo) {
       _loadAd();
     }
   }
@@ -76,18 +85,17 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Do not display the ad widget if the user has premium status.
-    if (_isPremiumUser) {
-      return SizedBox.shrink(); // Return an empty widget for premium users.
+    // Check if the user is premium or hasn't opened the app more than two times.
+    if (_isPremiumUser || !_isOpenedMoreThanTwo) {
+      return SizedBox.shrink(); // Return an empty widget in these cases.
     }
 
+    // If the conditions are not met (non-premium user and opened more than two times), show the ad.
     return SafeArea(
       child: Column(
         children: [
           MiniPremiumButton(
-            isPremiumActivated: () async {
-              return false;
-            },
+            isPremiumActivated: _isPremiumActivated,
             onTapPremium: () {
               Navigator.push(
                 context,

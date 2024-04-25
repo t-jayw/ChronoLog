@@ -43,7 +43,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
     // Handle all time
 
     return SizedBox(
-      height: 130,
+      height: 140,
       width: double.infinity,
       child: Card(
         child: InkWell(
@@ -57,7 +57,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
           },
           child: Container(
             child: Padding(
-              padding: const EdgeInsets.all(4.0),
+              padding: const EdgeInsets.all(6.0),
               child: Row(
                 children: [
                   ClipRRect(
@@ -65,11 +65,11 @@ class NewTimepieceDisplay extends ConsumerWidget {
                     child: timepiece.image != null
                         ? Image.memory(
                             timepiece.image!,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           )
                         : Image.asset(
                             'assets/images/placeholder.png',
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain, 
                           ),
                   ),
                   Expanded(

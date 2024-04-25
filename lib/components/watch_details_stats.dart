@@ -1,4 +1,3 @@
-import 'package:chronolog/components/share_content/share_content_stats.dart';
 import 'package:chronolog/data_helpers.dart/format_duration.dart';
 import 'package:chronolog/data_helpers.dart/timepiece_aggregate_stats.dart';
 import 'package:flutter/material.dart';

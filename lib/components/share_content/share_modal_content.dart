@@ -25,20 +25,16 @@ class ShareModalContent extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          // Ensuring the background color is not transparent
-
-          padding: EdgeInsets.all(8),
-          height: MediaQuery.of(context).size.height * 0.4,
-          width: MediaQuery.of(context)
-              .size
-              .width, // Full width for better layout and sizing
+          padding:
+              EdgeInsets.all(8), // Padding to ensure border is inside the clip
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
             color: Theme.of(context).canvasColor,
             border: Border.all(
-              color: Colors.black, // Black color border
-              width: 2, // Width of the border
+              color: Colors.black,
+              width: 2,
             ),
+            borderRadius: BorderRadius.circular(
+                18), // Slightly less than ClipRRect to prevent clipping
           ),
           child: Column(
             children: [
@@ -47,16 +43,15 @@ class ShareModalContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    radius: 30, // Adjust the size as needed
+                    radius: 30,
                     backgroundImage: imageProvider,
                   ),
                   SizedBox(width: 16),
                   Expanded(
                     child: Wrap(
                       alignment: WrapAlignment.start,
-                      spacing:
-                          8, // space between brand and model if on the same line
-                      runSpacing: 4, // space between lines
+                      spacing: 8,
+                      runSpacing: 4,
                       children: [
                         AutoSizeText(
                           timepiece.brand,
@@ -72,9 +67,7 @@ class ShareModalContent extends StatelessWidget {
                           timepiece.model,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
+                          style: TextStyle(fontSize: 20),
                         ),
                         Divider(
                           height: 0,
@@ -86,42 +79,33 @@ class ShareModalContent extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 2), // Spacing between the top row and stats
+              SizedBox(height: 2),
               Expanded(child: ShareModalStats(timepiece: timepiece)),
-
               Divider(),
-              // Footer with branding
               Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 2),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    //mainAxisSize: MainAxisSize.min,
                     children: [
                       Image.asset('assets/images/wathclogo-40@2x.png',
-                          width: 20), // Your app icon
+                          width: 16),
                       SizedBox(width: 8),
-                      Row(
-                        children: [
-                          Text(
-                            "ChronoLog",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                          ),
-Text(
-                            " - Watch Accuracy",
-                            style: TextStyle(
-                              fontSize: 12,
-
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                          ),
-                          
-                        ],
+                      Text(
+                        "ChronoLog",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      Text(
+                        " - Watch Accuracy",
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Theme.of(context).colorScheme.onTertiary,
+                        ),
                       ),
                     ],
                   ),

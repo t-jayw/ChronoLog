@@ -54,7 +54,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return PremiumNeededDialog(primaryText: "Free version limited to 3 timepieces",);
+        return PremiumNeededDialog(primaryText: "Free version limited to 2 timepieces",);
       },
     );
   }
@@ -85,7 +85,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
                 bool? isPremiumActivated = prefs.getBool('isPremiumActive');
                 int numWatches = timepieces.length;
 
-                if (isPremiumActivated != true && numWatches >= 3) {
+                if (isPremiumActivated != true && numWatches >= 2) {
                   Posthog().capture(
                     eventName: 'paywall',
                     properties: {

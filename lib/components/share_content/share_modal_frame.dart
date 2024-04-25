@@ -54,7 +54,6 @@ class ShareModalFrame extends StatelessWidget {
         ],
       ),
       body: Container(
-        height: 450,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(

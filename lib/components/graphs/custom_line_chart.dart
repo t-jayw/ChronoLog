@@ -1,4 +1,5 @@
 import 'package:chronolog/components/graphs/offset_custom_line_chart.dart';
+import 'package:chronolog/data_helpers.dart/linear_regression.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
@@ -22,47 +23,75 @@ class CustomLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (spots.length < 2) {
+      // Not enough data to create a meaningful chart
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            "Insufficient data for charting.\nPlease add more measurements.",
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          ),
+        ),
+      );
+    }
+
     double minY = spots.isEmpty ? -1 : spots.map((e) => e.y).reduce(min) - .5;
     double maxY = spots.isEmpty ? 1 : spots.map((e) => e.y).reduce(max) + .5;
     double minX = spots.isEmpty ? 0 : spots.map((e) => e.x).reduce(min);
     double maxX = spots.isEmpty ? 0 : spots.map((e) => e.x).reduce(max);
 
-    // Calculate the slope and y-intercept for the average rate line
-    double slope = 0;
-    double yIntercept = 0;
-    if (spots.length > 1) {
-      double firstY = spots.first.y;
-      double lastY = spots.last.y;
-      double firstX = spots.first.x;
-      double lastX = spots.last.x;
-      slope = (lastY - firstY) / (lastX - firstX);
-      yIntercept = firstY - slope * firstX;
-    }
+    // Calculate intervals based on time range
+    double totalTime = maxX - minX;
+    double intervalX = totalTime / 5; // aim for 5 intervals
 
-    List<FlSpot> averageRateLineSpots = [
-      FlSpot(minX, minX * slope + yIntercept),
-      FlSpot(maxX, maxX * slope + yIntercept),
+    // Calculate the slope and y-intercept for the average rate line
+    // double slope = 0;
+    // double yIntercept = 0;
+    // if (spots.length > 1) {
+    //   double firstY = spots.first.y;
+    //   double lastY = spots.last.y;
+    //   double firstX = spots.first.x;
+    //   double lastX = spots.last.x;
+    //   slope = (lastY - firstY) / (lastX - firstX);
+    //   yIntercept = firstY - slope * firstX;
+    // }
+
+    // List<FlSpot> averageRateLineSpots = [
+    //   FlSpot(minX, minX * slope + yIntercept),
+    //   FlSpot(maxX, maxX * slope + yIntercept),
+    // ];
+
+    final xData = spots.map((e) => e.x).toList();
+    final yData = spots.map((e) => e.y).toList();
+
+    final slope = calculateSlope(xData, yData);
+    final intercept = calculateIntercept(slope, xData, yData);
+
+    final lineSpots = [
+      FlSpot(minX, yData.last),
+      FlSpot(maxX, slope * maxX + intercept),
     ];
 
     // Calculate the average rate of change for horizontal line
     double averageRateOfChange = 0;
-    if (spots.length > 2) {
-      double firstY = spots[1].y;
+    if (spots.length >= 2) {
+      double firstY = spots.first.y;
       double lastY = spots.last.y;
-      double firstX = spots[1].x;
+      double firstX = spots.first.x;
       double lastX = spots.last.x;
-      averageRateOfChange = -1 * (lastY - firstY) / (lastX - firstX);
-
+      averageRateOfChange = -1 * ((lastY - firstY) / (lastX - firstX));
+      print(averageRateOfChange);
     }
+
     // Horizontal line at the average rate of change per day
     List<FlSpot> rateOfChangeLineSpots = [
-      FlSpot(minX, averageRateOfChange * 86400000),
-      FlSpot(maxX, averageRateOfChange * 86400000),
+      FlSpot(minX, slope * 86400000),
+      FlSpot(maxX, slope * 86400000),
+      // FlSpot(minX, averageRateOfChange*86400000),
+      // FlSpot(maxX, averageRateOfChange*86400000),
     ];
-
-    // Calculate intervals based on time range
-    double totalTime = maxX - minX;
-    double intervalX = totalTime / 5; // aim for 5 intervals
 
     // Define formatter based on the total duration
     String formatTimeInterval(double time) {
@@ -92,35 +121,33 @@ class CustomLineChart extends StatelessWidget {
                 // TODO : Utilize touch event here to perform any operation
               },
               touchTooltipData: LineTouchTooltipData(
-                tooltipBgColor: Theme.of(context).colorScheme.secondary,
+                tooltipBgColor: Theme.of(context).colorScheme.tertiary,
                 tooltipRoundedRadius: 3.0,
                 showOnTopOfTheChartBoxArea: true,
                 fitInsideHorizontally: true,
-                tooltipMargin: 0,
-                tooltipPadding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                fitInsideVertically: true,
+                tooltipMargin: 1,
+                tooltipPadding: const EdgeInsets.fromLTRB(1.0, 0.0, 1.0, 0.0),
                 tooltipBorder: BorderSide(color: Colors.black),
                 getTooltipItems: (List<LineBarSpot> touchedSpots) {
                   return touchedSpots.map((LineBarSpot touchedSpot) {
-                    final TextStyle textStyle = const TextStyle(
+                    final TextStyle textStyle = TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.inversePrimary,
                     );
 
-                    // Check if the current touched spot belongs to the actual data line (index 1)
-                    if (touchedSpot.barIndex == 1) {
-                      // Check if the current touched spot is the highest spot in the list of touched spots
-                      if (touchedSpot ==
-                          touchedSpots.reduce(
-                              (curr, next) => curr.y > next.y ? curr : next)) {
-                        return LineTooltipItem(
-                          '${spots[touchedSpot.spotIndex].tag}',
-                          textStyle,
-                        );
-                      }
+                    if (touchedSpot.barIndex == 0) {
+                      return LineTooltipItem(
+                        '${spots[touchedSpot.spotIndex].tag}',
+                        textStyle,
+                      );
                     }
-
+                    else {
+                      
+                    }
+ 
                     // If the current touched spot isn't the highest or doesn't belong to actual data line, don't display any tooltip
-                    return null;
                   }).toList();
                 },
               ),
@@ -141,9 +168,7 @@ class CustomLineChart extends StatelessWidget {
           lineBarsData: [
             LineChartBarData(
               spots: spots,
-              isCurved: true,
-              curveSmoothness: .15,
-              preventCurveOverShooting: true,
+              isCurved: false,
               color: Colors.orangeAccent,
               gradient: const LinearGradient(
                 begin: Alignment.topCenter,
@@ -177,7 +202,7 @@ class CustomLineChart extends StatelessWidget {
             ),
             if (showSlope)
               LineChartBarData(
-                spots: averageRateLineSpots,
+                spots: lineSpots,
                 isCurved: false,
                 color: Theme.of(context).colorScheme.tertiary,
                 barWidth: 2,
@@ -187,7 +212,7 @@ class CustomLineChart extends StatelessWidget {
               ),
             if (showAverageLine)
               LineChartBarData(
-                spots: rateOfChangeLineSpots,
+                spots: lineSpots,
                 isCurved: false,
                 color: Theme.of(context).colorScheme.tertiary,
                 barWidth: 2,
@@ -208,7 +233,7 @@ class CustomLineChart extends StatelessWidget {
                 showTitles: true,
                 reservedSize: 25,
                 getTitlesWidget: (value, meta) {
-                  if (value == minY) return const SizedBox.shrink();
+                  if (value == 0) return const SizedBox.shrink();
                   return Text(
                     '${value.toStringAsFixed(0)}s',
                     style: TextStyle(
@@ -222,10 +247,11 @@ class CustomLineChart extends StatelessWidget {
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
-                reservedSize: 20,
+                reservedSize: 15,
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                  if (value == minX) return const SizedBox.shrink();
+                  if (value == 0 || value == maxX)
+                    return const SizedBox.shrink();
                   return Text(
                     formatTimeInterval(value - minX),
                     style: TextStyle(

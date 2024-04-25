@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:chronolog/database_helpers.dart';
 import 'package:chronolog/models/timepiece.dart';
 import 'package:chronolog/models/timing_measurement.dart';
@@ -41,12 +40,11 @@ Future<void> initPlatformState() async {
 
 final theme = ThemeData(
   colorScheme: const ColorScheme.light(
-    primary: Color.fromARGB(255, 255, 255, 255),
-    secondary: Color.fromRGBO(177, 164, 42, 1),
-    tertiary: Color.fromRGBO(35, 80, 52, 1),
-    error: Color.fromARGB(255, 243, 165, 163),
-    tertiaryContainer: Color.fromARGB(255, 219, 217, 217)
-  ),
+      primary: Color.fromARGB(255, 255, 255, 255),
+      secondary: Color.fromRGBO(177, 164, 42, 1),
+      tertiary: Color.fromRGBO(35, 80, 52, 1),
+      error: Color.fromARGB(255, 243, 165, 163),
+      tertiaryContainer: Color.fromARGB(255, 219, 217, 217)),
   splashColor: Colors.transparent,
   fontFamily: 'SFProText',
   textTheme: const TextTheme(
@@ -232,11 +230,9 @@ class App extends ConsumerWidget {
 
 Future<void> backfillTimepiecesToSupabase() async {
   final prefs = await SharedPreferences.getInstance();
-  bool backfillCompleted = prefs.getBool('timepieceBackfillCompleted') ?? false;
+  bool backfillCompleted = prefs.getBool('v1.5.1_backfill_completed') ?? false;
 
-    if (!backfillCompleted 
-  | true
-  ) {
+  if (!backfillCompleted) {
     final List<Timepiece> timepieces = await DatabaseHelper().getTimepieces();
 
     // Initialize SupabaseManager and load environment variables
@@ -258,69 +254,48 @@ Future<void> backfillTimepiecesToSupabase() async {
       backfillTimingRunsToSupabase(timepiece.id);
     }
     // Mark the backfill as completed to prevent it from running again
-    await prefs.setBool('timepieceBackfillCompleted', true);
+    await prefs.setBool('v1.5.1_backfill_completed', true);
   }
 }
 
 // Backfill Timing Runs
 Future<void> backfillTimingRunsToSupabase(watchId) async {
-  final prefs = await SharedPreferences.getInstance();
-  bool backfillCompleted =
-      prefs.getBool('timingRunsBackfillCompleted') ?? false;
+  final List<TimingRun> timingRuns =
+      await DatabaseHelper().getTimingRunsByWatchId(watchId);
 
-    if (!backfillCompleted 
-  | true
-  ) {
-   
-    final List<TimingRun> timingRuns =
-        await DatabaseHelper().getTimingRunsByWatchId(watchId);
+  final supabase = SupabaseManager();
+  await supabase.init();
 
-    final supabase = SupabaseManager();
-    await supabase.init();
-
-    for (var timingRun in timingRuns) {
-      print("Backfilling timing run to Supabase: ${timingRun.id}");
-      try {
-        await supabase.insertEvent(timingRun, 'timing_runs_events',
-            customEventType: 'backfill');
-        print('Timing run backfilled successfully');
-      } catch (e) {
-        print('Error backfilling timing run: $e');
-      }
-
-      backfillTimingMeasurementsToSupabase(timingRun.id);
+  for (var timingRun in timingRuns) {
+    print("Backfilling timing run to Supabase: ${timingRun.id}");
+    try {
+      await supabase.insertEvent(timingRun, 'timing_runs_events',
+          customEventType: 'backfill_v1.5.1');
+      print('Timing run backfilled successfully');
+    } catch (e) {
+      print('Error backfilling timing run: $e');
     }
 
-    await prefs.setBool('timingRunsBackfillCompleted', true);
+    backfillTimingMeasurementsToSupabase(timingRun.id);
   }
 }
 
 // Backfill Timing Measurements
 Future<void> backfillTimingMeasurementsToSupabase(runId) async {
-  final prefs = await SharedPreferences.getInstance();
-  bool backfillCompleted =
-      prefs.getBool('timingMeasurementsBackfillCompleted') ?? false;
+  final List<TimingMeasurement> timingMeasurements =
+      await DatabaseHelper().getTimingMeasurementsByRunId(runId);
 
-  if (!backfillCompleted
-      | true
-      ) {
-    final List<TimingMeasurement> timingMeasurements =
-        await DatabaseHelper().getTimingMeasurementsByRunId(runId);
+  final supabase = SupabaseManager();
+  await supabase.init();
 
-    final supabase = SupabaseManager();
-    await supabase.init();
-
-    for (var measurement in timingMeasurements) {
-      print("Backfilling timing measurement to Supabase: ${measurement.id}");
-      try {
-        await supabase.insertEvent(measurement, 'timing_measurements_events',
-            customEventType: 'backfill');
-        print('Timing measurement backfilled successfully');
-      } catch (e) {
-        print('Error backfilling timing measurement: $e');
-      }
+  for (var measurement in timingMeasurements) {
+    print("Backfilling timing measurement to Supabase: ${measurement.id}");
+    try {
+      await supabase.insertEvent(measurement, 'timing_measurements_events',
+          customEventType: 'backfill');
+      print('Timing measurement backfilled successfully');
+    } catch (e) {
+      print('Error backfilling timing measurement: $e');
     }
-
-    await prefs.setBool('timingMeasurementsBackfillCompleted', true);
   }
 }

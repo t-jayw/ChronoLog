@@ -59,7 +59,7 @@ void sendMailWithFeedback() async {
 class InfoPage extends ConsumerWidget {
   InfoPage({Key? key}) : super(key: key);
 
-  final String versionNumber = "1.5.0";
+  final String versionNumber = "1.5.1";
   // replace with actual value
 
   final DatabaseHelper _db = DatabaseHelper();
@@ -228,7 +228,7 @@ class InfoPage extends ConsumerWidget {
                   child: Text(
                     'Made with ⛰️ in Boulder, CO',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
@@ -238,7 +238,7 @@ class InfoPage extends ConsumerWidget {
                   child: Text(
                     '© 2024 Tyler Wood',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 10,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),

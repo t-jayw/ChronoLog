@@ -36,6 +36,25 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
     TimingRunStatistics timingRunStats =
         TimingRunStatistics(timingMeasurements);
 
+    List<Widget> certificationWidgets = [];
+    List<String> complianceStatuses = timingRunStats.checkCompliance();
+    for (var status in complianceStatuses) {
+      certificationWidgets.add(
+        Row(
+          children: [
+            SizedBox(width: 4),
+            Icon(
+              Icons.check,
+              color: Colors.green,
+              size: 10,
+            ),
+            SizedBox(width: 4),
+            Text(status, style: TextStyle(fontSize: 10)),
+          ],
+        ),
+      );
+    }
+
     return InkWell(
       onTap: () => Navigator.push(
           context,
@@ -135,6 +154,11 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                         ),
                       ],
                     ),
+                    if (certificationWidgets.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: certificationWidgets,
+                    ),
                     if (widget.isMostRecent ?? false)
                       PrimaryButton(
                         onPressed: () async {
@@ -168,7 +192,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                                     .onPrimary), // Addition sign icon
                             SizedBox(width: 4), // Space between icon and text
                             Text(
-                              'Measurement',
+                              '',
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Theme.of(context).colorScheme.onPrimary,
