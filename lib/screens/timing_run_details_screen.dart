@@ -75,10 +75,13 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
                     curve: Curves.ease,
                   );
                 }),
+
             Expanded(
               child:
                   TimingMeasurementsContainer(timingRunId: widget.timingRun.id),
             ),
+                                            FooterBannerAdWidget(),
+
           ],
         ),
       ),

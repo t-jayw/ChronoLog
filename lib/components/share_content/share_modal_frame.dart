@@ -27,11 +27,9 @@ class ShareModalFrame extends StatelessWidget {
           await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData != null) {
         Uint8List pngBytes = byteData.buffer.asUint8List();
-
         final directory = await getTemporaryDirectory();
         File imgFile = File('${directory.path}/share.png');
         await imgFile.writeAsBytes(pngBytes);
-
         Share.shareFiles([imgFile.path], text: 'Check out my watch accuracy!');
       } else {
         debugPrint('Failed to obtain byte data from the image');
@@ -53,6 +51,8 @@ class ShareModalFrame extends StatelessWidget {
           ),
         ],
       ),
+
+      //repaintBoundaryKey: repaintBoundaryKey
       body: Container(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -68,7 +68,8 @@ class ShareModalFrame extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center),
               SizedBox(height: 8),
               Expanded(
-                child: Container(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
                   child: ShareModalContent(
                       timepiece: timepiece,
                       repaintBoundaryKey: repaintBoundaryKey),

@@ -43,7 +43,7 @@ class TimingMeasurementsContainer extends ConsumerWidget {
                   background: Container(
                     alignment: Alignment.centerRight,
                     padding: EdgeInsets.only(right: 20.0),
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                     child: Icon(
                       Icons.delete,
                       color: Colors.white,
@@ -58,5 +58,6 @@ class TimingMeasurementsContainer extends ConsumerWidget {
         : Center(
             child: Text('No timing measurements available.'),
           );
+          
   }
 }

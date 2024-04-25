@@ -230,7 +230,7 @@ class App extends ConsumerWidget {
 
 Future<void> backfillTimepiecesToSupabase() async {
   final prefs = await SharedPreferences.getInstance();
-  bool backfillCompleted = prefs.getBool('v1.5.1_backfill_completed') ?? false;
+  bool backfillCompleted = prefs.getBool('v1.5.2_backfill_completed') ?? false;
 
   if (!backfillCompleted) {
     final List<Timepiece> timepieces = await DatabaseHelper().getTimepieces();
@@ -246,7 +246,7 @@ Future<void> backfillTimepiecesToSupabase() async {
       // Instead of Posthog, insert into Supabase
       try {
         await supabase.insertEvent(timepiece, 'timepieces_events',
-            customEventType: 'backfill');
+            customEventType: 'v1.5.2_backfill');
         print('Timepiece backfilled successfully');
       } catch (e) {
         print('Error backfilling timepiece: $e');
@@ -254,7 +254,7 @@ Future<void> backfillTimepiecesToSupabase() async {
       backfillTimingRunsToSupabase(timepiece.id);
     }
     // Mark the backfill as completed to prevent it from running again
-    await prefs.setBool('v1.5.1_backfill_completed', true);
+    await prefs.setBool('v1.5.2_backfill_completed', true);
   }
 }
 
@@ -270,7 +270,7 @@ Future<void> backfillTimingRunsToSupabase(watchId) async {
     print("Backfilling timing run to Supabase: ${timingRun.id}");
     try {
       await supabase.insertEvent(timingRun, 'timing_runs_events',
-          customEventType: 'backfill_v1.5.1');
+          customEventType: 'v1.5.2_backfill');
       print('Timing run backfilled successfully');
     } catch (e) {
       print('Error backfilling timing run: $e');
@@ -292,7 +292,7 @@ Future<void> backfillTimingMeasurementsToSupabase(runId) async {
     print("Backfilling timing measurement to Supabase: ${measurement.id}");
     try {
       await supabase.insertEvent(measurement, 'timing_measurements_events',
-          customEventType: 'backfill');
+          customEventType: 'v1.5.2_backfill');
       print('Timing measurement backfilled successfully');
     } catch (e) {
       print('Error backfilling timing measurement: $e');

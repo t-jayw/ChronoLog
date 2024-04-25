@@ -255,7 +255,7 @@ void showShareModal(BuildContext context, Timepiece timepiece) {
     builder: (BuildContext context) {
       // Calculate three-quarters of the screen height
 //      final height = MediaQuery.of(context).size.height * 0.66;
-      final height = 500.0;
+      final height = 525.0;
 
       return Container(
         height: height, // Use the calculated height here

@@ -13,8 +13,6 @@ class TimeDisplay extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Subscribe to the timeModeProvider
     final timeModeOption = ref.watch(timeModeProvider);
-    print("time mode option provider");
-    print(timeModeOption);
 
     // Decide the format based on the TimeModeOption
     final is24HourFormat = timeModeOption == TimeModeOption.military; // Assuming `military` is the 24-hour option

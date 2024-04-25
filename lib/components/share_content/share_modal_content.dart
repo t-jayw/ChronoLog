@@ -104,7 +104,7 @@ class ShareModalContent extends StatelessWidget {
                         " - Watch Accuracy",
                         style: TextStyle(
                           fontSize: 10,
-                          color: Theme.of(context).colorScheme.onTertiary,
+
                         ),
                       ),
                     ],

@@ -212,7 +212,7 @@ class CustomLineChart extends StatelessWidget {
               ),
             if (showAverageLine)
               LineChartBarData(
-                spots: lineSpots,
+                spots: rateOfChangeLineSpots,
                 isCurved: false,
                 color: Theme.of(context).colorScheme.tertiary,
                 barWidth: 2,
@@ -264,6 +264,7 @@ class CustomLineChart extends StatelessWidget {
               ),
             ),
             topTitles: AxisTitles(
+              axisNameSize: 25,
               axisNameWidget: titleText != null
                   ? Text(titleText!, style: TextStyle(fontSize: 12))
                   : Container(),
