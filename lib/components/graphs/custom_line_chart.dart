@@ -1,29 +1,79 @@
 import 'package:chronolog/components/graphs/offset_custom_line_chart.dart';
 import 'package:chronolog/data_helpers.dart/linear_regression.dart';
+import 'package:chronolog/models/timing_measurement.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
 
 class CustomLineChart extends StatelessWidget {
-  final List<TaggedFlSpot> spots;
+  final List<TimingMeasurement> measurements;
   final Color lineColor;
   final String? titleText;
-  final bool showSlope;
-  final bool showAverageLine;
+  final String chartType;
 
   const CustomLineChart({
     Key? key,
-    required this.spots,
+    required this.measurements,
     this.lineColor = Colors.orangeAccent,
     this.titleText,
-    this.showSlope = true,
-    this.showAverageLine = false,
+    this.chartType = 'offset',
   }) : super(key: key);
+
+  List<TaggedFlSpot> createOffsetDataPoints(
+      List<TimingMeasurement> measurements) {
+    return measurements.map((measurement) {
+      final systemTime =
+          measurement.system_time.millisecondsSinceEpoch.toDouble();
+      final offset = measurement.difference_ms!.toDouble() / 1000;
+      final tag = measurement.tag ?? 'No Tag';
+
+      return TaggedFlSpot(systemTime, offset, tag);
+    }).toList();
+  }
+
+  List<TaggedFlSpot> createRateDataPoints(
+      List<TimingMeasurement> measurements) {
+    List<TaggedFlSpot> data = List.generate(measurements.length - 1, (i) {
+      final currentMeasurement = measurements[i];
+      final nextMeasurement = measurements[i + 1];
+
+      final currentSystemTime =
+          currentMeasurement.system_time.millisecondsSinceEpoch.toDouble();
+      final currentOffset = currentMeasurement.difference_ms!.toDouble() / 1000;
+
+      final nextSystemTime =
+          nextMeasurement.system_time.millisecondsSinceEpoch.toDouble();
+      final nextOffset = nextMeasurement.difference_ms!.toDouble() / 1000;
+
+      final timeDifference = (nextSystemTime - currentSystemTime) /
+          1000 /
+          60 /
+          60 /
+          24; // Time difference in days
+      final rateOfChange = (nextOffset - currentOffset) /
+          timeDifference; // Rate of change per day
+
+      final tag = currentMeasurement.tag ?? 'No Tag';
+
+      return TaggedFlSpot(currentSystemTime, rateOfChange, tag);
+    });
+
+    // Optionally, add a final spot with zero change or just end the data list
+    // final lastMeasurement = timingMeasurements.last;
+    // final lastSystemTime =
+    //     lastMeasurement.system_time.millisecondsSinceEpoch.toDouble();
+    // data.add(TaggedFlSpot(lastSystemTime, 0, lastMeasurement.tag ?? 'No Tag'));
+
+    return data; // Remove the first element
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (spots.length < 2) {
+    List<TaggedFlSpot> offsetSpots = createOffsetDataPoints(measurements);
+    List<TaggedFlSpot> rateSpots = createRateDataPoints(measurements);
+
+    if (offsetSpots.length < 2) {
       // Not enough data to create a meaningful chart
       return Center(
         child: Padding(
@@ -37,60 +87,54 @@ class CustomLineChart extends StatelessWidget {
       );
     }
 
-    double minY = spots.isEmpty ? -1 : spots.map((e) => e.y).reduce(min) - .5;
-    double maxY = spots.isEmpty ? 1 : spots.map((e) => e.y).reduce(max) + .5;
-    double minX = spots.isEmpty ? 0 : spots.map((e) => e.x).reduce(min);
-    double maxX = spots.isEmpty ? 0 : spots.map((e) => e.x).reduce(max);
+    // Calculate min and max values for x and y axes
+    double minY;
+    double maxY;
+    double minX;
+    double maxX;
+
+    minX = offsetSpots.isEmpty ? 0 : offsetSpots.map((e) => e.x).reduce(min);
+    maxX = offsetSpots.isEmpty ? 0 : offsetSpots.map((e) => e.x).reduce(max);
+
+    if (chartType == 'rate') {
+      minY =
+          rateSpots.isEmpty ? -1 : rateSpots.map((e) => e.y).reduce(min) - .5;
+      maxY =
+          rateSpots.isEmpty ? 1 : rateSpots.map((e) => e.y).reduce(max) + .5;
+    } else {
+      minY = offsetSpots.isEmpty
+          ? -1
+          : offsetSpots.map((e) => e.y).reduce(min) - .5;
+      maxY = offsetSpots.isEmpty
+          ? 1
+          : offsetSpots.map((e) => e.y).reduce(max) + .5;
+    }
 
     // Calculate intervals based on time range
     double totalTime = maxX - minX;
     double intervalX = totalTime / 5; // aim for 5 intervals
 
-    // Calculate the slope and y-intercept for the average rate line
-    // double slope = 0;
-    // double yIntercept = 0;
-    // if (spots.length > 1) {
-    //   double firstY = spots.first.y;
-    //   double lastY = spots.last.y;
-    //   double firstX = spots.first.x;
-    //   double lastX = spots.last.x;
-    //   slope = (lastY - firstY) / (lastX - firstX);
-    //   yIntercept = firstY - slope * firstX;
-    // }
+    //   List<TaggedFlSpot> calculateRateOfChange(
+    //     List<TimingMeasurement> timingMeasurements) {
+    //   if (timingMeasurements.length < 2)
+    //     return []; // Need at least two measurements to calculate rate of change
 
-    // List<FlSpot> averageRateLineSpots = [
-    //   FlSpot(minX, minX * slope + yIntercept),
-    //   FlSpot(maxX, maxX * slope + yIntercept),
-    // ];
-
-    final xData = spots.map((e) => e.x).toList();
-    final yData = spots.map((e) => e.y).toList();
+    final xData = offsetSpots.map((e) => e.x).toList();
+    final yData = offsetSpots.map((e) => e.y).toList();
 
     final slope = calculateSlope(xData, yData);
     final intercept = calculateIntercept(slope, xData, yData);
 
+    // line showing the regression line of offsets over time
     final lineSpots = [
       FlSpot(minX, yData.last),
       FlSpot(maxX, slope * maxX + intercept),
     ];
 
-    // Calculate the average rate of change for horizontal line
-    double averageRateOfChange = 0;
-    if (spots.length >= 2) {
-      double firstY = spots.first.y;
-      double lastY = spots.last.y;
-      double firstX = spots.first.x;
-      double lastX = spots.last.x;
-      averageRateOfChange = -1 * ((lastY - firstY) / (lastX - firstX));
-      print(averageRateOfChange);
-    }
-
     // Horizontal line at the average rate of change per day
     List<FlSpot> rateOfChangeLineSpots = [
       FlSpot(minX, slope * 86400000),
       FlSpot(maxX, slope * 86400000),
-      // FlSpot(minX, averageRateOfChange*86400000),
-      // FlSpot(maxX, averageRateOfChange*86400000),
     ];
 
     // Define formatter based on the total duration
@@ -106,6 +150,9 @@ class CustomLineChart extends StatelessWidget {
     double rangeY = maxY - minY;
     double intervalY = (rangeY / 5).ceil().toDouble();
     if (intervalY < 1) intervalY = 1;
+
+    List<TaggedFlSpot> plotSpots =
+        chartType == 'rate' ? rateSpots : offsetSpots;
 
     return Expanded(
       child: LineChart(
@@ -139,14 +186,11 @@ class CustomLineChart extends StatelessWidget {
 
                     if (touchedSpot.barIndex == 0) {
                       return LineTooltipItem(
-                        '${spots[touchedSpot.spotIndex].tag}',
+                        '${plotSpots[touchedSpot.spotIndex].tag}',
                         textStyle,
                       );
-                    }
-                    else {
-                      
-                    }
- 
+                    } else {}
+
                     // If the current touched spot isn't the highest or doesn't belong to actual data line, don't display any tooltip
                   }).toList();
                 },
@@ -167,7 +211,7 @@ class CustomLineChart extends StatelessWidget {
               getTouchLineEnd: (_, __) => double.infinity),
           lineBarsData: [
             LineChartBarData(
-              spots: spots,
+              spots: plotSpots,
               isCurved: false,
               color: Colors.orangeAccent,
               gradient: const LinearGradient(
@@ -200,7 +244,7 @@ class CustomLineChart extends StatelessWidget {
               ),
               belowBarData: BarAreaData(show: false),
             ),
-            if (showSlope)
+            if (this.chartType == 'offset')
               LineChartBarData(
                 spots: lineSpots,
                 isCurved: false,
@@ -210,7 +254,7 @@ class CustomLineChart extends StatelessWidget {
                 isStrokeCapRound: true,
                 dashArray: [5, 5], // Optional: Makes this line dashed
               ),
-            if (showAverageLine)
+            if (this.chartType == 'rate')
               LineChartBarData(
                 spots: rateOfChangeLineSpots,
                 isCurved: false,
@@ -233,7 +277,7 @@ class CustomLineChart extends StatelessWidget {
                 showTitles: true,
                 reservedSize: 25,
                 getTitlesWidget: (value, meta) {
-                  if (value == 0) return const SizedBox.shrink();
+                  // if (value == 0) return const SizedBox.shrink();
                   return Text(
                     '${value.toStringAsFixed(0)}s',
                     style: TextStyle(
@@ -276,4 +320,15 @@ class CustomLineChart extends StatelessWidget {
       ),
     );
   }
+}
+
+List<TaggedFlSpot> createDataPoints(List<TimingMeasurement> measurements) {
+  return measurements.map((measurement) {
+    final systemTime =
+        measurement.system_time.millisecondsSinceEpoch.toDouble();
+    final offset = measurement.difference_ms!.toDouble() / 1000;
+    final tag = measurement.tag ?? 'No Tag';
+
+    return TaggedFlSpot(systemTime, offset, tag);
+  }).toList();
 }

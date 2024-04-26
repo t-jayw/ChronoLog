@@ -26,20 +26,9 @@ class OffsetCustomLineChart extends ConsumerWidget {
     List<TaggedFlSpot> data = createDataPoints(timingMeasurements);
 
     return CustomLineChart(
-      spots: data,
+      measurements: timingMeasurements,
       lineColor: Theme.of(context).colorScheme.secondary,
       titleText: 'Offset (s)',
     );
-  }
-
-  List<TaggedFlSpot> createDataPoints(List<TimingMeasurement> measurements) {
-    return measurements.map((measurement) {
-      final systemTime =
-          measurement.system_time.millisecondsSinceEpoch.toDouble();
-      final offset = measurement.difference_ms!.toDouble() / 1000;
-      final tag = measurement.tag ?? 'No Tag';
-
-      return TaggedFlSpot(systemTime, offset, tag);
-    }).toList();
   }
 }

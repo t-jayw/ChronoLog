@@ -69,7 +69,7 @@ class ShareModalFrame extends StatelessWidget {
               SizedBox(height: 8),
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                   child: ShareModalContent(
                       timepiece: timepiece,
                       repaintBoundaryKey: repaintBoundaryKey),

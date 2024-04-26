@@ -78,178 +78,202 @@ class InfoPage extends ConsumerWidget {
     );
     logAllPreferences();
 
-    return  Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Text(
-              'ChronoLog',
-              style: TextStyle(
-                  fontSize: 24, color: Theme.of(context).colorScheme.tertiary),
-            ),
-            Text(
-              'Version: $versionNumber',
-              style: TextStyle(fontSize: 12),
-            ),
-            FutureBuilder<String>(
-              future: _db.getDatabaseVersion(),
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                if (snapshot.hasData) {
-                  return Text('DB version: ${snapshot.data}',
-                      style: TextStyle(fontSize: 12));
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}',
-                      style: TextStyle(fontSize: 12));
-                }
-                // By default, show a loading spinner.
-                return CircularProgressIndicator();
-              },
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Text(
+          'ChronoLog',
+          style: TextStyle(
+              fontSize: 24, color: Theme.of(context).colorScheme.tertiary),
+        ),
+        Text(
+          'Version: $versionNumber',
+          style: TextStyle(fontSize: 12),
+        ),
+        FutureBuilder<String>(
+          future: _db.getDatabaseVersion(),
+          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            if (snapshot.hasData) {
+              return Text('DB version: ${snapshot.data}',
+                  style: TextStyle(fontSize: 12));
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}',
+                  style: TextStyle(fontSize: 12));
+            }
+            // By default, show a loading spinner.
+            return CircularProgressIndicator();
+          },
+        ),
 
-            TimeDisplay(),
+        TimeDisplay(),
 
-            SizedBox(height: 12),
-            PremiumButton(
-              isPremiumActivated: _isPremiumActivated,
-              onTapPremium: () {
+        SizedBox(height: 12),
+        PremiumButton(
+          isPremiumActivated: _isPremiumActivated,
+          onTapPremium: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PurchaseScreen()),
+            );
+          },
+        ),
+
+        // Expanded(child: PurchaseOptions()),
+        ListGroup(
+          items: [
+            ListItem(
+              title: 'Show Welcome Screen',
+              iconData: Icons.watch_later,
+              onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PurchaseScreen()),
+                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
                 );
               },
             ),
 
-            // Expanded(child: PurchaseOptions()),
-            ListGroup(
-              items: [
-                ListItem(
-                  title: 'Show Welcome Screen',
-                  iconData: Icons.watch_later,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => WelcomeScreen()),
-                    );
-                  },
-                ),
-
-                ListItem(
-                  title: 'Website',
-                  iconData: Icons.web_asset,
-                  onTap: () async {
-                    const url = 'https://www.tylerjaywood.com/chronolog';
-                    if (await canLaunch(url)) {
-                      await launch(url);
-                    } else {
-                      throw 'Could not launch $url';
-                    }
-                  },
-                ),
-                ListItem(
-                  title: 'Send Me Feedback!',
-                  iconData: Icons.email,
-                  onTap: () async {
-                    sendMailWithFeedback();
-                  },
-                ),
-
-                ListItem(
-                  title: 'Review on App Store',
-                  iconData: Icons.star_border,
-                  onTap: () async {
-                    const url =
-                        'https://apps.apple.com/us/app/apple-store/6452083510';
-                    if (await canLaunch(url)) {
-                      await launch(url);
-                    } else {
-                      throw 'Could not launch $url';
-                    }
-                  },
-                ),
-
-                ListItem(
-                  title: 'Manage Data',
-                  iconData: Icons.dataset,
-                  onTap: () async {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled:
-                          true, // Set to true to make the bottom sheet full-screen
-                      builder: (BuildContext context) {
-                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                        return DraggableScrollableSheet(
-                          expand: false,
-                          builder: (_, controller) => SingleChildScrollView(
-                            controller: controller,
-                            child:
-                                ManageDataModal(), // Ensure your ManageSettingsScreen is suitable for this context
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-
-                ListItem(
-                  title: 'Manage Settings',
-                  iconData: Icons.settings,
-                  onTap: () async {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled:
-                          true, // Set to true to make the bottom sheet full-screen
-                      builder: (BuildContext context) {
-                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                        return DraggableScrollableSheet(
-                          expand: false,
-                          builder: (_, controller) => SingleChildScrollView(
-                            controller: controller,
-                            child:
-                                ManageSettingsWidget(), // Ensure your ManageSettingsScreen is suitable for this context
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  isLastItem: true,
-                ),
-                // Add more items as needed
-              ],
+            ListItem(
+              title: 'Website',
+              iconData: Icons.web_asset,
+              onTap: () async {
+                const url = 'https://www.tylerjaywood.com/chronolog';
+                if (await canLaunch(url)) {
+                  await launch(url);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
             ),
-            SizedBox(height: 10),
+            ListItem(
+              title: 'Send Me Feedback!',
+              iconData: Icons.email,
+              onTap: () async {
+                sendMailWithFeedback();
+              },
+            ),
 
-            // Expanded(
-            //     child: Column(
-            //   children: [],
-            // )),
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4.0),
-                  child: Text(
-                    'Made with ⛰️ in Boulder, CO',
+            ListItem(
+              title: 'Review on App Store',
+              iconData: Icons.star_border,
+              onTap: () async {
+                const url =
+                    'https://apps.apple.com/us/app/apple-store/6452083510';
+                if (await canLaunch(url)) {
+                  await launch(url);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
+            ),
+
+            ListItem(
+              title: 'Manage Data',
+              iconData: Icons.dataset,
+              onTap: () async {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled:
+                      true, // Set to true to make the bottom sheet full-screen
+                  builder: (BuildContext context) {
+                    // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                    return DraggableScrollableSheet(
+                      expand: false,
+                      builder: (_, controller) => SingleChildScrollView(
+                        controller: controller,
+                        child:
+                            ManageDataModal(), // Ensure your ManageSettingsScreen is suitable for this context
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+
+            ListItem(
+              title: 'Manage Settings',
+              iconData: Icons.settings,
+              onTap: () async {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled:
+                      true, // Set to true to make the bottom sheet full-screen
+                  builder: (BuildContext context) {
+                    // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                    return DraggableScrollableSheet(
+                      expand: false,
+                      builder: (_, controller) => SingleChildScrollView(
+                        controller: controller,
+                        child:
+                            ManageSettingsWidget(), // Ensure your ManageSettingsScreen is suitable for this context
+                      ),
+                    );
+                  },
+                );
+              },
+              isLastItem: true,
+            ),
+            // Add more items as needed
+          ],
+        ),
+        SizedBox(height: 10),
+
+        // Expanded(
+        //     child: Column(
+        //   children: [],
+        // )),
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Made with ',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: Text(
-                    '© 2024 Tyler Wood',
+                  GestureDetector(
+                    onDoubleTap: () {
+                      showDebugInfoModal(context);
+                    },
+                    child: Text(
+                      '⛰️',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    ' in Boulder, CO',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
-                ),
-                SizedBox(height: 8),
-                FooterBannerAdWidget(),
-              ],
+                ],
+              ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: Text(
+                '© 2024 Tyler Wood',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
+            FooterBannerAdWidget(),
           ],
-        );
-      
+        ),
+      ],
+    );
   }
 }
 
@@ -322,4 +346,26 @@ class ListItem extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<String> getSharedPreferencesData() async {
+  final prefs = await SharedPreferences.getInstance();
+  final keys = prefs.getKeys();
+  final prefsMap = keys.map((key) => '$key: ${prefs.get(key)}').join('\n');
+  return prefsMap;
+}
+
+void showDebugInfoModal(BuildContext context) async {
+  final prefsData = await getSharedPreferencesData();
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        padding: EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Text(prefsData),
+        ),
+      );
+    },
+  );
 }

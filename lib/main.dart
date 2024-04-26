@@ -140,6 +140,8 @@ void main() async {
   openCount++;
   await prefs.setInt('openCount', openCount);
 
+  clearDeprecatedSharedPreferencesKeys();
+
   // Attempt to fetch a stored unique identifier for the user, or generate a new one.
   String userId = prefs.getString('userId') ?? Ulid().toString();
   await prefs.setString(
@@ -296,6 +298,27 @@ Future<void> backfillTimingMeasurementsToSupabase(runId) async {
       print('Timing measurement backfilled successfully');
     } catch (e) {
       print('Error backfilling timing measurement: $e');
+    }
+  }
+}
+
+Future<void> clearDeprecatedSharedPreferencesKeys() async {
+  final prefs = await SharedPreferences.getInstance();
+  
+  // List of deprecated keys
+  List<String> deprecatedKeys = [
+    'timingMeasurementsBackfillCompleted',
+    'v1.5.0_backfill_completed',
+    'timingRunsBackfillCompleted',
+    'timepieceBackfillCompleted'
+  ];
+
+  for (String key in deprecatedKeys) {
+    if (prefs.containsKey(key)) {
+      await prefs.remove(key);
+      print('Removed deprecated key: $key');
+    } else {
+      print('Key does not exist: $key');
     }
   }
 }

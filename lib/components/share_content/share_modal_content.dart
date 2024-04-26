@@ -23,18 +23,16 @@ class ShareModalContent extends StatelessWidget {
     return RepaintBoundary(
       key: repaintBoundaryKey,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20), // Increased for safety
         child: Container(
-          padding:
-              EdgeInsets.all(8), // Padding to ensure border is inside the clip
+          padding: EdgeInsets.all(10), // Ensure padding to avoid clipping
           decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
             border: Border.all(
               color: Colors.black,
               width: 2,
             ),
-            borderRadius: BorderRadius.circular(
-                18), // Slightly less than ClipRRect to prevent clipping
+            borderRadius: BorderRadius.circular(18), // Match with ClipRRect
           ),
           child: Column(
             children: [
@@ -104,7 +102,6 @@ class ShareModalContent extends StatelessWidget {
                         " - Watch Accuracy",
                         style: TextStyle(
                           fontSize: 10,
-
                         ),
                       ),
                     ],
