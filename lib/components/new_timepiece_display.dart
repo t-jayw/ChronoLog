@@ -1,7 +1,10 @@
 import 'package:chronolog/components/measurement/measurement_selector_modal.dart';
+import 'package:chronolog/components/premium/premium_needed_dialog.dart';
 import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';
@@ -69,7 +72,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                           )
                         : Image.asset(
                             'assets/images/placeholder.png',
-                            fit: BoxFit.contain, 
+                            fit: BoxFit.contain,
                           ),
                   ),
                   Expanded(
@@ -233,24 +236,41 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                   ],
                                 ),
                                 onPressed: () async {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled:
-                                        true, // Set to true to make the bottom sheet full-screen
-                                    builder: (BuildContext context) {
-                                      // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                                      return DraggableScrollableSheet(
-                                        expand: false,
-                                        builder: (_, controller) =>
-                                            SingleChildScrollView(
-                                          controller: controller,
-                                          child: MeasurementSelectorModal(
-                                            timingRunId: timingRuns.first.id,
-                                          ), // Ensure your ManageSettingsScreen is suitable for this context
-                                        ),
-                                      );
-                                    },
-                                  );
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  bool? isPremiumActivated =
+                                      prefs.getBool('isPremiumActive');
+                                  print(timingMeasurements.length);
+                                  if (isPremiumActivated != true &&
+                                      timingMeasurements.length > 4) {
+                                    showPremiumNeededDialog(context,
+                                        "Free version limited to 5 measurements per Timing Run");
+                                    Posthog().capture(
+                                      eventName: 'paywall',
+                                      properties: {
+                                        'reason': 'num_measurements_paywall',
+                                      },
+                                    );
+                                  } else {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled:
+                                          true, // Set to true to make the bottom sheet full-screen
+                                      builder: (BuildContext context) {
+                                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                                        return DraggableScrollableSheet(
+                                          expand: false,
+                                          builder: (_, controller) =>
+                                              SingleChildScrollView(
+                                            controller: controller,
+                                            child: MeasurementSelectorModal(
+                                              timingRunId: timingRuns.first.id,
+                                            ), // Ensure your ManageSettingsScreen is suitable for this context
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
                                 },
                               ),
                             ],

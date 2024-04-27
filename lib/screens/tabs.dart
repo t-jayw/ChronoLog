@@ -50,15 +50,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     _selectPage(3);
   }
 
-  void _showPremiumNeededDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return PremiumNeededDialog(primaryText: "Free version limited to 2 timepieces",);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final timepieces = ref.watch(timepieceListProvider);
@@ -76,26 +67,26 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
             IconButton(
               icon: const Icon(Icons.add), // Plus sign icon
               onPressed: () async {
-                // _navigateToAddWatchScreen(context);
+                _navigateToAddWatchScreen(context);
 
                 // Make it async
                 
                 // Turning on paywall
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                bool? isPremiumActivated = prefs.getBool('isPremiumActive');
-                int numWatches = timepieces.length;
+                // SharedPreferences prefs = await SharedPreferences.getInstance();
+                // bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                // int numWatches = timepieces.length;
 
-                if (isPremiumActivated != true && numWatches >= 2) {
-                  Posthog().capture(
-                    eventName: 'paywall',
-                    properties: {
-                      'reason': 'num_watches_paywall',
-                    },
-                  );
-                  _showPremiumNeededDialog(context);
-                } else {
-                  _navigateToAddWatchScreen(context);
-                }
+                // if (isPremiumActivated != true && numWatches >= 2) {
+                //   Posthog().capture(
+                //     eventName: 'paywall',
+                //     properties: {
+                //       'reason': 'num_watches_paywall',
+                //     },
+                //   );
+                //   showPremiumNeededDialog(context, "Free version limited to 2 timepieces");
+                // } else {
+                //   _navigateToAddWatchScreen(context);
+                // }
               },
             ),
         ],

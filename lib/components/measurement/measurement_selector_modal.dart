@@ -2,6 +2,7 @@ import 'package:chronolog/components/custom_tool_tip.dart';
 import 'package:chronolog/components/primary_button.dart';
 import 'package:chronolog/measurement_forms/add_measurement_button_page.dart';
 import 'package:chronolog/measurement_forms/add_measurement_photo_page.dart';
+import 'package:chronolog/providers/timing_measurements_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
@@ -12,8 +13,13 @@ class MeasurementSelectorModal extends ConsumerWidget {
   MeasurementSelectorModal({Key? key, required this.timingRunId})
       : super(key: key);
 
+      
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+
+    
     return Container(
       child: Padding(
         padding: EdgeInsets.all(20),

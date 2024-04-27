@@ -2,6 +2,17 @@ import 'package:flutter/material.dart';
 import '../../screens/purchase_screen.dart';
 import '../primary_button.dart';
 
+void showPremiumNeededDialog(BuildContext context, text) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return PremiumNeededDialog(
+        primaryText: text,
+      );
+    },
+  );
+}
+
 class PremiumNeededDialog extends StatelessWidget {
   final String primaryText;
 
@@ -23,7 +34,8 @@ class PremiumNeededDialog extends StatelessWidget {
         ),
       ),
       content: Column(
-        mainAxisSize: MainAxisSize.min, // Adjusts the column size to its content
+        mainAxisSize:
+            MainAxisSize.min, // Adjusts the column size to its content
         children: [
           Text(
             primaryText,

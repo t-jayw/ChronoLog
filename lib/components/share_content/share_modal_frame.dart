@@ -30,7 +30,7 @@ class ShareModalFrame extends StatelessWidget {
         final directory = await getTemporaryDirectory();
         File imgFile = File('${directory.path}/share.png');
         await imgFile.writeAsBytes(pngBytes);
-        Share.shareFiles([imgFile.path], text: 'Check out my watch accuracy!');
+        Share.shareFiles([imgFile.path]);
       } else {
         debugPrint('Failed to obtain byte data from the image');
       }

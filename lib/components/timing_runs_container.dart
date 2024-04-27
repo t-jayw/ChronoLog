@@ -15,17 +15,6 @@ import '../providers/timing_run_provider.dart';
 import 'ads/footer_banner_ad.dart';
 import 'delete_confirmation_dialog.dart';
 
-void _showPremiumNeededDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return PremiumNeededDialog(
-        primaryText: "Free version limited to 2 timing run per timepiece",
-      );
-    },
-  );
-}
-
 class TimingRunsContainer extends ConsumerWidget {
   const TimingRunsContainer({Key? key, required this.timepiece})
       : super(key: key);
@@ -82,7 +71,8 @@ class TimingRunsContainer extends ConsumerWidget {
                         'reason': 'num_timing_runs_paywall',
                       },
                     );
-                    _showPremiumNeededDialog(context);
+                    showPremiumNeededDialog(context,
+                        "Free version limited to 2 Timing Runs per timepiece");
                   } else {
                     _addTimingRun(ref);
                   }

@@ -277,7 +277,7 @@ class CustomLineChart extends StatelessWidget {
                 showTitles: true,
                 reservedSize: 25,
                 getTitlesWidget: (value, meta) {
-                  // if (value == 0) return const SizedBox.shrink();
+                  if (value == minY || value == maxY) return const SizedBox.shrink();
                   return Text(
                     '${value.toStringAsFixed(0)}s',
                     style: TextStyle(
@@ -294,7 +294,7 @@ class CustomLineChart extends StatelessWidget {
                 reservedSize: 15,
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                  if (value == 0 || value == maxX)
+                  if (value == minX || value == maxX)
                     return const SizedBox.shrink();
                   return Text(
                     formatTimeInterval(value - minX),
