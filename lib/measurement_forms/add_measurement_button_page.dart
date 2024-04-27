@@ -1,10 +1,11 @@
+import 'package:chronolog/components/measurement/configurable_picker.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ulid/ulid.dart';
 import '../components/measurement/tag_selector.dart';
 
 import '../components/primary_button.dart';
-import '../components/measurement/tap_measurement_time_picker.dart';
 import '../models/timing_measurement.dart';
 import '../providers/timing_measurements_list_provider.dart';
 
@@ -50,7 +51,6 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Measurement',
@@ -61,18 +61,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
         final timingMeasurementListProvider = ref
             .watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
 
-        int offsetPassToPicker = 10;
-        if (timingMeasurementListProvider.state.isNotEmpty) {
-          final mostRecentMeasurement = timingMeasurementListProvider.state[0];
-          final lastSecondsOffset =
-              (mostRecentMeasurement.difference_ms! / 1000).round();
-          offsetPassToPicker = lastSecondsOffset + 10;
-        }
-
         DateTime timeForPicker = DateTime.now();
-        //DateTime.now().add(Duration(seconds: offsetPassToPicker));
-
-        //selectedTime = DateTime.now().add(Duration(seconds: offsetPassToPicker)); // Setting selectedTime as initial value of the picker
 
         return Padding(
           padding: const EdgeInsets.all(10.0),
@@ -81,10 +70,17 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  TapMeasurementTimePicker(
+                  Text(
+                      "Move the dial to pick a time. Tap \"Add Measurement\" when your watch reaches the time displayed.",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 18),
+                      textAlign: TextAlign.center),
+                  Divider(),
+                  ConfigurablePrecisionTimePicker(
                     onTimeChanged: _updateTime,
-                    initialTime:
-                        timeForPicker, // Pass the initial value to the picker
+                    initialTime: timeForPicker,
+                    mode: TimePickerMode.tap,
                   ),
                   // Tag selection section
                   TagSelector(
@@ -125,7 +121,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
 
                           timingMeasurementListProvider
                               .addTimingMeasurement(measurement);
-                              _showSnackBar();
+                          _showSnackBar();
                           Navigator.pop(context);
                         },
                       ),

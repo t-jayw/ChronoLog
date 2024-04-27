@@ -9,19 +9,18 @@ class CustomToolTip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Flexible(
-      child: Padding(
+    return Padding(
         padding: EdgeInsets.symmetric(horizontal: 4.0),
         child: Row(
           mainAxisAlignment: mainAxisAlignment,
           children: [
             Icon(Icons.lightbulb_outline,
-                size: 14.0, color: Theme.of(context).colorScheme.secondary),
+                size: 12.0, color: Theme.of(context).colorScheme.secondary),
             SizedBox(width: 5.0), // control space between icon and text
             child,
           ],
         ),
-      ),
+      
     );
   }
 }

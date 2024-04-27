@@ -1,3 +1,4 @@
+import 'package:chronolog/components/custom_tool_tip.dart';
 import 'package:chronolog/components/premium/premium_needed_dialog.dart';
 import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,16 +12,8 @@ import 'package:chronolog/components/timing_run_component.dart';
 import '../models/timepiece.dart';
 import '../models/timing_run.dart';
 import '../providers/timing_run_provider.dart';
+import 'ads/footer_banner_ad.dart';
 import 'delete_confirmation_dialog.dart';
-
-void _showPremiumNeededDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return PremiumNeededDialogAddTimingRun();
-    },
-  );
-}
 
 class TimingRunsContainer extends ConsumerWidget {
   const TimingRunsContainer({Key? key, required this.timepiece})
@@ -48,22 +41,15 @@ class TimingRunsContainer extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Padding(
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.lightbulb_outline, size: 14.0, color: Colors.yellow),
-              SizedBox(
-                  width:
-                      5.0), // you can control the space between the icon and text by adjusting the width
-              Text(
+          child: CustomToolTip(
+              child: Text(
                 "Start a new timing run after setting your watch",
                 style:
-                    TextStyle(fontSize: 12.0), // you can style your text here
+                    TextStyle(fontSize: 10.0), // you can style your text here
               ),
-            ],
-          ),
+              mainAxisAlignment: MainAxisAlignment.center),
         ),
         Padding(
           padding: const EdgeInsets.all(2.0),
@@ -71,19 +57,22 @@ class TimingRunsContainer extends ConsumerWidget {
             child: SecondaryButton(
                 text: 'Start Timing Run',
                 onPressed: () async {
+                  // _addTimingRun(ref);
+                  // turning on paywall
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   bool? isPremiumActivated = prefs.getBool('isPremiumActive');
                   int numTimingRuns = timingRuns.length;
 
-                  if (isPremiumActivated != true && numTimingRuns == 1) {
+                  if (isPremiumActivated != true && numTimingRuns == 2) {
                     Posthog().capture(
                       eventName: 'paywall',
                       properties: {
                         'reason': 'num_timing_runs_paywall',
                       },
                     );
-                    _showPremiumNeededDialog(context);
+                    showPremiumNeededDialog(context,
+                        "Free version limited to 2 Timing Runs per timepiece");
                   } else {
                     _addTimingRun(ref);
                   }
@@ -128,7 +117,7 @@ class TimingRunsContainer extends ConsumerWidget {
                 },
                 background: Container(
                   alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 8.0),
+                  padding: const EdgeInsets.only(right: 4.0),
                   child: Icon(Icons.delete,
                       color: Theme.of(context).colorScheme.error, size: 40),
                 ),
@@ -140,6 +129,7 @@ class TimingRunsContainer extends ConsumerWidget {
             },
           ),
         ),
+        FooterBannerAdWidget(),
       ],
     );
   }

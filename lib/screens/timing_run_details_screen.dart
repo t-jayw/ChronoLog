@@ -1,3 +1,4 @@
+import 'package:chronolog/components/ads/footer_banner_ad.dart';
 import 'package:chronolog/models/timepiece.dart';
 import 'package:flutter/material.dart';
 import 'package:chronolog/components/measurement/timing_measurements_container.dart';
@@ -32,21 +33,16 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Timing Run Details',
+        title: Text('${widget.timepiece.brand} ${widget.timepiece.model}',
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(4.0),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('${widget.timepiece.brand} ${widget.timepiece.model}')
-              ],
-            ),
+            
             TimingRunDetailHeaderStats(timingRun: widget.timingRun),
-            SizedBox(height: 10),
+
             Container(
               height: 260, // Adjust as needed
               child: PageView(
@@ -67,6 +63,7 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
             SmoothPageIndicator(
                 controller: _controller, // PageController
                 count: 2, // Number of pages
+                
                 effect: JumpingDotEffect(
                     activeDotColor: Theme.of(context)
                         .colorScheme
@@ -78,10 +75,13 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
                     curve: Curves.ease,
                   );
                 }),
+
             Expanded(
               child:
                   TimingMeasurementsContainer(timingRunId: widget.timingRun.id),
             ),
+                                            FooterBannerAdWidget(),
+
           ],
         ),
       ),

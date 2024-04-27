@@ -1,17 +1,18 @@
+import 'package:chronolog/providers/posthog_manager_provider.dart';
+import 'package:chronolog/providers/supabase_manager_provider.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/models/timepiece.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
-
 import '../database_helpers.dart';
 import 'dbHelperProvider.dart';
 
 class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
-  TimepieceListProvider(this._db) : super([]) {
+  TimepieceListProvider(this._db, this.ref) : super([]) {
     initTimepieces();
   }
 
   final DatabaseHelper _db;
+  final ProviderContainer ref; // This will provide access to SupabaseManager
 
   Future<void> initTimepieces() async {
     state = await _db.getTimepieces();
@@ -31,58 +32,61 @@ class TimepieceListProvider extends StateNotifier<List<Timepiece>> {
       await _db.insertTimepiece(timepiece);
       state = [...state, timepiece];
 
-      String stateString = state.map((tp) => tp.toString()).join(', ');
+      final supabase = ref.read(supabaseManagerProvider);
+      await supabase.insertEvent(timepiece, 'timepieces_events',
+          customEventType: 'add_timepiece');
 
-      Posthog().capture(
-        eventName: 'timepiece_added',
-        properties: {
-          'brand': timepiece.brand, 
-          'name': timepiece.model,
-          'total_timepieces': state.length,
-          'timepieces': stateString},
-      );
-      
-    } else {
-      // Handle duplicate timepiece
-      // For example, you can show a snackbar or display an error message
-      print('Duplicate timepiece detected.');
+      // Assuming that you might want to log this addition in PostHog as well
+
+      final posthog = ref.read(posthogManagerProvider);
+      posthog.sendEvent(timepiece, customEventType: 'timepiece_added');
     }
   }
 
-  Future<void> removeTimepiece(String id) async {
-    await _db.removeTimepiece(id);
-    state = state.where((timepiece) => timepiece.id != id).toList();
+  Future<void> removeTimepiece(Timepiece timepieceToRemove) async {
+
+    final supabase = ref.read(supabaseManagerProvider);
+    await supabase.insertEvent(timepieceToRemove, 'timepieces_events',
+        customEventType: 'delete_timepiece');
+        
+    await _db.removeTimepiece(timepieceToRemove.id);
+
+    state = state.where((item) => item.id != timepieceToRemove.id).toList();
+
   }
 
   Future<void> updateTimepiece(Timepiece updatedTimepiece) async {
     final existingIndex =
         state.indexWhere((tp) => tp.id == updatedTimepiece.id);
     if (existingIndex != -1) {
-      // Update in the database
       await _db.updateTimepiece(updatedTimepiece);
-      // Create a copy of current state to maintain immutability
-      List<Timepiece> newState = List.from(state);
-      // Replace the old timepiece data with updated data
-      newState[existingIndex] = updatedTimepiece;
-      // Assign the updated state to the provider state
-      state = newState;
+      state[existingIndex] = updatedTimepiece;
+      state = List.from(state); // Notify listeners of the state change
+
+      final supabase = ref.read(supabaseManagerProvider);
+      await supabase.insertEvent(updatedTimepiece, 'timepieces_events',
+          customEventType: 'update_timepiece');
     } else {
-      // Handle situation when the timepiece does not exist
-      print('Cannot update, timepiece does not exist.');
+      print('Timepiece does not exist.');
     }
   }
 }
 
 final timepieceListProvider =
     StateNotifierProvider<TimepieceListProvider, List<Timepiece>>((ref) {
-  // Get the DatabaseHelper instance from your providers
   final dbHelper = ref.watch(dbHelperProvider);
-  return TimepieceListProvider(dbHelper);
+  return TimepieceListProvider(
+      dbHelper, ref.container); // Pass ref.container to TimepieceListProvider
 });
 
 final orderedTimepiecesProvider = StateProvider<List<Timepiece>>((ref) {
   return []; // Initially empty, will be updated later
 });
+
+
+// SupabaseManager provider if needed
+
+
 
 
 // class TimepieceList extends StateNotifier<List<Timepiece>> {

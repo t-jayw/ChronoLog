@@ -9,7 +9,7 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      //height: 40.0,
+      height: 40.0,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
@@ -39,7 +39,7 @@ class SecondaryButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          backgroundColor: Theme.of(context).cardColor, // Use the primary color from your theme
+          backgroundColor: Theme.of(context).cardTheme.color, // Use the primary color from your theme
         ),
         onPressed: onPressed,
         child: Text(text, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),

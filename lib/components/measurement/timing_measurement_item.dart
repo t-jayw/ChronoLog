@@ -1,5 +1,4 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -49,7 +48,7 @@ class TimingMeasurementItem extends ConsumerWidget {
         VerticalDivider(
           color: Colors.black,
           width: 10,
-          thickness: 2,
+          thickness: 1,
         ),
         _buildMetricColumn('Change', differenceSeconds + ' s',
             colorScheme.onSurface, colorScheme.tertiary),
@@ -95,7 +94,7 @@ class TimingMeasurementItem extends ConsumerWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(8.0)),
             ),
-            padding: EdgeInsets.all(4.0),
+            padding: EdgeInsets.all(2.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -244,12 +243,13 @@ class TimingMeasurementItem extends ConsumerWidget {
           value,
           style: TextStyle(// Larger font size
             color: metricColor, // Tertiary color
+            fontSize: 10.0,
           ),
         ),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12.0, // Smaller font size
+            fontSize: 10.0, // Smaller font size
             color: labelColor, // onSurface color
           ),
         ),

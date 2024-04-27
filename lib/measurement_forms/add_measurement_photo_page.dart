@@ -8,7 +8,8 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ulid/ulid.dart';
 
-import '../components/measurement/photo_measurement_time_picker.dart';
+import '../components/measurement/configurable_picker.dart';
+
 import '../components/primary_button.dart';
 import '../components/measurement/tag_selector.dart';
 import '../models/timing_measurement.dart';
@@ -34,6 +35,36 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
   DateTime imageTakenTime = DateTime.now();
 
   String tag = '';
+
+  @override
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Instructions'),
+            content: Text('Take a photo of your watch face and note the time it shows.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+      _pickImage(ImageSource.camera);
+    });
+  }
 
   void _updateTime(DateTime newTime) {
     setState(() {
@@ -146,7 +177,6 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.timingRunId);
     return Scaffold(
       appBar: AppBar(
         title: Text('Add New Measurement',
@@ -155,6 +185,8 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
       body: Consumer(builder: (context, ref, _) {
         final timingMeasurementListProvider = ref
             .watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
+
+        DateTime timeForPicker = DateTime.now();
 
         return Padding(
           padding: const EdgeInsets.all(10.0),
@@ -174,8 +206,8 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
                         _pickImage(ImageSource.camera);
                       },
                       child: Container(
-                        height: 150,
-                        width: 150,
+                        height: 100,
+                        width: 100,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Theme.of(context).colorScheme.primary,
@@ -189,25 +221,29 @@ class _AddMeasurementState extends State<AddMeasurementPhoto> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      PrimaryButton(
-                        child: Text(
-                          'Take Photo',
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context).colorScheme.onPrimary),
-                        ),
-                        onPressed: () {
-                          _pickImage(ImageSource.camera);
-                        },
-                      ),
+                      // PrimaryButton(
+                      //   child: Text(
+                      //     'Take Photo',
+                      //     style: TextStyle(
+                      //         fontSize: 16,
+                      //         color: Theme.of(context).colorScheme.onPrimary),
+                      //   ),
+                      //   onPressed: () {
+                      //     _pickImage(ImageSource.camera);
+                      //   },
+                      // ),
                     ],
                   ),
                   const Divider(), // Add a horizontal line
-
-                  CustomTimePicker(
-                    initialTime: DateTime.now(),
+                  ConfigurablePrecisionTimePicker(
                     onTimeChanged: _updateTime,
+                    initialTime: timeForPicker,
+                    mode: TimePickerMode.image,
                   ),
+                  // CustomTimePicker(
+                  //   initialTime: DateTime.now(),
+                  //   onTimeChanged: _updateTime,
+                  // ),
                   TagSelector(
                     onTagSelected: _updateTag,
                     selectedTag: tag,

@@ -1,6 +1,10 @@
+import 'package:chronolog/components/measurement/measurement_selector_modal.dart';
+import 'package:chronolog/components/premium/premium_needed_dialog.dart';
 import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import for Riverpod
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';
@@ -10,28 +14,12 @@ import '../providers/timing_run_provider.dart';
 import '../screens/watch_details_screen.dart';
 
 import '../providers/timing_measurements_list_provider.dart';
-import 'custom_tool_tip.dart';
-import 'measurement/measurement_picker.dart';
 
 class NewTimepieceDisplay extends ConsumerWidget {
   final Timepiece timepiece;
 
   const NewTimepieceDisplay({Key? key, required this.timepiece})
       : super(key: key);
-
-  String _formatDuration(Duration d) {
-    String result = '';
-    if (d.inDays > 0) {
-      result = '${d.inDays} day${d.inDays != 1 ? 's' : ''} ago';
-    } else if (d.inHours > 0) {
-      result = '${d.inHours} hour${d.inHours != 1 ? 's' : ''} ago';
-    } else if (d.inMinutes > 0) {
-      result = '${d.inMinutes} minute${d.inMinutes != 1 ? 's' : ''} ago';
-    } else {
-      result = 'Just now';
-    }
-    return result;
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,29 +31,22 @@ class NewTimepieceDisplay extends ConsumerWidget {
         timingRuns.isNotEmpty ? timingRuns.first : null;
 
     List<TimingMeasurement> timingMeasurements = [];
-    double? secondsPerDayForRun;
-    double? totalDurationDays;
-    String timeSinceLastMeasurement = '';
+
+    /// USE timing run parser stats
 
     if (mostRecentRun != null) {
       timingMeasurements =
           ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
-
-      if (timingMeasurements.isNotEmpty) {
-        secondsPerDayForRun = calculateRatePerDay(timingMeasurements);
-        totalDurationDays =
-            calculateTotalDuration(timingMeasurements) / 60 / 60 / 24;
-
-        timeSinceLastMeasurement = _formatDuration(
-          DateTime.now().difference(timingMeasurements.first.system_time),
-        );
-      }
+      if (timingMeasurements.length > 0) {}
     }
+
+    TimingRunStatistics timingRunStats =
+        TimingRunStatistics(timingMeasurements);
 
     // Handle all time
 
     return SizedBox(
-      height: 180,
+      height: 140,
       width: double.infinity,
       child: Card(
         child: InkWell(
@@ -79,7 +60,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
           },
           child: Container(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(6.0),
               child: Row(
                 children: [
                   ClipRRect(
@@ -87,16 +68,16 @@ class NewTimepieceDisplay extends ConsumerWidget {
                     child: timepiece.image != null
                         ? Image.memory(
                             timepiece.image!,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           )
                         : Image.asset(
                             'assets/images/placeholder.png',
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           ),
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -140,110 +121,160 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       .onBackground),
                             ],
                           ),
-                          SizedBox(height: 4),
+                          Divider(
+                            height: 1,
+                            thickness: .4,
+                          ),
+                          SizedBox(height: 5),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    '${secondsPerDayForRun != null ? secondsPerDayForRun.toStringAsFixed(1) : "0"}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 24,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                    ),
-                                  ),
-                                  Text(
-                                    'sec/day',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      '${totalDurationDays != null ? totalDurationDays.toStringAsFixed(1) : 0} day${totalDurationDays != 1 ? 's' : ''}',
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                    Text(
-                                      '${timingMeasurements.length} points',
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                    Text(
-                                      timeSinceLastMeasurement,
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                  ],
+                              Text(
+                                'Active Timing Run',
+                                style: TextStyle(
+                                  fontSize: 10,
                                 ),
                               ),
                             ],
                           ),
-                          if (mostRecentRun != null)
-                            Expanded(
-                              child: Container(
-                                alignment: Alignment.bottomRight,
-                                child: Padding(
-                                  padding: EdgeInsets.all(2.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                          SizedBox(height: 2),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      Expanded(child: Container()),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          PrimaryButton(
-                                            child: Text(
-                                              'Add Measurement',
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary),
-                                            ),
-                                            onPressed: () {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return AlertDialog(
-                                                    actions: <Widget>[
-                                                      MeasurementPicker(
-                                                        timingRunId:
-                                                            timingRuns.first.id,
-                                                      )
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                          )
-                                        ],
+                                      Text(
+                                        '${timingRunStats.formattedSecondsPerDayForRun()}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary,
+                                        ),
                                       ),
-                                      // CustomToolTip(
-                                      //   mainAxisAlignment:
-                                      //       MainAxisAlignment.end,
-                                      //   child: Text(
-                                      //     "Adds to current timing run",
-                                      //     overflow: TextOverflow.ellipsis,
-                                      //     maxLines: 2,
-                                      //     softWrap: true,
-                                      //     style: TextStyle(
-                                      //         fontSize:
-                                      //             10.0), // you can style your text here
-                                      //   ),
-                                      // ),
+                                      Text(
+                                        ' sec/day',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                        ),
+                                      ),
                                     ],
                                   ),
-                                ),
+                                ],
                               ),
-                            ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '${timingRunStats.formattedLatestOffset()}',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                          Text(
+                                            ' offset',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '${timingRunStats.formattedTimeSinceLastMeasurement()}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        ' ago',
+                                        style: TextStyle(fontSize: 10),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              PrimaryButton(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize
+                                      .min, // Use min to prevent the row from expanding
+                                  children: [
+                                    Icon(Icons.add,
+                                        size: 16,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary), // Addition sign icon
+                                    SizedBox(
+                                        width:
+                                            2), // Space between icon and text
+                                    Text(
+                                      '',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onPressed: () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  bool? isPremiumActivated =
+                                      prefs.getBool('isPremiumActive');
+                                  print(timingMeasurements.length);
+                                  if (isPremiumActivated != true &&
+                                      timingMeasurements.length > 4) {
+                                    showPremiumNeededDialog(context,
+                                        "Free version limited to 5 measurements per Timing Run");
+                                    Posthog().capture(
+                                      eventName: 'paywall',
+                                      properties: {
+                                        'reason': 'num_measurements_paywall',
+                                      },
+                                    );
+                                  } else {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled:
+                                          true, // Set to true to make the bottom sheet full-screen
+                                      builder: (BuildContext context) {
+                                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                                        return DraggableScrollableSheet(
+                                          expand: false,
+                                          builder: (_, controller) =>
+                                              SingleChildScrollView(
+                                            controller: controller,
+                                            child: MeasurementSelectorModal(
+                                              timingRunId: timingRuns.first.id,
+                                            ), // Ensure your ManageSettingsScreen is suitable for this context
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),

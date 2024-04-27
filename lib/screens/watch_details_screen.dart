@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:chronolog/components/share_content/share_modal_frame.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +11,6 @@ import '../components/generic_alert.dart';
 import '../components/timing_runs_container.dart';
 import '../components/watch_details_stats.dart';
 import '../models/timepiece.dart';
-import '../models/timing_measurement.dart';
 import '../providers/timepiece_list_provider.dart';
 
 class WatchDetails extends ConsumerWidget {
@@ -20,20 +22,6 @@ class WatchDetails extends ConsumerWidget {
     required this.timepiece,
     this.firstAdded = false,
   }) : super(key: key);
-
-  String _formatDuration(Duration d) {
-    String result = '';
-    if (d.inDays > 0) {
-      result = '${d.inDays} day${d.inDays != 1 ? 's' : ''} ago';
-    } else if (d.inHours > 0) {
-      result = '${d.inHours} hour${d.inHours != 1 ? 's' : ''} ago';
-    } else if (d.inMinutes > 0) {
-      result = '${d.inMinutes} minute${d.inMinutes != 1 ? 's' : ''} ago';
-    } else {
-      result = 'Just now';
-    }
-    return result;
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -91,20 +79,52 @@ class WatchDetails extends ConsumerWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: updatedTimepiece.image != null
-                            ? Image.memory(
-                                updatedTimepiece.image!,
-                                fit: BoxFit.cover,
-                                height: 180,
-                              )
-                            : Image.asset(
-                                'assets/images/placeholder.png',
-                                fit: BoxFit.cover,
-                                height: 180,
-                              ),
-                      ),
+                      Stack(children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: updatedTimepiece.image != null
+                              ? Image.memory(
+                                  updatedTimepiece.image!,
+                                  fit: BoxFit.cover,
+                                  height: 160,
+                                )
+                              : Image.asset(
+                                  'assets/images/placeholder.png',
+                                  fit: BoxFit.cover,
+                                  height: 160,
+                                ),
+                        ),
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: IconButton(
+                            icon: Icon(Icons.zoom_in),
+                            color: Colors.white,
+                            onPressed: () {
+                              _openFullSizeImage(
+                                  context, updatedTimepiece.image);
+                            },
+                          ),
+                        ),
+
+                        // Icon at the bottom left
+                        Positioned(
+                          left: 0,
+                          bottom: 0,
+                          child: IconButton(
+                            icon: Icon(Icons.upload),
+                            color: Colors.white,
+                            onPressed: () =>
+                                showShareModal(context, updatedTimepiece),
+                            // onPressed: () => Navigator.of(context).push(
+                            //   MaterialPageRoute(
+                            //     builder: (context) => ShareModalFrame(
+                            //         timepiece: updatedTimepiece),
+                            //   ),
+                            // ),
+                          ),
+                        ),
+                      ]),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -148,7 +168,7 @@ class WatchDetails extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 2),
+                              SizedBox(height: 0),
                               WatchDetailStats(
                                 timepiece: updatedTimepiece,
                               )
@@ -161,9 +181,10 @@ class WatchDetails extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 0),
             Divider(
-              thickness: 2,
+              height: 4,
+              thickness: 1,
             ),
             Expanded(
               child: TimingRunsContainer(timepiece: updatedTimepiece),
@@ -186,4 +207,60 @@ class WatchDetails extends ConsumerWidget {
       cancelButtonText: 'OK',
     );
   }
+
+  void _openFullSizeImage(BuildContext context, Uint8List? imageBytes) {
+    if (imageBytes == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: GestureDetector(
+            onTap: () =>
+                Navigator.of(context).pop(), // Optional: tap anywhere to close
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Image.memory(
+                  imageBytes,
+                  fit: BoxFit.contain,
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: CircleAvatar(
+                      radius: 14, // Size of close button
+                      backgroundColor: Colors.black
+                          .withOpacity(0.6), // Semi-transparent background
+                      child: Icon(Icons.close, size: 18, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+void showShareModal(BuildContext context, Timepiece timepiece) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, // Allows the modal to take up full screen height
+    builder: (BuildContext context) {
+      // Calculate three-quarters of the screen height
+//      final height = MediaQuery.of(context).size.height * 0.66;
+      final height = 525.0;
+
+      return Container(
+        height: height, // Use the calculated height here
+        child: ShareModalFrame(timepiece: timepiece),
+      );
+    },
+  );
 }
