@@ -57,14 +57,28 @@ class SupabaseManager {
     };
 
     // Handle image compression and conversion to base64 if applicable
-    if (item is Timepiece && item.image != null) {
-      Uint8List compressedImage = await FlutterImageCompress.compressWithList(
-        item.image!,
-        minWidth: 500,
-        minHeight: 500,
-        quality: 90,
-      );
-      data['image_b64_500'] = base64Encode(compressedImage);
+    // if (item is Timepiece && item.image != null) {
+    //   Uint8List compressedImage = await FlutterImageCompress.compressWithList(
+    //     item.image!,
+    //     minWidth: 500,
+    //     minHeight: 500,
+    //     quality: 90,
+    //   );
+    //   data['image_b64_500'] = base64Encode(compressedImage);
+    // }
+
+    // Not worth handling the images in the database right now.
+    // if I want in the future, will use s3 for storage.
+
+    // Remove image data from Timepiece objects
+    if (item is Timepiece) {
+      data.remove('image');
+      data.remove('image_b64_500');
+    }
+
+    // Remove image data from TimingMeasurement objects
+    if (item is TimingMeasurement) {
+      data.remove('image');
     }
 
     // Adding user_id if the item is a Timepiece
