@@ -37,12 +37,13 @@ class _TapMeasurementTimePicker extends State<TapMeasurementTimePicker> {
   }
 
   void _updateTime() {
-    int adjustedHour = _selectedHour == 12
-        ? 0
-        : _selectedHour; // Reset to 0 if _selectedHour is 12
+    int adjustedHour;
     if (_isPM) {
-      adjustedHour += 12; // Add 12 only if it's PM
+      adjustedHour = _selectedHour == 12 ? 12 : _selectedHour + 12;
+    } else {
+      adjustedHour = _selectedHour == 12 ? 0 : _selectedHour;
     }
+
     widget.onTimeChanged(
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day,
           adjustedHour, _selectedMinute, _selectedSecond * 5),
