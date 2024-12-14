@@ -54,16 +54,16 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // ensure that system time is later than user input time
-      _systemTime = _editedTimingMeasurement.system_time;
-      _userInputTime = _userInputTime;
+      // Keep the original system time
+      final originalSystemTime = _editedTimingMeasurement.system_time;
 
+      // Calculate difference using the original system time
       int differenceMs = _userInputTime != null
-          ? _userInputTime!.difference(_systemTime).inMilliseconds
+          ? _userInputTime!.difference(originalSystemTime).inMilliseconds
           : 0;
 
       _editedTimingMeasurement = _editedTimingMeasurement.copyWith(
-        system_time: _systemTime,
+        system_time: originalSystemTime, // Use original system time
         user_input_time: _userInputTime,
         tag: tag,
         difference_ms: differenceMs,
