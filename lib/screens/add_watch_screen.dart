@@ -88,9 +88,6 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
         title: const Text('Add New Watch'),
       ),
       body: Consumer(builder: (context, ref, _) {
-        final _timepieceListProvider =
-            ref.watch(timepieceListProvider.notifier);
-
         return Padding(
           padding: const EdgeInsets.all(10.0),
           child: Scrollbar(
@@ -293,7 +290,7 @@ Autocomplete<String>(
                     : null,
               );
 
-              bool isFirstAddedWatch = _timepieceListProvider.state.length == 0;
+              bool isFirstAddedWatch = _timepieceListProvider.state.isEmpty;
 
               //print(timepiece.toMap());
               _timepieceListProvider.addTimepiece(timepiece);

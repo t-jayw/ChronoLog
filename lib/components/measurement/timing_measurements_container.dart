@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/providers/timing_measurements_list_provider.dart';
-import '../ads/footer_banner_ad.dart';
 import '../delete_confirmation_dialog.dart';
 import 'timing_measurement_item.dart'; // Import the TimingMeasurementItem widget
 

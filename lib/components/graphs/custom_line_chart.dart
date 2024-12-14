@@ -4,7 +4,6 @@ import 'package:chronolog/models/timing_measurement.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
-import 'package:intl/intl.dart';
 
 class CustomLineChart extends StatelessWidget {
   final List<TimingMeasurement> measurements;

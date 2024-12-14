@@ -1,5 +1,4 @@
 import 'package:chronolog/components/graphs/custom_line_chart.dart';
-import 'package:chronolog/models/timing_measurement.dart';
 import 'package:chronolog/providers/timing_measurements_list_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +22,6 @@ class OffsetCustomLineChart extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final timingMeasurements = ref.watch(timingMeasurementsListProvider(runId));
-    List<TaggedFlSpot> data = createDataPoints(timingMeasurements);
 
     return CustomLineChart(
       measurements: timingMeasurements,

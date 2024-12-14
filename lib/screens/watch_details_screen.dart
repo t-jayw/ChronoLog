@@ -149,7 +149,7 @@ class WatchDetails extends ConsumerWidget {
                                           .onBackground,
                                     ),
                                   ),
-                                  const SizedBox(width: 1),
+                                  const SizedBox(width: 8),
                                   Expanded(
                                     child: AutoSizeText(
                                       updatedTimepiece.brand,
