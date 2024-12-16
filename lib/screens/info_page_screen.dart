@@ -70,6 +70,25 @@ class InfoPage extends ConsumerWidget {
         false; // default to false if not found
   }
 
+    void _showClockModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.5,
+          padding: EdgeInsets.all(16.0),
+          child: Center(
+            child: Text(
+              'Clock Modal Content Goes Here',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     print('info_page');
@@ -105,7 +124,26 @@ class InfoPage extends ConsumerWidget {
           },
         ),
 
-        TimeDisplay(),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(width: 0), // Placeholder to balance the Row
+                IconButton(
+                  icon: Icon(Icons.access_time, size: 30),
+                  onPressed: () => _showClockModal(context),
+                  color: Theme.of(context).colorScheme.tertiary,
+                  tooltip: 'Open Clock Modal',
+                ),
+              ],
+            ),
+            Center(
+              child: TimeDisplay(),
+            ),
+          ],
+        ),
 
         SizedBox(height: 12),
         PremiumButton(
