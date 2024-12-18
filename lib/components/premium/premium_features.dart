@@ -1,19 +1,34 @@
 import 'package:flutter/material.dart';
 
 class PremiumFeatures extends StatelessWidget {
-  final String entitlementType;
+  final String productTitle; // "premium" or "luxury"
 
   const PremiumFeatures({
     Key? key,
-    required this.entitlementType,
+    required this.productTitle,
   }) : super(key: key);
+
+  List<String> _getFeatures() {
+    print("productTitle: $productTitle.");
+    if (productTitle == "Luxury Version") {
+      return [
+        "Lifetime access.",
+        "Unlimited usage.",
+        "Prioritized feedback.",
+      ];
+    } else {
+      return [
+        "Less expensive."
+      ];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     Color tertiaryColor = Theme.of(context).colorScheme.tertiary;
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -22,27 +37,21 @@ class PremiumFeatures extends StatelessWidget {
               "Features",
               style: TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: tertiaryColor, 
+                fontWeight: FontWeight.w600,
+                color: tertiaryColor,
               ),
             ),
           ),
-          Divider(color: Theme.of(context).colorScheme.onSurface, thickness: 2), 
-          SizedBox(height: 12), 
-
-          // Now using the PremiumFeatureItem widget
-          PremiumFeatureItem(feature: "Ads Free Experience!"),
-          PremiumFeatureItem(feature: "Add unlimited watches."),
-          PremiumFeatureItem(feature: "Start unlimited timing runs."),
-          PremiumFeatureItem(feature: "Take unlimited measurements."),
-          PremiumFeatureItem(feature: "Support continued development."),
-          PremiumFeatureItem(feature: "Prioritized feedback and first look at all new features."),
+          Divider(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2), thickness: 0.5),
+          SizedBox(height: 8),
+          ..._getFeatures()
+              .map((feature) => PremiumFeatureItem(feature: feature))
+              .toList(),
         ],
       ),
     );
   }
 }
-
 
 class PremiumFeatureItem extends StatelessWidget {
   final String feature;
@@ -51,45 +60,33 @@ class PremiumFeatureItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {},
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: Theme.of(context).colorScheme.inverseSurface,
-              width: 0.5,
-            ),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.inverseSurface.withOpacity(0.1),
+            width: 0.25,
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded( // Wrap the inner Row with Expanded
-              child: Row(
-                children: [
-                  Icon(Icons.star, color: Theme.of(context).colorScheme.secondary),
-                  SizedBox(width: 10.0),
-                  Expanded( 
-                    child: Text(
-                      feature,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                    ),
-                  ),
-                ],
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.star, color: Theme.of(context).colorScheme.secondary, size: 16),
+          SizedBox(width: 8.0),
+          Expanded(
+            child: Text(
+              feature,
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
               ),
             ),
-            // Icon(Icons.navigate_next, color: Theme.of(context).colorScheme.onSurface),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
-
