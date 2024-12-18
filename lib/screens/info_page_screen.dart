@@ -1,10 +1,10 @@
-import 'package:chronolog/screens/purchase_screen.dart';
+import 'dart:async';
+
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../components/ads/footer_banner_ad.dart';
-import '../components/premium/premium_list_item.dart';
 import '../components/time_display.dart';
 import '../database_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +13,9 @@ import 'package:posthog_flutter/posthog_flutter.dart';
 
 import '../components/user_settings/manage_settings_modal.dart';
 import '../components/user_settings/manage_data_modal.dart';
+
+import 'package:chronolog/screens/clock_screen.dart';
+
 
 Future<void> logAllPreferences() async {
   final prefs = await SharedPreferences.getInstance();
@@ -70,19 +73,24 @@ class InfoPage extends ConsumerWidget {
         false; // default to false if not found
   }
 
-    void _showClockModal(BuildContext context) {
+    void _navigateToClockScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ClockScreen(), // Ensure ClockScreen is defined and imported
+      ),
+    );
+  }
+
+  void _showClockModal(BuildContext context) {
+    // Implement the logic to show the clock modal here
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       builder: (BuildContext context) {
         return Container(
-          height: MediaQuery.of(context).size.height * 0.5,
-          padding: EdgeInsets.all(16.0),
+          height: 200, // Example height
           child: Center(
-            child: Text(
-              'Clock Modal Content Goes Here',
-              style: TextStyle(fontSize: 16),
-            ),
+            child: Text('Clock Modal Content'), // Example content
           ),
         );
       },
@@ -131,11 +139,24 @@ class InfoPage extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(width: 0), // Placeholder to balance the Row
-                IconButton(
-                  icon: Icon(Icons.access_time, size: 30),
-                  onPressed: () => _showClockModal(context),
-                  color: Theme.of(context).colorScheme.tertiary,
-                  tooltip: 'Open Clock Modal',
+                Tooltip(
+                  message: 'Open Clock Screen',
+                  child: IconButton(
+                    icon: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2), // Background color
+                      ),
+                      padding: EdgeInsets.all(8.0), // Padding around the icon
+                      child: Icon(
+                        Icons.access_time,
+                        size: 30,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                    onPressed: () => _navigateToClockScreen(context),
+                    tooltip: 'Open Clock',
+                  ),
                 ),
               ],
             ),
@@ -145,23 +166,13 @@ class InfoPage extends ConsumerWidget {
           ],
         ),
 
-        SizedBox(height: 12),
-        PremiumButton(
-          isPremiumActivated: _isPremiumActivated,
-          onTapPremium: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PurchaseScreen()),
-            );
-          },
-        ),
 
         // Expanded(child: PurchaseOptions()),
         ListGroup(
           items: [
             ListItem(
-              title: 'Show Welcome Screen',
-              iconData: Icons.watch_later,
+              title: 'Show Information',
+              iconData: Icons.info,
               onTap: () {
                 Navigator.push(
                   context,
@@ -183,7 +194,7 @@ class InfoPage extends ConsumerWidget {
               },
             ),
             ListItem(
-              title: 'Send Me Feedback!',
+              title: 'SubmitFeedback',
               iconData: Icons.email,
               onTap: () async {
                 sendMailWithFeedback();
@@ -407,3 +418,4 @@ void showDebugInfoModal(BuildContext context) async {
     },
   );
 }
+

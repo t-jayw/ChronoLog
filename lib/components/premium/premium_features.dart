@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
 class PremiumFeatures extends StatelessWidget {
+  final String entitlementType;
+
+  const PremiumFeatures({
+    Key? key,
+    required this.entitlementType,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     Color tertiaryColor = Theme.of(context).colorScheme.tertiary;
@@ -12,7 +19,7 @@ class PremiumFeatures extends StatelessWidget {
         children: <Widget>[
           Center(
             child: Text(
-              "Premium Features",
+              "Features",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -25,7 +32,6 @@ class PremiumFeatures extends StatelessWidget {
 
           // Now using the PremiumFeatureItem widget
           PremiumFeatureItem(feature: "Ads Free Experience!"),
-          PremiumFeatureItem(feature: "Help Tyler buy a new watch!"),
           PremiumFeatureItem(feature: "Add unlimited watches."),
           PremiumFeatureItem(feature: "Start unlimited timing runs."),
           PremiumFeatureItem(feature: "Take unlimited measurements."),

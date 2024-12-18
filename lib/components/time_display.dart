@@ -46,16 +46,16 @@ class _TimeDisplayContentState extends State<_TimeDisplayContent> {
     _updateTimePeriodically();
   }
 
-    @override
+  @override
   void dispose() {
-    _isActive = false; // Mark the widget as inactive to stop periodic updates
+    _isActive = false;
     super.dispose();
   }
 
   void _updateTimePeriodically() {
-    if (_isActive) { // Check if the widget is still active before updating and scheduling another update
+    if (_isActive) {
       Future.delayed(Duration(seconds: 1), () {
-        if (_isActive) { // Check again because the widget's state might have changed during the delay
+        if (_isActive) {
           setState(() {
             currentTime = DateTime.now();
           });
@@ -67,9 +67,26 @@ class _TimeDisplayContentState extends State<_TimeDisplayContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      widget.formatter.format(currentTime),
-      style: TextStyle(fontSize: 24),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          widget.formatter.format(currentTime),
+          style: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        const SizedBox(height: 2), // Add some spacing between the time and date
+        Text(
+          DateFormat('EEEE, MMMM d, y').format(currentTime),
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: Colors.grey,
+          ),
+        ),
+      ],
     );
   }
 }

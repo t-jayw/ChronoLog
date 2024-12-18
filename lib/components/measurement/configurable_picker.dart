@@ -33,6 +33,7 @@ class _ConfigurablePrecisionTimePickerState
 
   late FixedExtentScrollController _minutePickerController;
   late FixedExtentScrollController _hourPickerController;
+  late FixedExtentScrollController _secondPickerController;
 
   @override
   void initState() {
@@ -47,8 +48,10 @@ class _ConfigurablePrecisionTimePickerState
 
   @override
   void dispose() {
-    // Don't forget to dispose of the controller when the widget is removed
+    // Dispose of all controllers when the widget is removed
     _minutePickerController.dispose();
+    _hourPickerController.dispose();
+    _secondPickerController.dispose();
     super.dispose();
   }
 
@@ -92,6 +95,13 @@ class _ConfigurablePrecisionTimePickerState
         : currentTime.second;
     _selectedTenthOfSecond = currentTime.millisecond ~/ 100;
 
+    // Initialize the seconds picker controller based on the mode
+    _secondPickerController = FixedExtentScrollController(
+      initialItem: widget.mode == TimePickerMode.tap
+          ? (_selectedSecond ~/ 5)
+          : _selectedSecond,
+    );
+
     setState(() {
       _isLoading = false;
     });
@@ -125,8 +135,9 @@ class _ConfigurablePrecisionTimePickerState
     }
 
     // Update the hour picker's index to reflect the change
-    _hourPickerController
-        .jumpToItem(_is24HourFormat ? _selectedHour : (_selectedHour % 12) - 1);
+    _hourPickerController.jumpToItem(_is24HourFormat
+        ? _selectedHour
+        : (_selectedHour % 12) - 1 + (_isPM ? 12 : 0));
     setState(() {});
   }
 
@@ -157,32 +168,33 @@ class _ConfigurablePrecisionTimePickerState
     setState(() {});
   }
 
-// Helper method to handle second change logic
+  // Helper method to handle second change logic
   void _handleSecondChange(int newSeconds) {
     bool incrementMinute = false;
     bool decrementMinute = false;
 
     // Detecting edge cases for rollover
     if (_selectedSecond >= 55 && newSeconds == 0) {
-      // Rolled over to next minute
       incrementMinute = true;
-      print('incrementMinute');
     } else if (_selectedSecond == 0 && newSeconds >= 55) {
-      // Rolled over to previous minute
       decrementMinute = true;
-      print('decrementMinute');
     }
 
     setState(() {
       _selectedSecond = newSeconds;
 
       if (incrementMinute) {
-        _selectedMinute = (_selectedMinute + 1) % 60;
-        _minutePickerController.jumpToItem(_selectedMinute);
+        print('Increment minute');
+        _incrementMinute();
       } else if (decrementMinute) {
-        _selectedMinute = (_selectedMinute - 1) < 0 ? 59 : _selectedMinute - 1;
-        _minutePickerController.jumpToItem(_selectedMinute);
+        print('Decrement minute');
+        _decrementMinute();
       }
+
+      // Update the seconds picker controller to reflect the new second
+      _secondPickerController.jumpToItem(widget.mode == TimePickerMode.tap
+          ? (_selectedSecond ~/ 5)
+          : _selectedSecond);
 
       _updateTime();
     });
@@ -196,8 +208,7 @@ class _ConfigurablePrecisionTimePickerState
     int step = 1,
     FixedExtentScrollController? scrollController,
     bool loopingAllowed = true,
-  } // Add this parameter
-      ) {
+  }) {
     return SizedBox(
       height: 150,
       width: 50,
@@ -208,8 +219,7 @@ class _ConfigurablePrecisionTimePickerState
         selectionOverlay: const CupertinoPickerDefaultSelectionOverlay(),
         onSelectedItemChanged: onSelectedItemChanged,
         scrollController: scrollController ??
-            FixedExtentScrollController(
-                initialItem: selectedValue - offset), // Use the parameter here
+            FixedExtentScrollController(initialItem: selectedValue - offset),
         children: List<Widget>.generate(
             numberOfItems,
             (index) => Center(
@@ -227,155 +237,293 @@ class _ConfigurablePrecisionTimePickerState
     if (_isLoading) {
       return CircularProgressIndicator(); // Or some placeholder
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        Column(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('H', style: TextStyle(fontSize: 10)),
-            _buildPicker(
-              _selectedHour,
-              _is24HourFormat ? 24 : 12,
-              _is24HourFormat ? 0 : 1,
-              (int value) {
-                setState(() {
-                  _selectedHour = value + (_is24HourFormat ? 0 : 1);
-                  _updateTime();
-                });
-              },
-              scrollController: _hourPickerController,
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Text('', style: TextStyle(fontSize: 10)),
-            Text(':',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onBackground)),
-          ],
-        ),
-        Column(
-          children: [
-            Text('M', style: TextStyle(fontSize: 10)),
-            _buildPicker(_selectedMinute, 60, 0, (int value) {
-              // Before setting the new minute, capture the previous state to check for rollover
-              bool isRollingOverIncrement = _selectedMinute == 59 && value == 0;
-              bool isRollingOverDecrement = _selectedMinute == 0 && value == 59;
-
-              setState(() {
-                _selectedMinute = value;
-
-                // Increment hour if rolling over from 59 to 0
-                if (isRollingOverIncrement) {
-                  print('icnrement hour');
-                  _incrementHour();
-                }
-                // Decrement hour if rolling over from 0 to 59 (consider whether this should actually decrement the hour based on your application's logic)
-                else if (isRollingOverDecrement) {
-                  print('decrement hour');
-                  _decrementHour();
-                }
-
-                _updateTime();
-              });
-            }, scrollController: _minutePickerController),
-          ],
-        ),
-
-        Column(
-          children: [
-            Text('', style: TextStyle(fontSize: 10)),
-            Text(':',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onBackground)),
-          ],
-        ),
-        // Include Seconds Picker for TimePickerMode.tap or TimePickerMode.image
-        if (widget.mode == TimePickerMode.tap ||
-            widget.mode == TimePickerMode.image)
-
-          // Configure picker differently based on mode
-          if (widget.mode == TimePickerMode.tap)
+            // Hour Picker
             Column(
               children: [
-                Text('S', style: TextStyle(fontSize: 10)),
-                _buildPicker(_selectedSecond ~/ 5, 12, 0, (int value) {
-                  _handleSecondChange(value * 5);
-                }, step: 5),
+                Text('H', style: TextStyle(fontSize: 10)),
+                _buildPicker(
+                  _selectedHour,
+                  _is24HourFormat ? 24 : 12,
+                  _is24HourFormat ? 0 : 1,
+                  (int value) {
+                    setState(() {
+                      _selectedHour = value + (_is24HourFormat ? 0 : 1);
+                      _updateTime();
+                    });
+                  },
+                  scrollController: _hourPickerController,
+                ),
               ],
-            ), // Tap mode: Mod 5 seconds picker
-        if (widget.mode == TimePickerMode.image)
-          Column(
-            children: [
-              Text('S', style: TextStyle(fontSize: 10)),
-              _buildPicker(_selectedSecond, 60, 0, (int value) {
-                _handleSecondChange(value);
-              }),
-            ],
-          ), // Image mode: Every second picker
+            ),
+            // Hour-Minute Separator
+            Column(
+              children: [
+                Text('', style: TextStyle(fontSize: 10)),
+                Text(':',
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground)),
+              ],
+            ),
+            // Minute Picker
+            Column(
+              children: [
+                Text('M', style: TextStyle(fontSize: 10)),
+                _buildPicker(_selectedMinute, 60, 0, (int value) {
+                  // Before setting the new minute, capture the previous state to check for rollover
+                  bool isRollingOverIncrement = _selectedMinute == 59 && value == 0;
+                  bool isRollingOverDecrement = _selectedMinute == 0 && value == 59;
 
-        if (widget.mode == TimePickerMode.image)
-          Column(
-            children: [
-              Text('', style: TextStyle(fontSize: 10)),
-              Text('.',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onBackground)),
-            ],
-          ),
-        if (widget.mode == TimePickerMode.image)
-          Column(
-            children: [
-              Text('', style: TextStyle(fontSize: 10)),
-              _buildPicker(
-                _selectedTenthOfSecond,
-                10,
-                0,
-                loopingAllowed: false,
-                (int value) {
                   setState(() {
-                    _selectedTenthOfSecond = value;
+                    _selectedMinute = value;
+
+                    // Increment hour if rolling over from 59 to 0
+                    if (isRollingOverIncrement) {
+                      print('Increment hour');
+                      _incrementHour();
+                    }
+                    // Decrement hour if rolling over from 0 to 59
+                    else if (isRollingOverDecrement) {
+                      print('Decrement hour');
+                      _decrementHour();
+                    }
 
                     _updateTime();
                   });
-                },
-              ),
-            ],
-          ),
-        if (!_is24HourFormat)
-          Transform.scale(
-            scale: 0.8,
-            child: ToggleButtons(
-              color: Theme.of(context).colorScheme.onBackground,
-              selectedColor: Theme.of(context).colorScheme.onPrimary,
-              fillColor: Theme.of(context).colorScheme.tertiary,
-              borderColor: Theme.of(context).colorScheme.onBackground,
-              borderRadius: BorderRadius.circular(10),
-              onPressed: (int index) {
-                setState(() {
-                  _isPM = index == 1;
-                  _updateTime();
-                });
-              },
-              isSelected: [_isPM == false, _isPM == true],
-              children: [
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text('AM')),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text('PM')),
+                }, scrollController: _minutePickerController),
               ],
             ),
-          ),
+
+            // Minute-Second Separator
+            Column(
+              children: [
+                Text('', style: TextStyle(fontSize: 10)),
+                Text(':',
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground)),
+              ],
+            ),
+            // Seconds Picker
+            if (widget.mode == TimePickerMode.tap ||
+                widget.mode == TimePickerMode.image)
+              // Configure picker differently based on mode
+              if (widget.mode == TimePickerMode.tap)
+                Column(
+                  children: [
+                    Text('S', style: TextStyle(fontSize: 10)),
+                    _buildPicker(
+                      widget.mode == TimePickerMode.tap
+                          ? _selectedSecond ~/ 5
+                          : _selectedSecond,
+                      widget.mode == TimePickerMode.tap ? 12 : 60,
+                      0,
+                      (int value) {
+                        _handleSecondChange(widget.mode == TimePickerMode.tap
+                            ? value * 5
+                            : value);
+                      },
+                      step: widget.mode == TimePickerMode.tap ? 5 : 1,
+                      scrollController: _secondPickerController,
+                    ),
+                  ],
+                )
+              else
+                Column(
+                  children: [
+                    Text('S', style: TextStyle(fontSize: 10)),
+                    _buildPicker(
+                      _selectedSecond,
+                      60,
+                      0,
+                      (int value) {
+                        _handleSecondChange(value);
+                      },
+                      scrollController: _secondPickerController,
+                    ),
+                  ],
+                ),
+            // Tenth of Second Picker (for Image Mode)
+            if (widget.mode == TimePickerMode.image)
+              Column(
+                children: [
+                  Text('', style: TextStyle(fontSize: 10)),
+                  Text('.',
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onBackground)),
+                ],
+              ),
+            if (widget.mode == TimePickerMode.image)
+              Column(
+                children: [
+                  Text('', style: TextStyle(fontSize: 10)),
+                  _buildPicker(
+                    _selectedTenthOfSecond,
+                    10,
+                    0,
+                    (int value) {
+                      setState(() {
+                        _selectedTenthOfSecond = value;
+
+                        _updateTime();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            // -5 Seconds Button with Icon and "5s" label
+            Column(
+              children: [
+                OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedSecond =
+                          (_selectedSecond - 5) < 0 ? 55 : _selectedSecond - 5; // Subtract 5 seconds
+                      if (_selectedSecond == 55) {
+                        _decrementMinute(); // Handle rollover
+                      }
+
+                      // Update the seconds picker controller
+                      _secondPickerController.jumpToItem(
+                          widget.mode == TimePickerMode.tap
+                              ? (_selectedSecond ~/ 5)
+                              : _selectedSecond);
+
+                      _updateTime(); // Update the overall time
+                    });
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.tertiary, // Outline color
+                    ),
+                    backgroundColor: Colors.transparent, // Transparent background
+                    minimumSize: Size(40, 40), // Smaller size
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.remove,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        '5s',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10), // Spacing between button and toggle
+                // AM/PM Toggle (if not 24-hour format)
+                if (!_is24HourFormat)
+                  Transform.scale(
+                    scale: 0.8,
+                    child: ToggleButtons(
+                      color: Theme.of(context).colorScheme.onBackground,
+                      selectedColor: Theme.of(context).colorScheme.onPrimary,
+                      fillColor: Theme.of(context).colorScheme.tertiary,
+                      borderColor: Theme.of(context).colorScheme.onBackground,
+                      borderRadius: BorderRadius.circular(10),
+                      onPressed: (int index) {
+                        setState(() {
+                          _isPM = index == 1;
+                          _updateTime();
+                        });
+                      },
+                      isSelected: [_isPM == false, _isPM == true],
+                      children: [
+                        Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text('AM')),
+                        Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text('PM')),
+                      ],
+                    ),
+                  ),
+                SizedBox(height: 10), // Spacing between toggle and button
+                // +5 Seconds Button with Icon and "5s" label
+                OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedSecond =
+                          (_selectedSecond + 5) % 60; // Add 5 seconds
+                      if (_selectedSecond < 5) {
+                        _incrementMinute(); // Handle rollover
+                      }
+
+                      // Update the seconds picker controller
+                      _secondPickerController.jumpToItem(
+                          widget.mode == TimePickerMode.tap
+                              ? (_selectedSecond ~/ 5)
+                              : _selectedSecond);
+
+                      _updateTime(); // Update the overall time
+                    });
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.tertiary, // Outline color
+                    ),
+                    backgroundColor: Colors.transparent, // Transparent background
+                    minimumSize: Size(40, 40), // Smaller size
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        '5s',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        // Removed the original buttons Row
       ],
     );
+  }
+
+  // Helper methods to handle minute increment/decrement
+  void _incrementMinute() {
+    _selectedMinute = (_selectedMinute + 1) % 60;
+    _minutePickerController.jumpToItem(_selectedMinute);
+    _updateTime(); // Ensure time is updated
+  }
+
+  void _decrementMinute() {
+    _selectedMinute = (_selectedMinute - 1) < 0 ? 59 : _selectedMinute - 1;
+    _minutePickerController.jumpToItem(_selectedMinute);
+    _updateTime(); // Ensure time is updated
   }
 }

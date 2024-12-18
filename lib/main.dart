@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -133,7 +132,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initPlatformState();
 
-  MobileAds.instance.initialize();
+  // MobileAds.instance.initialize();
 
   final prefs = await SharedPreferences.getInstance();
   int openCount = prefs.getInt('openCount') ?? 0;

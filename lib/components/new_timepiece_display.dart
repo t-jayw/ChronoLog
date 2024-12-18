@@ -99,7 +99,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       .onBackground,
                                 ),
                               ),
-                              const SizedBox(width: 1),
+                              const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
                                   timepiece.brand,
@@ -242,7 +242,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       prefs.getBool('isPremiumActive');
                                   print(timingMeasurements.length);
                                   if (isPremiumActivated != true &&
-                                      timingMeasurements.length > 4) {
+                                      timingMeasurements.length > 400) {
                                     showPremiumNeededDialog(context,
                                         "Free version limited to 5 measurements per Timing Run");
                                     Posthog().capture(

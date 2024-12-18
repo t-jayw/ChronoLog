@@ -170,7 +170,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                               prefs.getBool('isPremiumActive');
 
                           if (isPremiumActivated != true &&
-                              timingMeasurements.length > 4) {
+                              timingMeasurements.length > 400) {
                             showPremiumNeededDialog(context,
                                 "Free version limited to 5 measurements per Timing Run");
                           } else {
