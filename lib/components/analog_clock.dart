@@ -65,10 +65,12 @@ class _AnalogClockState extends State<AnalogClock> {
     // Find the index of the user's timezone
     _initialTimeZoneIndex = _timeZones.indexWhere((zone) => zone['abbreviation'] == _selectedTimeZone);
 
-    // Update timer to tick every 250 milliseconds
+    // Update timer to tick every 100 milliseconds
     _timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
       setState(() {
-        _currentTime = DateTime.now().toUtc().add(Duration(hours: _getTimeZoneOffset()));
+        // Convert offset from minutes to hours for the Duration
+        final offsetMinutes = _getTimeZoneOffset();
+        _currentTime = DateTime.now().toUtc().add(Duration(minutes: offsetMinutes));
       });
     });
   }
@@ -88,7 +90,10 @@ class _AnalogClockState extends State<AnalogClock> {
       (zone) => zone['abbreviation'] == _selectedTimeZone,
       orElse: () => {'offset': '0'},
     );
-    return int.parse(selectedZone['offset']!);
+    
+    // Convert the offset string to a double first, then to minutes
+    final double offsetHours = double.parse(selectedZone['offset']!);
+    return (offsetHours * 60).round(); // Convert hours to minutes
   }
 
   @override
@@ -327,6 +332,7 @@ class ClockPainter extends CustomPainter {
   }
 
   @override
+  
   bool shouldRepaint(CustomPainter oldDelegate) {
     return true;
   }

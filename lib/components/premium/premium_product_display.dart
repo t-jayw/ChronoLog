@@ -45,7 +45,7 @@ class PremiumProductDisplay extends StatelessWidget {
         else
           CarouselSlider(
             options: CarouselOptions(
-              height: screenHeight * 0.4, // 66% of screen height
+              height: screenHeight * 0.5, // 66% of screen height
               viewportFraction:
                   0.8, // Adjusted to 80% of screen width to show next card
               enlargeCenterPage: true,
