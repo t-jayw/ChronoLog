@@ -40,15 +40,16 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
     if (_isPM) {
       adjustedHour += 12;
     }
+    DateTime now = DateTime.now();
     widget.onTimeChanged(
       DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
+          now.year,
+          now.month,
+          now.day,
           adjustedHour,
           _selectedMinute,
           _selectedSecond,
-          _selectedTenthOfSecond * 100),
+          _selectedTenthOfSecond * 100 + now.millisecond % 100),
     );
   }
 

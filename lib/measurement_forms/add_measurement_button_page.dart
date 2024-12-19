@@ -28,6 +28,8 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
 
   String tag = '';
 
+  bool _isTagSelectorExpanded = false;
+
   void _updateTime(DateTime newTime) {
     setState(() {
       selectedTime = newTime;
@@ -116,66 +118,100 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  // Updated Collapsible Instructional Section
-                  ExpansionTile(
-                    title: Text(
-                      'How to Add a Measurement',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    leading: Icon(
-                      Icons.info_outline,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '1. **Set Time:** Use the picker to select the time for your measurement.',
-                              style: TextStyle(
-                                fontSize: 16,
-                                height: 1.5,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              '2. **Choose Tag:** Select a tag to categorize your measurement.',
-                              style: TextStyle(
-                                fontSize: 16,
-                                height: 1.5,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              '3. **Add Measurement:** Tap the "Add Measurement" button to save it.',
-                              style: TextStyle(
-                                fontSize: 16,
-                                height: 1.5,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'A confirmation message will appear once your measurement is added.',
-                              style: TextStyle(
-                                fontSize: 16,
-                                height: 1.5,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
+                  // Improved Collapsible Instructional Section
+                  Card(
+                    margin: const EdgeInsets.symmetric(vertical: 10.0),
+                    elevation: 3,
+                    child: ExpansionTile(
+                      title: Text(
+                        'How to Add a Measurement',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
-                    ],
+                      leading: Icon(
+                        Icons.info_outline,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    height: 1.5,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  children: [
+                                    TextSpan(text: '1. '),
+                                    TextSpan(
+                                      text: 'Set Time: ',
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(text: 'Use the picker to select the time for your measurement.'),
+                                  ],
+                                ),
+                              ),
+                              Divider(),
+                              RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    height: 1.5,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  children: [
+                                    TextSpan(text: '2. '),
+                                    TextSpan(
+                                      text: 'Choose Tag: ',
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(text: 'Select a tag to categorize your measurement.'),
+                                  ],
+                                ),
+                              ),
+                              Divider(),
+                              RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    height: 1.5,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  children: [
+                                    TextSpan(text: '3. '),
+                                    TextSpan(
+                                      text: 'Add Measurement: ',
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(text: 'Tap the "Add Measurement" button to save it.'),
+                                  ],
+                                ),
+                              ),
+                              Divider(),
+                              RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    height: 1.5,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  children: [
+                                    TextSpan(text: 'A confirmation message will appear once your measurement is added.'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   // Existing Widgets
                   ConfigurablePrecisionTimePicker(
@@ -183,11 +219,38 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                     initialTime: timeForPicker,
                     mode: TimePickerMode.tap,
                   ),
-                  // Tag selection section
-                  TagSelector(
-                    onTagSelected: _updateTag,
-                    selectedTag: tag,
+                  // Tag selection section with iOS-style expansion
+                  CupertinoButton(
+                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                    color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tags (optional)',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                        ),
+                        Icon(
+                          _isTagSelectorExpanded ? Icons.expand_less : Icons.expand_more,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ],
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isTagSelectorExpanded = !_isTagSelectorExpanded;
+                      });
+                    },
                   ),
+                  if (_isTagSelectorExpanded)
+                    TagSelector(
+                      onTagSelected: _updateTag,
+                      selectedTag: tag,
+                    ),
                   const SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.all(8.0),

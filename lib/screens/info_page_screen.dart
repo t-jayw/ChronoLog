@@ -15,7 +15,7 @@ import '../components/user_settings/manage_settings_modal.dart';
 import '../components/user_settings/manage_data_modal.dart';
 
 import 'package:chronolog/screens/clock_screen.dart';
-
+import 'package:chronolog/screens/purchase_screen.dart';
 
 Future<void> logAllPreferences() async {
   final prefs = await SharedPreferences.getInstance();
@@ -66,13 +66,6 @@ class InfoPage extends ConsumerWidget {
   // replace with actual value
 
   final DatabaseHelper _db = DatabaseHelper();
-
-  Future<bool> _isPremiumActivated() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isPremiumActive') ??
-        false; // default to false if not found
-  }
-
     void _navigateToClockScreen(BuildContext context) {
     Navigator.push(
       context,
@@ -261,6 +254,18 @@ class InfoPage extends ConsumerWidget {
               },
               isLastItem: true,
             ),
+
+            ListItem(
+              title: 'Purchase Options',
+              iconData: Icons.shopping_cart,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PurchaseScreen()),
+                );
+              },
+            ),
+
             // Add more items as needed
           ],
         ),
@@ -404,15 +409,67 @@ Future<String> getSharedPreferencesData() async {
   return prefsMap;
 }
 
+Future<String> getPurchaseDebugInfo() async {
+  // Implement this function to fetch purchase-related debug information
+  // For example, you can use a hypothetical function to fetch this information
+  return 'Purchase debug information';
+}
+
 void showDebugInfoModal(BuildContext context) async {
   final prefsData = await getSharedPreferencesData();
+  final purchaseInfo = await getPurchaseDebugInfo();
+
   showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
       return Container(
         padding: EdgeInsets.all(20),
         child: SingleChildScrollView(
-          child: Text(prefsData),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Debug Information',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              Divider(color: Theme.of(context).colorScheme.inverseSurface),
+              Text(
+                'Shared Preferences:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              Text(
+                prefsData,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Purchase Information:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              Text(
+                purchaseInfo,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     },

@@ -11,12 +11,6 @@ class ManageSettingsWidget extends ConsumerWidget {
 
   ManageSettingsWidget({Key? key}) : super(key: key);
 
-  Future<bool> _isPremiumActivated() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isPremiumActive') ??
-        false; // Default to false if not found
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     _loadThemeModeOption(context, ref);

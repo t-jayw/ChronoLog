@@ -24,10 +24,13 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
   }
 
   Future<void> _checkPremiumStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    _isPremiumUser = prefs.getBool('isPremiumActive') ?? false;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    _isPremiumUser = prefs.getBool('in_app_premiumActive') == true ||
+                    prefs.getBool('in_app_luxuryActive') == true;
     setState(() {});
   }
+
 
   @override
   Widget build(BuildContext context) {

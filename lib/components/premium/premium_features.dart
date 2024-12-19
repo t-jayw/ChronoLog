@@ -10,15 +10,17 @@ class PremiumFeatures extends StatelessWidget {
 
   List<String> _getFeatures() {
     print("productTitle: $productTitle.");
-    if (productTitle == "Luxury Version") {
+    if (productTitle == "Limited Edition") {
       return [
-        "Lifetime access.",
-        "Unlimited usage.",
-        "Prioritized feedback.",
+        "All of Premium features, plus:",
+        "More support for a good app."
       ];
     } else {
       return [
-        "Less expensive."
+        "Lifetime access.",
+        "Unlimited usage.",
+        "New features.",
+        "Prioritized feedback.",
       ];
     }
   }

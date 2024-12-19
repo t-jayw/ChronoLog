@@ -6,15 +6,6 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/premium/premium_product_display.dart';
 
-Future<void> _setPremiumActive(bool value) async {
-  final prefs = await SharedPreferences.getInstance();
-  prefs.setBool('premiumActive', value);
-  Posthog().capture(
-    eventName: 'set_premium_active',
-    properties: {},
-  );
-}
-
 class PurchaseScreen extends StatefulWidget {
   @override
   _PurchaseScreenState createState() => _PurchaseScreenState();
@@ -26,7 +17,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   Map<String, bool> _entitlementStatus = {};
   bool _isEventFired = false;
 
-  final List<String> _entitlements = ['in_app_premium'];
+  final List<String> _entitlements = ['in_app_premium', 'in_app_luxury'];
 
   @override
   void initState() {
@@ -182,6 +173,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     print('_purchasePackage()');
     try {
       final purchaseResult = await Purchases.purchasePackage(package);
+      print('Purchase result: ${purchaseResult.toJson()}');
+
       await _checkEntitlementStatus();
 
       if (purchaseResult.entitlements.active.isNotEmpty) {
@@ -189,6 +182,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
           await _setEntitlementActive(entitlement, true);
         }
         _showSuccessDialog("Purchase was successful");
+      } else {
+        print("No active entitlements found after purchase.");
       }
     } catch (e) {
       if (e is PlatformException) {
@@ -219,6 +214,34 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         'value': value,
       },
     );
+  }
+
+  Future<void> _removeAllActiveKeys() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys();
+
+    for (String key in keys) {
+      if (key.endsWith('Active')) {
+        await prefs.remove(key);
+      }
+    }
+    print('All *Active keys have been removed from local storage.');
+  }
+
+  Future<void> _simulateLuxuryPurchase() async {
+    await _setEntitlementActive('in_app_luxury', true);
+    setState(() {
+      _entitlementStatus['in_app_luxury'] = true;
+    });
+    _showSuccessDialog("Simulated purchase: Luxury entitlement is now active.");
+  }
+
+  Future<void> _simulatePremiumPurchase() async {
+    await _setEntitlementActive('in_app_premium', true);
+    setState(() {
+      _entitlementStatus['in_app_premium'] = true;
+    });
+    _showSuccessDialog("Simulated purchase: Premium entitlement is now active.");
   }
 
   @override
@@ -256,6 +279,27 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                 ),
               ),
             ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Wrap(
+            spacing: 8.0, // Space between buttons
+            alignment: WrapAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: _removeAllActiveKeys,
+                child: Text('Remove All Active Keys'),
+              ),
+              ElevatedButton(
+                onPressed: _simulateLuxuryPurchase,
+                child: Text('Simulate Luxury Purchase'),
+              ),
+              ElevatedButton(
+                onPressed: _simulatePremiumPurchase,
+                child: Text('Simulate Premium Purchase'),
+              ),
+            ],
           ),
         ),
       ],

@@ -46,13 +46,28 @@ class PremiumPackageTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      package.storeProduct.title,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "ChronoLog",
+                          style: TextStyle(
+                            fontSize: 16, // Smaller font size for ChronoLog
+                            fontWeight: FontWeight.normal,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontFamily: 'NewYork',
+                          ),
+                        ),
+                        Text(
+                          package.storeProduct.title,
+                          style: TextStyle(
+                            fontSize: 20, // Original font size for title
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontFamily: 'NewYork',
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 4),
                     Text(
