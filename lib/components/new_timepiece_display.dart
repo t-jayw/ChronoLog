@@ -24,14 +24,27 @@ class NewTimepieceDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final timingRuns = ref.watch(timingRunProvider(timepiece.id));
-    final mostRecentRun = timingRuns.isNotEmpty ? timingRuns.first : null;
+    final List<TimingRun> timingRuns =
+        ref.watch(timingRunProvider(timepiece.id));
+
+    // Handle the most recent timing run
+    final TimingRun? mostRecentRun =
+        timingRuns.isNotEmpty ? timingRuns.first : null;
+
     List<TimingMeasurement> timingMeasurements = [];
 
+    /// USE timing run parser stats
+
     if (mostRecentRun != null) {
-      timingMeasurements = ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
+      timingMeasurements =
+          ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
+      if (timingMeasurements.length > 0) {}
     }
-    TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
+
+    TimingRunStatistics timingRunStats =
+        TimingRunStatistics(timingMeasurements);
+
+    // Handle all time
 
     return Container(
       height: 120,
@@ -43,19 +56,32 @@ class NewTimepieceDisplay extends ConsumerWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => WatchDetails(timepiece: timepiece)),
-        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WatchDetails(timepiece: timepiece),
+            ),
+          );
+        },
         child: Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(6.0),
           child: Row(
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: timepiece.image != null
-                    ? Image.memory(timepiece.image!, fit: BoxFit.contain)
-                    : Image.asset('assets/images/placeholder.png', fit: BoxFit.contain),
+                child: SizedBox(
+                  height: 108,
+                  child: timepiece.image != null
+                      ? Image.memory(
+                          timepiece.image!,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          'assets/images/placeholder.png',
+                          fit: BoxFit.cover,
+                        ),
+                ),
               ),
               Expanded(
                 child: Padding(
@@ -68,35 +94,57 @@ class NewTimepieceDisplay extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(timepiece.model,
-                              maxLines: 2,
+                          Text(
+                            timepiece.model,
+                            maxLines: 2,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onBackground,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              timepiece.brand,
+                              maxLines: 1,
                               softWrap: true,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onBackground,
-                              )),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(timepiece.brand,
-                                maxLines: 1,
-                                softWrap: true,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                )),
+                                color:
+                                    Theme.of(context).colorScheme.tertiary,
+                              ),
+                            ),
                           ),
                           Icon(Icons.chevron_right,
                               size: 24,
-                              color: Theme.of(context).colorScheme.onBackground),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onBackground),
                         ],
                       ),
-                      Divider(height: 1, thickness: .4),
+                      Divider(
+                        height: 1,
+                        thickness: .4,
+                      ),
                       SizedBox(height: 5),
-                      Text('Active Timing Run', style: TextStyle(fontSize: 9)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Active Timing Run',
+                            style: TextStyle(
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
                       SizedBox(height: 2),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,105 +154,106 @@ class NewTimepieceDisplay extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('${timingRunStats.formattedSecondsPerDayForRun()}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                      color: Theme.of(context).colorScheme.tertiary,
-                                    )),
-                                Text('seconds per day',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
-                                    )),
+                                Text(
+                                  '${timingRunStats.formattedSecondsPerDayForRun()}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Theme.of(context).colorScheme.tertiary,
+                                  ),
+                                ),
+                                Text(
+                                  'sec/day',
+                                  style: TextStyle(fontSize: 10),
+                                ),
                               ],
                             ),
                           ),
                           Expanded(
                             flex: 2,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Text('${timingRunStats.formattedLatestOffset()}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Theme.of(context).colorScheme.secondary,
-                                        )),
-                                    Text(' offset',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
-                                        )),
+                                    Text(
+                                      '${timingRunStats.formattedLatestOffset()}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    Text(
+                                      ' offset',
+                                      style: TextStyle(fontSize: 10),
+                                    ),
                                   ],
                                 ),
                                 SizedBox(height: 4),
                                 Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Text('${timingRunStats.formattedTimeSinceLastMeasurement()}',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.secondary,
-                                        )),
-                                    Text(' ago',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
-                                        )),
+                                    Text(
+                                      '${timingRunStats.formattedTimeSinceLastMeasurement()}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      ' ago',
+                                      style: TextStyle(fontSize: 10),
+                                    ),
                                   ],
                                 ),
                               ],
                             ),
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: PrimaryButton(
-                              child: Center(
-                                child: Icon(Icons.add,
-                                    size: 20,
-                                    color: Theme.of(context).colorScheme.onPrimary),
-                              ),
-                              onPressed: () async {
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                bool? isPremiumActivated =
-                                    prefs.getBool('isPremiumActive');
-                                print(timingMeasurements.length);
-                                if (isPremiumActivated != true &&
-                                    timingMeasurements.length > 400) {
-                                  showPremiumNeededDialog(context,
-                                      "Free version limited to 5 measurements per Timing Run");
-                                  Posthog().capture(
-                                    eventName: 'paywall',
-                                    properties: {
-                                      'reason': 'num_measurements_paywall',
-                                    },
-                                  );
-                                } else {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled:
-                                        true, // Set to true to make the bottom sheet full-screen
-                                    builder: (BuildContext context) {
-                                      // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                                      return DraggableScrollableSheet(
-                                        expand: false,
-                                        builder: (_, controller) =>
-                                            SingleChildScrollView(
-                                          controller: controller,
-                                          child: MeasurementSelectorModal(
-                                            timingRunId: timingRuns.first.id,
-                                          ), // Ensure your ManageSettingsScreen is suitable for this context
-                                        ),
-                                      );
-                                    },
-                                  );
-                                }
-                              },
+                          SizedBox(width: 8),
+                          PrimaryButton(
+                            child: Icon(
+                              Icons.add,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
+                            onPressed: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              bool? isPremiumActivated =
+                                  prefs.getBool('isPremiumActive');
+                              print(timingMeasurements.length);
+                              if (isPremiumActivated != true &&
+                                  timingMeasurements.length > 400) {
+                                showPremiumNeededDialog(context,
+                                    "Free version limited to 5 measurements per Timing Run");
+                                Posthog().capture(
+                                  eventName: 'paywall',
+                                  properties: {
+                                    'reason': 'num_measurements_paywall',
+                                  },
+                                );
+                              } else {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled:
+                                      true, // Set to true to make the bottom sheet full-screen
+                                  builder: (BuildContext context) {
+                                    // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                                    return DraggableScrollableSheet(
+                                      expand: false,
+                                      builder: (_, controller) =>
+                                          SingleChildScrollView(
+                                        controller: controller,
+                                        child: MeasurementSelectorModal(
+                                          timingRunId: timingRuns.first.id,
+                                        ), // Ensure your ManageSettingsScreen is suitable for this context
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),

@@ -155,33 +155,33 @@ class ClockPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = min(size.width / 2, size.height / 2);
 
-    // Draw clock face with a gradient for a luxury look
+    // Updated clock face with contrasting colors
     final facePaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          theme.colorScheme.tertiary,           // Inner color
-          theme.colorScheme.tertiary.withOpacity(0.7), // Outer color
+          theme.colorScheme.surface,          // Inner color
+          theme.colorScheme.surface.withOpacity(0.8), // Outer color
         ],
       ).createShader(Rect.fromCircle(center: center, radius: radius))
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius, facePaint);
 
-    // Updated border with metallic gradient like the hands
+    // Updated border with stronger contrast
     final borderPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          Colors.grey[400]!,
-          Colors.grey[600]!,
+          theme.colorScheme.primary,
+          theme.colorScheme.primary.withOpacity(0.7),
         ],
       ).createShader(Rect.fromCircle(center: center, radius: radius))
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8;
 
-    // Add a subtle border outline
+    // Darker border outline for better definition
     final borderOutlinePaint = Paint()
-      ..color = Colors.grey[800]!
+      ..color = theme.colorScheme.primary.withOpacity(0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 10;
 
@@ -202,9 +202,10 @@ class ClockPainter extends CustomPainter {
       hourTextPainter.text = TextSpan(
         text: '$i',
         style: TextStyle(
-          color: theme.colorScheme.primary,     // Use theme primary color
-          fontSize: 20, // Larger font size
-          fontWeight: FontWeight.bold,
+          color: theme.colorScheme.onSurface,  // Use onSurface for better contrast
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Playfair Display',
         ),
       );
       hourTextPainter.layout();
@@ -228,8 +229,10 @@ class ClockPainter extends CustomPainter {
       minuteTextPainter.text = TextSpan(
         text: '${i * 5}',
         style: TextStyle(
-          color: theme.colorScheme.primary.withOpacity(0.8),
-          fontSize: 12,
+          color: theme.colorScheme.onSurface.withOpacity(0.8),  // Use onSurface with opacity
+          fontSize: 10,
+          fontWeight: FontWeight.w400,
+          fontFamily: 'Arial',
         ),
       );
       minuteTextPainter.layout();
@@ -241,8 +244,8 @@ class ClockPainter extends CustomPainter {
 
     // Draw minute ticks with a smaller size
     final tickPaint = Paint()
-      ..color = theme.colorScheme.primary.withOpacity(0.6)
-      ..strokeWidth = 1.5; // Reduced stroke width for smaller ticks
+      ..color = theme.colorScheme.onSurface.withOpacity(0.6)  // Use onSurface with opacity
+      ..strokeWidth = 1.5;
     for (int i = 0; i < 60; i++) {
       final angle = i * 6 * pi / 180;
       final tickStart = Offset(
@@ -262,21 +265,32 @@ class ClockPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     );
 
-    // Define a function to draw text with a background
-    void drawTextWithBackground(String text, Offset position) {
-      textPainter.text = TextSpan(
-        text: text,
-        style: TextStyle(
-          color: theme.colorScheme.primary,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      );
+    // Define a function to draw text with background
+    void drawTextWithBackground(String text, Offset position, {bool isDate = false}) {
+      TextStyle style;
+      if (isDate) {
+        style = TextStyle(
+          color: theme.colorScheme.onBackground,  // Changed from primary
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Playfair Display',
+          letterSpacing: 0.5,
+        );
+      } else {
+        style = TextStyle(
+          color: theme.colorScheme.onBackground,  // Changed from primary.withOpacity(0.9)
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          fontFamily: 'Arial',
+        );
+      }
+      
+      textPainter.text = TextSpan(text: text, style: style);
       textPainter.layout();
 
-      // Draw background rectangle
+      // Draw background with slight opacity for better contrast
       final backgroundPaint = Paint()
-        ..color = theme.colorScheme.tertiary.withOpacity(0.9);
+        ..color = theme.scaffoldBackgroundColor.withOpacity(0.8);
       final backgroundRect = Rect.fromCenter(
         center: position,
         width: textPainter.width + 10,
@@ -303,10 +317,45 @@ class ClockPainter extends CustomPainter {
       Offset(center.dx, center.dy + radius * 0.4),
     );
 
-    // Date at 3 o'clock
+    // Update the date indicator to include day abbreviation
     drawTextWithBackground(
-      '${dateTime.day}',
+      '${_getDayAbbreviation(dateTime.weekday)} ${dateTime.day}',
       Offset(center.dx + radius * 0.4, center.dy),
+      isDate: true, // Special styling for the date
+    );
+
+    // Move the ChronoLog brand name drawing before the hands
+    final brandTextPainter = TextPainter(
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    brandTextPainter.text = TextSpan(
+      text: 'ChronoLog',
+      style: TextStyle(
+        color: theme.colorScheme.onSurface.withOpacity(0.7), // Slightly transparent
+        fontSize: 16, // Slightly smaller
+        fontWeight: FontWeight.w500,
+        fontStyle: FontStyle.italic,
+        fontFamily: 'Playfair Display',
+        letterSpacing: 2.0,
+        shadows: [
+          Shadow(
+            color: theme.colorScheme.onSurface.withOpacity(0.2),
+            offset: Offset(0, 1),
+            blurRadius: 1,
+          ),
+        ],
+      ),
+    );
+    
+    brandTextPainter.layout();
+    brandTextPainter.paint(
+      canvas,
+      Offset(
+        center.dx - brandTextPainter.width / 2,
+        center.dy - radius * 0.35, // Changed from 0.15 to 0.3 to move it up closer to 12 o'clock
+      ),
     );
 
     // Calculate hour hand position first
@@ -402,33 +451,6 @@ class ClockPainter extends CustomPainter {
         ],
       ).createShader(Rect.fromCircle(center: center, radius: 8));
     canvas.drawCircle(center, 8, centerCapPaint);
-
-    // Add Chronolog brand name below 12 o'clock
-    final brandTextPainter = TextPainter(
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    );
-
-    brandTextPainter.text = TextSpan(
-      text: 'ChronoLog',
-      style: TextStyle(
-        color: theme.colorScheme.primary.withOpacity(0.8),
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        fontStyle: FontStyle.italic,
-        fontFamily: 'Playfair Display', // More classical serif font
-        letterSpacing: 1.2, // Add some letter spacing for elegance
-      ),
-    );
-    
-    brandTextPainter.layout();
-    brandTextPainter.paint(
-      canvas,
-      Offset(
-        center.dx - brandTextPainter.width / 2,
-        center.dy - radius * 0.35, // Moved up slightly from 0.3
-      ),
-    );
   }
 
   String _getMonthAbbreviation(int month) {
@@ -437,6 +459,12 @@ class ClockPainter extends CustomPainter {
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
     return months[month - 1];
+  }
+
+  // Add new helper method for day abbreviation
+  String _getDayAbbreviation(int weekday) {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return days[weekday - 1];
   }
 
   @override
