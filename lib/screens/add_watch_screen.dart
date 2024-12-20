@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:chronolog/components/brand_list.dart';
 import 'package:chronolog/screens/watch_details_screen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -83,6 +84,7 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
           widget.label,
           style: TextStyle(
             color: CupertinoColors.secondaryLabel.resolveFrom(context),
+            decoration: TextDecoration.none,
             fontSize: 12,
           ),
         ),
@@ -103,6 +105,81 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
             style: TextStyle(
               color: CupertinoColors.label.resolveFrom(context),
               fontSize: 18,
+            ),
+            placeholderStyle: TextStyle(
+              color: CupertinoColors.placeholderText.resolveFrom(context),
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class CustomEditableTextArea extends StatefulWidget {
+  final String label;
+  final String placeholder;
+  final void Function(String) onChanged;
+  final String initialValue;
+
+  const CustomEditableTextArea({
+    Key? key,
+    required this.label,
+    required this.placeholder,
+    required this.onChanged,
+    this.initialValue = '',
+  }) : super(key: key);
+
+  @override
+  _CustomEditableTextAreaState createState() => _CustomEditableTextAreaState();
+}
+
+class _CustomEditableTextAreaState extends State<CustomEditableTextArea> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          widget.label,
+          style: TextStyle(
+            color: CupertinoColors.secondaryLabel.resolveFrom(context),
+            fontSize: 12,
+            decoration: TextDecoration.none,
+          ),
+        ),
+        SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: CupertinoTextField(
+            controller: _controller,
+            placeholder: widget.placeholder,
+            onChanged: widget.onChanged,
+            minLines: 4,
+            maxLines: 8,
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            decoration: null,
+            style: TextStyle(
+              color: CupertinoColors.label.resolveFrom(context),
+              fontSize: 16,
             ),
             placeholderStyle: TextStyle(
               color: CupertinoColors.placeholderText.resolveFrom(context),
@@ -221,8 +298,7 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
           : null,
     );
 
-    final _timepieceListProvider =
-        ref.watch(timepieceListProvider.notifier);
+    final _timepieceListProvider = ref.watch(timepieceListProvider.notifier);
 
     bool isFirstAddedWatch = _timepieceListProvider.state.isEmpty;
 
@@ -242,11 +318,16 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Add New Watch', style: TextStyle(fontSize: 16)),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Add New Watch',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: Consumer(builder: (context, ref, _) {
           return Padding(
             padding: const EdgeInsets.all(8),
@@ -291,20 +372,17 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(CupertinoIcons.camera, 
-                                      size: 20, 
-                                      color: CupertinoColors.white
-                                    ),
+                                    Icon(CupertinoIcons.camera,
+                                        size: 20, color: CupertinoColors.white),
                                     SizedBox(width: 8),
-                                    Text('Camera', 
-                                      style: TextStyle(
-                                        color: CupertinoColors.white,
-                                        fontSize: 14
-                                      )
-                                    ),
+                                    Text('Camera',
+                                        style: TextStyle(
+                                            color: CupertinoColors.white,
+                                            fontSize: 14)),
                                   ],
                                 ),
-                                onPressed: () => _pickAndCropImage(ImageSource.camera),
+                                onPressed: () =>
+                                    _pickAndCropImage(ImageSource.camera),
                               ),
                             ),
                             SizedBox(width: 8),
@@ -315,20 +393,17 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(CupertinoIcons.photo, 
-                                      size: 20, 
-                                      color: CupertinoColors.white
-                                    ),
+                                    Icon(CupertinoIcons.photo,
+                                        size: 20, color: CupertinoColors.white),
                                     SizedBox(width: 8),
-                                    Text('Gallery', 
-                                      style: TextStyle(
-                                        color: CupertinoColors.white,
-                                        fontSize: 14
-                                      )
-                                    ),
+                                    Text('Gallery',
+                                        style: TextStyle(
+                                            color: CupertinoColors.white,
+                                            fontSize: 14)),
                                   ],
                                 ),
-                                onPressed: () => _pickAndCropImage(ImageSource.gallery),
+                                onPressed: () =>
+                                    _pickAndCropImage(ImageSource.gallery),
                               ),
                             ),
                           ],
@@ -359,6 +434,7 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                             style: TextStyle(
                               color: CupertinoColors.secondaryLabel
                                   .resolveFrom(context),
+                              decoration: TextDecoration.none,
                               fontSize: 12,
                             )),
                         SizedBox(height: 4),
@@ -370,12 +446,17 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                           ),
                           child: CupertinoButton(
                             onPressed: _showDatePicker,
-                            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 6),
                             child: Text(
-                              purchaseDate != null ? _formatDate(purchaseDate!) : '',
+                              purchaseDate != null
+                                  ? _formatDate(purchaseDate!)
+                                  : '',
                               style: TextStyle(
-                                color: CupertinoColors.label.resolveFrom(context),
+                                color:
+                                    CupertinoColors.label.resolveFrom(context),
                                 fontSize: 13,
+                                decoration: TextDecoration.none,
                               ),
                               textAlign: TextAlign.left,
                             ),
@@ -407,9 +488,9 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                           onChanged: (val) => crystalType = val,
                         ),
                         SizedBox(height: 12),
-                        CustomEditableField(
+                        CustomEditableTextArea(
                           label: 'Notes',
-                          placeholder: '',
+                          placeholder: 'Enter notes about your timepiece...',
                           onChanged: (val) => notes = val,
                         ),
                       ],
@@ -422,7 +503,8 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
                     'Add Watch',
-                    style: TextStyle(color: CupertinoColors.white, fontSize: 14),
+                    style:
+                        TextStyle(color: CupertinoColors.white, fontSize: 14),
                   ),
                   onPressed: () => _validateAndSubmit(ref),
                 ),

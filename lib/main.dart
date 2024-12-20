@@ -39,11 +39,12 @@ Future<void> initPlatformState() async {
 
 final theme = ThemeData(
   colorScheme: const ColorScheme.light(
-      primary: Color.fromARGB(255, 255, 255, 255),
-      secondary: Color.fromRGBO(177, 164, 42, 1),
-      tertiary: Color.fromRGBO(35, 80, 52, 1),
-      error: Color.fromARGB(255, 243, 165, 163),
-      tertiaryContainer: Color.fromARGB(255, 219, 217, 217)),
+    primary: Color.fromRGBO(248, 250, 248, 1),
+    secondary: Color.fromRGBO(176, 152, 98, 1),
+    tertiary: Color.fromRGBO(47, 75, 60, 1),
+    error: Color.fromARGB(255, 171, 0, 0),
+    tertiaryContainer: Color.fromARGB(255, 240, 245, 240)
+  ),
   splashColor: Colors.transparent,
   fontFamily: 'SFProText',
   textTheme: const TextTheme(
@@ -63,14 +64,12 @@ final theme = ThemeData(
       backgroundColor: MaterialStateProperty.resolveWith<Color>(
         (Set<MaterialState> states) {
           if (states.contains(MaterialState.pressed)) {
-            return Color.fromARGB(
-                255, 73, 124, 73); // the color when button is pressed
+            return Color.fromARGB(255, 56, 124, 68);
           }
-          return Color.fromRGBO(35, 80, 52, 1); // default color
+          return Color.fromRGBO(45, 95, 60, 1);
         },
       ),
-      foregroundColor:
-          MaterialStateProperty.all<Color>(Colors.black), // text color
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
     ),
   ),
   cardTheme: CardTheme(
@@ -88,14 +87,13 @@ final theme = ThemeData(
 
 final darkTheme = ThemeData(
   brightness: Brightness.dark,
-  scaffoldBackgroundColor:
-      Color.fromRGBO(36, 35, 35, 1), // Custom background color
-  dialogBackgroundColor: Color.fromRGBO(51, 43, 43, 1),
+  scaffoldBackgroundColor: Color.fromRGBO(28, 28, 32, 1),
+  dialogBackgroundColor: Color.fromRGBO(38, 38, 42, 1),
   colorScheme: ColorScheme.dark(
-    primary: Color.fromRGBO(17, 6, 6, 1),
-    secondary: Color.fromRGBO(221, 204, 51, 1),
-    tertiary: Color.fromRGBO(178, 227, 232, 1),
-    error: Color.fromARGB(158, 172, 17, 12),
+    primary: Color.fromRGBO(28, 32, 30, 1),
+    secondary: Color.fromRGBO(200, 175, 120, 1),
+    tertiary: Color.fromRGBO(180, 200, 190, 1),
+    error: Color.fromRGBO(171, 0, 0, 1),
   ),
   splashColor: Colors.transparent,
   appBarTheme: const AppBarTheme(
@@ -109,9 +107,9 @@ final darkTheme = ThemeData(
       backgroundColor: MaterialStateProperty.resolveWith<Color>(
         (Set<MaterialState> states) {
           if (states.contains(MaterialState.pressed)) {
-            return Color.fromARGB(255, 34, 34, 34);
+            return Color.fromARGB(255, 45, 85, 45);
           }
-          return Color.fromARGB(255, 73, 124, 73);
+          return Color.fromARGB(255, 65, 135, 85);
         },
       ),
       foregroundColor: MaterialStateProperty.all<Color>(Colors.white),

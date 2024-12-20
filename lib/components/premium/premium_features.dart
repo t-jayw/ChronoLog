@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PremiumFeatures extends StatelessWidget {
@@ -27,30 +28,22 @@ class PremiumFeatures extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color tertiaryColor = Theme.of(context).colorScheme.tertiary;
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Center(
-            child: Text(
-              "Features",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: tertiaryColor,
-              ),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Text(
+          "Features",
+          style: TextStyle(
+            color: CupertinoColors.secondaryLabel.resolveFrom(context),
+            fontSize: 12,
+            decoration: TextDecoration.none,
           ),
-          Divider(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2), thickness: 0.5),
-          SizedBox(height: 8),
-          ..._getFeatures()
-              .map((feature) => PremiumFeatureItem(feature: feature))
-              .toList(),
-        ],
-      ),
+        ),
+        SizedBox(height: 6),
+        ..._getFeatures()
+            .map((feature) => PremiumFeatureItem(feature: feature))
+            .toList(),
+      ],
     );
   }
 }
@@ -63,27 +56,26 @@ class PremiumFeatureItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(bottom: 6),
       padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).colorScheme.inverseSurface.withOpacity(0.1),
-            width: 0.25,
-          ),
-        ),
+        color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         children: [
-          Icon(Icons.star, color: Theme.of(context).colorScheme.secondary, size: 16),
+          Icon(
+            CupertinoIcons.star_fill, 
+            color: CupertinoTheme.of(context).primaryColor,
+            size: 14
+          ),
           SizedBox(width: 8.0),
           Expanded(
             child: Text(
               feature,
               style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                fontSize: 13,
+                color: CupertinoColors.label.resolveFrom(context),
               ),
             ),
           ),

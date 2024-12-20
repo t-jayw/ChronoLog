@@ -1,6 +1,7 @@
 import 'package:chronolog/components/measurement/measurement_selector_modal.dart';
 import 'package:chronolog/components/premium/premium_needed_dialog.dart';
 import 'package:chronolog/components/primary_button.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
@@ -23,265 +24,195 @@ class NewTimepieceDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<TimingRun> timingRuns =
-        ref.watch(timingRunProvider(timepiece.id));
-
-    // Handle the most recent timing run
-    final TimingRun? mostRecentRun =
-        timingRuns.isNotEmpty ? timingRuns.first : null;
-
+    final timingRuns = ref.watch(timingRunProvider(timepiece.id));
+    final mostRecentRun = timingRuns.isNotEmpty ? timingRuns.first : null;
     List<TimingMeasurement> timingMeasurements = [];
 
-    /// USE timing run parser stats
-
     if (mostRecentRun != null) {
-      timingMeasurements =
-          ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
-      if (timingMeasurements.length > 0) {}
+      timingMeasurements = ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
     }
+    TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
 
-    TimingRunStatistics timingRunStats =
-        TimingRunStatistics(timingMeasurements);
-
-    // Handle all time
-
-    return SizedBox(
-      height: 140,
+    return Container(
+      height: 120,
       width: double.infinity,
-      child: Card(
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => WatchDetails(timepiece: timepiece),
+      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => WatchDetails(timepiece: timepiece)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: timepiece.image != null
+                    ? Image.memory(timepiece.image!, fit: BoxFit.contain)
+                    : Image.asset('assets/images/placeholder.png', fit: BoxFit.contain),
               ),
-            );
-          },
-          child: Container(
-            child: Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: timepiece.image != null
-                        ? Image.memory(
-                            timepiece.image!,
-                            fit: BoxFit.contain,
-                          )
-                        : Image.asset(
-                            'assets/images/placeholder.png',
-                            fit: BoxFit.contain,
-                          ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                timepiece.model,
-                                maxLines: 2,
+                          Text(timepiece.model,
+                              maxLines: 2,
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onBackground,
+                              )),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(timepiece.brand,
+                                maxLines: 1,
                                 softWrap: true,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onBackground,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  timepiece.brand,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                  ),
-                                ),
-                              ),
-                              Icon(Icons.chevron_right,
-                                  size: 24,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onBackground),
-                            ],
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                )),
                           ),
-                          Divider(
-                            height: 1,
-                            thickness: .4,
+                          Icon(Icons.chevron_right,
+                              size: 24,
+                              color: Theme.of(context).colorScheme.onBackground),
+                        ],
+                      ),
+                      Divider(height: 1, thickness: .4),
+                      SizedBox(height: 5),
+                      Text('Active Timing Run', style: TextStyle(fontSize: 9)),
+                      SizedBox(height: 2),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('${timingRunStats.formattedSecondsPerDayForRun()}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: Theme.of(context).colorScheme.tertiary,
+                                    )),
+                                Text('seconds per day',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                                    )),
+                              ],
+                            ),
                           ),
-                          SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Active Timing Run',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 2),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        '${timingRunStats.formattedSecondsPerDayForRun()}',
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text('${timingRunStats.formattedLatestOffset()}',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .tertiary,
-                                        ),
-                                      ),
-                                      Text(
-                                        ' sec/day',
+                                          fontSize: 14,
+                                          color: Theme.of(context).colorScheme.secondary,
+                                        )),
+                                    Text(' offset',
                                         style: TextStyle(
                                           fontSize: 10,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            '${timingRunStats.formattedLatestOffset()}',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          Text(
-                                            ' offset',
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        '${timingRunStats.formattedTimeSinceLastMeasurement()}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        ' ago',
-                                        style: TextStyle(fontSize: 10),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              PrimaryButton(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize
-                                      .min, // Use min to prevent the row from expanding
-                                  children: [
-                                    Icon(Icons.add,
-                                        size: 16,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary), // Addition sign icon
-                                    SizedBox(
-                                        width:
-                                            2), // Space between icon and text
-                                    Text(
-                                      '',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                      ),
-                                    ),
+                                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                                        )),
                                   ],
                                 ),
-                                onPressed: () async {
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  bool? isPremiumActivated =
-                                      prefs.getBool('isPremiumActive');
-                                  print(timingMeasurements.length);
-                                  if (isPremiumActivated != true &&
-                                      timingMeasurements.length > 400) {
-                                    showPremiumNeededDialog(context,
-                                        "Free version limited to 5 measurements per Timing Run");
-                                    Posthog().capture(
-                                      eventName: 'paywall',
-                                      properties: {
-                                        'reason': 'num_measurements_paywall',
-                                      },
-                                    );
-                                  } else {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled:
-                                          true, // Set to true to make the bottom sheet full-screen
-                                      builder: (BuildContext context) {
-                                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                                        return DraggableScrollableSheet(
-                                          expand: false,
-                                          builder: (_, controller) =>
-                                              SingleChildScrollView(
-                                            controller: controller,
-                                            child: MeasurementSelectorModal(
-                                              timingRunId: timingRuns.first.id,
-                                            ), // Ensure your ManageSettingsScreen is suitable for this context
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  }
-                                },
+                                SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Text('${timingRunStats.formattedTimeSinceLastMeasurement()}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.secondary,
+                                        )),
+                                    Text(' ago',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                                        )),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: PrimaryButton(
+                              child: Center(
+                                child: Icon(Icons.add,
+                                    size: 20,
+                                    color: Theme.of(context).colorScheme.onPrimary),
                               ),
-                            ],
+                              onPressed: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                bool? isPremiumActivated =
+                                    prefs.getBool('isPremiumActive');
+                                print(timingMeasurements.length);
+                                if (isPremiumActivated != true &&
+                                    timingMeasurements.length > 400) {
+                                  showPremiumNeededDialog(context,
+                                      "Free version limited to 5 measurements per Timing Run");
+                                  Posthog().capture(
+                                    eventName: 'paywall',
+                                    properties: {
+                                      'reason': 'num_measurements_paywall',
+                                    },
+                                  );
+                                } else {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled:
+                                        true, // Set to true to make the bottom sheet full-screen
+                                    builder: (BuildContext context) {
+                                      // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                                      return DraggableScrollableSheet(
+                                        expand: false,
+                                        builder: (_, controller) =>
+                                            SingleChildScrollView(
+                                          controller: controller,
+                                          child: MeasurementSelectorModal(
+                                            timingRunId: timingRuns.first.id,
+                                          ), // Ensure your ManageSettingsScreen is suitable for this context
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                            ),
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

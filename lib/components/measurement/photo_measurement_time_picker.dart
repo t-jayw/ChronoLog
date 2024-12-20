@@ -163,8 +163,6 @@ selectedColor: Theme.of(context).colorScheme.tertiary,
         looping: true,
         selectionOverlay: const CupertinoPickerDefaultSelectionOverlay(),
         onSelectedItemChanged: onSelectedItemChanged,
-        scrollController:
-            FixedExtentScrollController(initialItem: selectedValue),
         children: _generatePickerItems(numberOfItems, offset),
       ),
     );

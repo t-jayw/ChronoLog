@@ -106,22 +106,55 @@ class InfoPage extends ConsumerWidget {
           style: TextStyle(
               fontSize: 24, color: Theme.of(context).colorScheme.tertiary),
         ),
-        Text(
-          'Version: $versionNumber',
-          style: TextStyle(fontSize: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Version: $versionNumber',
+              style: TextStyle(fontSize: 12),
+            ),
+            Text(
+              ' • ', // Bullet separator
+              style: TextStyle(fontSize: 12),
+            ),
+            FutureBuilder<String>(
+              future: _db.getDatabaseVersion(),
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                if (snapshot.hasData) {
+                  return Text('DB version: ${snapshot.data}',
+                      style: TextStyle(fontSize: 12));
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}',
+                      style: TextStyle(fontSize: 12));
+                }
+                return SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                );
+              },
+            ),
+          ],
         ),
-        FutureBuilder<String>(
-          future: _db.getDatabaseVersion(),
-          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-            if (snapshot.hasData) {
-              return Text('DB version: ${snapshot.data}',
-                  style: TextStyle(fontSize: 12));
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}',
-                  style: TextStyle(fontSize: 12));
-            }
-            // By default, show a loading spinner.
-            return CircularProgressIndicator();
+        FutureBuilder<SharedPreferences>(
+          future: SharedPreferences.getInstance(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return SizedBox.shrink();
+            
+            final prefs = snapshot.data!;
+            final isLuxury = prefs.getBool('in_app_luxuryActive') ?? false;
+            final isPremium = prefs.getBool('in_app_premiumActive') ?? false;
+            
+            if (!isLuxury && !isPremium) return SizedBox.shrink();
+            
+            return Text(
+              isLuxury ? 'Luxury' : 'Premium',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            );
           },
         ),
 
@@ -143,7 +176,7 @@ class InfoPage extends ConsumerWidget {
                       padding: EdgeInsets.all(8.0), // Padding around the icon
                       child: Icon(
                         Icons.access_time,
-                        size: 30,
+                        size: 40,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),

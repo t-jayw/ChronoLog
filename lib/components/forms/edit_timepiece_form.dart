@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -59,6 +60,7 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
           style: TextStyle(
             color: CupertinoColors.secondaryLabel.resolveFrom(context),
             fontSize: 12,
+            decoration: TextDecoration.none,
           ),
         ),
         SizedBox(height: 6),
@@ -78,6 +80,81 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
             style: TextStyle(
               color: CupertinoColors.label.resolveFrom(context),
               fontSize: 18,
+            ),
+            placeholderStyle: TextStyle(
+              color: CupertinoColors.placeholderText.resolveFrom(context),
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class CustomEditableTextArea extends StatefulWidget {
+  final String label;
+  final String placeholder;
+  final void Function(String) onChanged;
+  final String initialValue;
+
+  const CustomEditableTextArea({
+    Key? key,
+    required this.label,
+    required this.placeholder,
+    required this.onChanged,
+    this.initialValue = '',
+  }) : super(key: key);
+
+  @override
+  _CustomEditableTextAreaState createState() => _CustomEditableTextAreaState();
+}
+
+class _CustomEditableTextAreaState extends State<CustomEditableTextArea> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          widget.label,
+          style: TextStyle(
+            color: CupertinoColors.secondaryLabel.resolveFrom(context),
+            fontSize: 12,
+            decoration: TextDecoration.none,
+          ),
+        ),
+        SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: CupertinoTextField(
+            controller: _controller,
+            placeholder: widget.placeholder,
+            onChanged: widget.onChanged,
+            minLines: 4,
+            maxLines: 8,
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            decoration: null,
+            style: TextStyle(
+              color: CupertinoColors.label.resolveFrom(context),
+              fontSize: 16,
             ),
             placeholderStyle: TextStyle(
               color: CupertinoColors.placeholderText.resolveFrom(context),
@@ -226,11 +303,16 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Edit Watch', style: TextStyle(fontSize: 16)),
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Edit Watch",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
         ),
-        child: SafeArea(
+        body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -332,6 +414,7 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                               color: CupertinoColors.secondaryLabel
                                   .resolveFrom(context),
                               fontSize: 12,
+                              decoration: TextDecoration.none,
                             )),
                         SizedBox(height: 4),
                         Container(
@@ -383,12 +466,13 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                           onChanged: (val) => crystalType = val,
                         ),
                         SizedBox(height: 12),
-                        CustomEditableField(
+                        CustomEditableTextArea(
                           label: 'Notes',
-                          placeholder: '',
+                          placeholder: 'Enter notes about your timepiece...',
                           initialValue: notes,
                           onChanged: (val) => notes = val,
                         ),
+                        SizedBox(height: 24),
                       ],
                     ),
                   ),

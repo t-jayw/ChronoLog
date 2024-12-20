@@ -32,6 +32,7 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
   DateTime imageTakenTime = DateTime.now();
   String tag = '';
   bool _instructionsExpanded = false;
+  bool _tagsExpanded = false;
 
   @override
   void initState() {
@@ -169,242 +170,237 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add New Measurement',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-      ),
-      body: Consumer(builder: (context, ref, _) {
-        final timingMeasurementListProvider =
-            ref.watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
-
-        return Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Instructions section (similar to first file)
-                  Card(
-                    margin: const EdgeInsets.symmetric(vertical: 10.0),
-                    elevation: 3,
-                    child: ExpansionTile(
-                      initiallyExpanded: false,
-                      title: Text(
-                        'How to Add a Measurement',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                      leading: Icon(
-                        Icons.info_outline,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                      onExpansionChanged: (expanded) {
-                        setState(() {
-                          _instructionsExpanded = expanded;
-                        });
-                      },
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Step 1: Take a photo
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(text: '1. '),
-                                    TextSpan(
-                                      text: 'Take a Photo: ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(
-                                        text:
-                                            'Use the camera icon or the "Gallery" button to pick or take a photo of your watch face.'),
-                                  ],
-                                ),
-                              ),
-                              Divider(),
-                              // Step 2: Note the time displayed on the watch
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(text: '2. '),
-                                    TextSpan(
-                                      text: 'Note the Time: ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(text: 'Look at the watch face and remember the exact time it displays.'),
-                                  ],
-                                ),
-                              ),
-                              Divider(),
-                              // Step 3: Set the user-input time in the time picker
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(text: '3. '),
-                                    TextSpan(
-                                      text: 'Select Time: ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(
-                                        text:
-                                            'Use the time picker below to set the measurement time that you saw on the watch face.'),
-                                  ],
-                                ),
-                              ),
-                              Divider(),
-                              // Step 4: Tag (optional)
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(text: '4. '),
-                                    TextSpan(
-                                      text: 'Add a Tag (optional): ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(
-                                        text:
-                                            'If you like, select a tag to categorize your measurement.'),
-                                  ],
-                                ),
-                              ),
-                              Divider(),
-                              // Step 5: Add Measurement
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(text: '5. '),
-                                    TextSpan(
-                                      text: 'Add Measurement: ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(text: 'Tap "Add Measurement" to save.'),
-                                  ],
-                                ),
-                              ),
-                              Divider(),
-                              // Confirmation message
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(
-                                        text:
-                                            'A confirmation message will appear once your measurement is added successfully.'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  if (_croppedFile != null)
-                    Image.file(File(_croppedFile!.path), height: 200)
-                  else
-                    GestureDetector(
-                      onTap: () => _pickImage(ImageSource.camera),
-                      child: Container(
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        child: Icon(Icons.camera_alt, size: 80),
-                      ),
-                    ),
-                  const Divider(),
-                  ConfigurablePrecisionTimePicker(
-                    onTimeChanged: _updateTime,
-                    initialTime: DateTime.now(),
-                    mode: TimePickerMode.image,
-                  ),
-                  TagSelector(
-                    onTagSelected: _updateTag,
-                    selectedTag: tag,
-                  ),
-                  const SizedBox(height: 8),
-                  PrimaryButton(
-                    child: Text(
-                      'Add Measurement',
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).colorScheme.onPrimary),
-                    ),
-                    onPressed: () async {
-                      try {
-                        final ulid = Ulid();
-                        final id = ulid.toString();
-
-                        Uint8List? imageBytes;
-                        if (_croppedFile != null) {
-                          imageBytes = await _readFileToBytes(_croppedFile!.path);
-                        }
-
-                        final measurement = TimingMeasurement(
-                          id: id,
-                          run_id: widget.timingRunId,
-                          system_time: imageTakenTime,
-                          user_input_time: selectedTime,
-                          image: imageBytes,
-                          tag: tag,
-                          difference_ms:
-                              selectedTime.difference(imageTakenTime).inMilliseconds,
-                        );
-
-                        // Save the measurement
-                        await timingMeasurementListProvider.addTimingMeasurement(measurement);
-
-                        // Show success dialog
-                        await _showSuccessDialog(context);
-                      } catch (error) {
-                        await _showErrorDialog(error.toString());
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
+        title: Text(
+          'Add Measurement',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-        );
-      }),
+        ),
+      ),
+      body: SafeArea(
+        child: Consumer(builder: (context, ref, _) {
+          final timingMeasurementListProvider =
+              ref.watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
+
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Instructions Card moved to top
+                          Container(
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: CupertinoButton(
+                              padding: EdgeInsets.all(12),
+                              onPressed: () {
+                                setState(() {
+                                  _instructionsExpanded = !_instructionsExpanded;
+                                });
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.info_circle,
+                                        color: CupertinoTheme.of(context).primaryColor,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'How to Add a Measurement',
+                                        style: TextStyle(
+                                          color: CupertinoColors.label.resolveFrom(context),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Icon(
+                                        _instructionsExpanded
+                                            ? CupertinoIcons.chevron_up
+                                            : CupertinoIcons.chevron_down,
+                                        color: CupertinoColors.systemGrey,
+                                        size: 16,
+                                      ),
+                                    ],
+                                  ),
+                                  if (_instructionsExpanded) ...[
+                                    SizedBox(height: 12),
+                                    Text(
+                                      '1. Take a photo of your watch face\n'
+                                      '2. Enter the exact time shown on the watch\n'
+                                      '3. The app will compare this with the photo timestamp\n'
+                                      '4. Optional: Add a tag to categorize your measurement',
+                                      style: TextStyle(
+                                        color: CupertinoColors.label.resolveFrom(context),
+                                        fontSize: 14,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Photo buttons (without preview)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: CupertinoButton(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              color: CupertinoTheme.of(context).primaryColor,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(CupertinoIcons.camera_fill,
+                                      size: 24, color: CupertinoColors.white),
+                                  SizedBox(width: 8),
+                                  Text('Take Photo',
+                                      style: TextStyle(
+                                          color: CupertinoColors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                              onPressed: () => _pickImage(ImageSource.camera),
+                            ),
+                          ),
+                          SizedBox(height: 12),
+
+                          // Time Picker and Tag Selector with updated styling
+                          Text(
+                            'Enter clock time shown in photo',
+                            style: TextStyle(
+                              color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                              fontSize: 12,
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          ConfigurablePrecisionTimePicker(
+                            onTimeChanged: _updateTime,
+                            initialTime: DateTime.now(),
+                            mode: TimePickerMode.image,
+                          ),
+                          SizedBox(height: 12),
+                          
+                          // Tag selector with expandable style
+                          Container(
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: CupertinoButton(
+                              padding: EdgeInsets.all(12),
+                              onPressed: () {
+                                setState(() {
+                                  _tagsExpanded = !_tagsExpanded;
+                                });
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.tag,
+                                        color: CupertinoTheme.of(context).primaryColor,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Add Tag (Optional)',
+                                        style: TextStyle(
+                                          color: CupertinoColors.label.resolveFrom(context),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Icon(
+                                        _tagsExpanded
+                                            ? CupertinoIcons.chevron_up
+                                            : CupertinoIcons.chevron_down,
+                                        color: CupertinoColors.systemGrey,
+                                        size: 16,
+                                      ),
+                                    ],
+                                  ),
+                                  if (_tagsExpanded) ...[
+                                    SizedBox(height: 12),
+                                    TagSelector(
+                                      onTagSelected: _updateTag,
+                                      selectedTag: tag,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Add Measurement button at bottom
+                CupertinoButton(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    'Add Measurement',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onPressed: () async {
+                    try {
+                      final ulid = Ulid();
+                      final id = ulid.toString();
+
+                      Uint8List? imageBytes;
+                      if (_croppedFile != null) {
+                        imageBytes = await _readFileToBytes(_croppedFile!.path);
+                      }
+
+                      final measurement = TimingMeasurement(
+                        id: id,
+                        run_id: widget.timingRunId,
+                        system_time: imageTakenTime,
+                        user_input_time: selectedTime,
+                        image: imageBytes,
+                        tag: tag,
+                        difference_ms:
+                            selectedTime.difference(imageTakenTime).inMilliseconds,
+                      );
+
+                      // Save the measurement
+                      await timingMeasurementListProvider.addTimingMeasurement(measurement);
+
+                      // Show success dialog
+                      await _showSuccessDialog(context);
+                    } catch (error) {
+                      await _showErrorDialog(error.toString());
+                    }
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 }

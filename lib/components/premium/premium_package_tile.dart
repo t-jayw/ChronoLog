@@ -17,99 +17,98 @@ class PremiumPackageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color borderColor = packageType == "luxury"
-        ? Theme.of(context).colorScheme.primary // Luxury border color
-        : Theme.of(context).colorScheme.secondary; // Premium border color
-
-    return GestureDetector(
-      onTap: () => onPurchase(package),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: borderColor, width: 2),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 6,
-              offset: Offset(0, 3),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+              borderRadius: BorderRadius.circular(6),
             ),
-          ],
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        child: SingleChildScrollView( // Make the content scrollable
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "ChronoLog",
-                          style: TextStyle(
-                            fontSize: 16, // Smaller font size for ChronoLog
-                            fontWeight: FontWeight.normal,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontFamily: 'NewYork',
-                          ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "ChronoLog",
+                        style: TextStyle(
+                          color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                          fontSize: 12,
+                          decoration: TextDecoration.none,
                         ),
-                        Text(
-                          package.storeProduct.title,
-                          style: TextStyle(
-                            fontSize: 20, // Original font size for title
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontFamily: 'NewYork',
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      package.storeProduct.description,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 6),
+                      Text(
+                        package.storeProduct.title,
+                        style: TextStyle(
+                          color: CupertinoColors.label.resolveFrom(context),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        package.storeProduct.description,
+                        style: TextStyle(
+                          color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      package.storeProduct.priceString,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
-                      ),
-                    ),
-                    PrimaryButton(
-                      onPressed: () => onPurchase(package),
-                      child: Text(
-                        "Buy Now",
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        package.storeProduct.priceString,
                         style: TextStyle(
                           fontSize: 16,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                          color: packageType == "luxury" 
+                              ? CupertinoTheme.of(context).primaryColor
+                              : CupertinoColors.activeBlue,
                         ),
                       ),
-                    ),
-                  ],
+                      CupertinoButton(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        color: packageType == "luxury"
+                            ? CupertinoTheme.of(context).primaryColor
+                            : CupertinoColors.activeBlue,
+                        child: Text(
+                          "Buy Now",
+                          style: TextStyle(
+                            color: CupertinoColors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        onPressed: () => onPurchase(package),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              PremiumFeatures(productTitle: package.storeProduct.title),
-            ],
+              ],
+            ),
           ),
-        ),
+          SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            padding: EdgeInsets.all(16),
+            child: PremiumFeatures(productTitle: package.storeProduct.title),
+          ),
+        ],
       ),
     );
   }

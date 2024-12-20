@@ -6,7 +6,7 @@ class ClockScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Analog Clock'),
+        title: Text('Clock'),
       ),
       body: Center(
         child: AnalogClock(), // Assuming AnalogClock is a widget you have

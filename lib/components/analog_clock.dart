@@ -104,6 +104,8 @@ class _AnalogClockState extends State<AnalogClock> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);  // Get the current theme
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 20.0),
       child: Column(
@@ -133,7 +135,7 @@ class _AnalogClockState extends State<AnalogClock> {
             width: 350,
             height: 350,
             child: CustomPaint(
-              painter: ClockPainter(_currentTime),
+              painter: ClockPainter(_currentTime, theme),  // Pass the theme
             ),
           ),
         ],
@@ -144,8 +146,9 @@ class _AnalogClockState extends State<AnalogClock> {
 
 class ClockPainter extends CustomPainter {
   final DateTime dateTime;
+  final ThemeData theme;
 
-  ClockPainter(this.dateTime);
+  ClockPainter(this.dateTime, this.theme);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -155,18 +158,34 @@ class ClockPainter extends CustomPainter {
     // Draw clock face with a gradient for a luxury look
     final facePaint = Paint()
       ..shader = RadialGradient(
-        colors: [Colors.black, Colors.grey[800]!],
+        colors: [
+          theme.colorScheme.tertiary,           // Inner color
+          theme.colorScheme.tertiary.withOpacity(0.7), // Outer color
+        ],
       ).createShader(Rect.fromCircle(center: center, radius: radius))
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius, facePaint);
 
-    // Draw clock border with a metallic look
+    // Updated border with metallic gradient like the hands
     final borderPaint = Paint()
       ..shader = LinearGradient(
-        colors: [Colors.grey[700]!, Colors.grey[500]!],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.grey[400]!,
+          Colors.grey[600]!,
+        ],
       ).createShader(Rect.fromCircle(center: center, radius: radius))
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 8; // Thicker border
+      ..strokeWidth = 8;
+
+    // Add a subtle border outline
+    final borderOutlinePaint = Paint()
+      ..color = Colors.grey[800]!
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10;
+
+    canvas.drawCircle(center, radius, borderOutlinePaint);
     canvas.drawCircle(center, radius, borderPaint);
 
     // Draw Arabic numeral indices for hours with a more distinct style
@@ -183,7 +202,7 @@ class ClockPainter extends CustomPainter {
       hourTextPainter.text = TextSpan(
         text: '$i',
         style: TextStyle(
-          color: Colors.white, // White text for better contrast
+          color: theme.colorScheme.primary,     // Use theme primary color
           fontSize: 20, // Larger font size
           fontWeight: FontWeight.bold,
         ),
@@ -209,7 +228,7 @@ class ClockPainter extends CustomPainter {
       minuteTextPainter.text = TextSpan(
         text: '${i * 5}',
         style: TextStyle(
-          color: Colors.white, // Same color as hour indicators
+          color: theme.colorScheme.primary.withOpacity(0.8),
           fontSize: 12,
         ),
       );
@@ -222,7 +241,7 @@ class ClockPainter extends CustomPainter {
 
     // Draw minute ticks with a smaller size
     final tickPaint = Paint()
-      ..color = Colors.white
+      ..color = theme.colorScheme.primary.withOpacity(0.6)
       ..strokeWidth = 1.5; // Reduced stroke width for smaller ticks
     for (int i = 0; i < 60; i++) {
       final angle = i * 6 * pi / 180;
@@ -248,7 +267,7 @@ class ClockPainter extends CustomPainter {
       textPainter.text = TextSpan(
         text: text,
         style: TextStyle(
-          color: Colors.white,
+          color: theme.colorScheme.primary,
           fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
@@ -256,7 +275,8 @@ class ClockPainter extends CustomPainter {
       textPainter.layout();
 
       // Draw background rectangle
-      final backgroundPaint = Paint()..color = Colors.black.withOpacity(0.7);
+      final backgroundPaint = Paint()
+        ..color = theme.colorScheme.tertiary.withOpacity(0.9);
       final backgroundRect = Rect.fromCenter(
         center: position,
         width: textPainter.width + 10,
@@ -289,38 +309,126 @@ class ClockPainter extends CustomPainter {
       Offset(center.dx + radius * 0.4, center.dy),
     );
 
-    // Draw hour hand with a modern sports watch style
-    final hourHandPaint = Paint()
-      ..color = Colors.blueAccent
-      ..strokeWidth = 12
-      ..strokeCap = StrokeCap.round;
+    // Calculate hour hand position first
     final hourAngle = (dateTime.hour % 12 + dateTime.minute / 60) * 30 * pi / 180 - pi / 2;
     final hourHandX = center.dx + radius * 0.5 * cos(hourAngle);
     final hourHandY = center.dy + radius * 0.5 * sin(hourAngle);
+
+    // Then use the coordinates in the shader
+    final hourHandPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.grey[400]!,
+          Colors.grey[600]!,
+        ],
+      ).createShader(Rect.fromPoints(center, Offset(hourHandX, hourHandY)))
+      ..strokeWidth = 12
+      ..strokeCap = StrokeCap.round;
+    
+    // Add a subtle border to the hour hand
+    final hourHandBorderPaint = Paint()
+      ..color = Colors.grey[800]!
+      ..strokeWidth = 14
+      ..strokeCap = StrokeCap.round;
+    
+    canvas.drawLine(center, Offset(hourHandX, hourHandY), hourHandBorderPaint);
     canvas.drawLine(center, Offset(hourHandX, hourHandY), hourHandPaint);
 
-    // Draw minute hand with a modern sports watch style
-    final minuteHandPaint = Paint()
-      ..color = Colors.greenAccent
-      ..strokeWidth = 10
-      ..strokeCap = StrokeCap.round;
+    // Calculate minute hand position first
     final minuteAngle = (dateTime.minute + dateTime.second / 60) * 6 * pi / 180 - pi / 2;
     final minuteHandX = center.dx + radius * 0.7 * cos(minuteAngle);
     final minuteHandY = center.dy + radius * 0.7 * sin(minuteAngle);
-    canvas.drawLine(center, Offset(minuteHandX, minuteHandY), minuteHandPaint);
 
-    // Draw second hand with a modern sports watch style
-    final secondHandPaint = Paint()
-      ..color = Colors.redAccent
-      ..strokeWidth = 4
+    // Then create the paint object using the calculated coordinates
+    final minuteHandPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.grey[300]!,
+          Colors.grey[500]!,
+        ],
+      ).createShader(Rect.fromPoints(center, Offset(minuteHandX, minuteHandY)))
+      ..strokeWidth = 8
+      ..strokeCap = StrokeCap.round;
+    
+    final minuteHandBorderPaint = Paint()
+      ..color = Colors.grey[700]!
+      ..strokeWidth = 10
       ..strokeCap = StrokeCap.round;
 
-    // Calculate the angle for the second hand with 4 ticks per second
+    canvas.drawLine(center, Offset(minuteHandX, minuteHandY), minuteHandBorderPaint);
+    canvas.drawLine(center, Offset(minuteHandX, minuteHandY), minuteHandPaint);
+
+    // Calculate second hand position first
     final secondFraction = dateTime.millisecond / 1000 + dateTime.second;
     final secondAngle = secondFraction * 6 * pi / 180 - pi / 2;
     final secondHandX = center.dx + radius * 0.9 * cos(secondAngle);
     final secondHandY = center.dy + radius * 0.9 * sin(secondAngle);
+
+    // Then create the paint object using the calculated coordinates
+    final secondHandPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.grey[400]!,
+          Colors.grey[600]!,
+        ],
+      ).createShader(Rect.fromPoints(center, Offset(secondHandX, secondHandY)))
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+
+    // Add counterweight to second hand
+    final counterweightPaint = Paint()
+      ..color = Colors.grey[600]!
+      ..strokeWidth = 6
+      ..strokeCap = StrokeCap.round;
+
+    // Draw counterweight
+    final counterweightX = center.dx + radius * 0.2 * cos(secondAngle + pi);
+    final counterweightY = center.dy + radius * 0.2 * sin(secondAngle + pi);
+    canvas.drawLine(center, Offset(counterweightX, counterweightY), counterweightPaint);
     canvas.drawLine(center, Offset(secondHandX, secondHandY), secondHandPaint);
+
+    // Draw center cap
+    final centerCapPaint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          Colors.grey[300]!,
+          Colors.grey[600]!,
+        ],
+      ).createShader(Rect.fromCircle(center: center, radius: 8));
+    canvas.drawCircle(center, 8, centerCapPaint);
+
+    // Add Chronolog brand name below 12 o'clock
+    final brandTextPainter = TextPainter(
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    brandTextPainter.text = TextSpan(
+      text: 'ChronoLog',
+      style: TextStyle(
+        color: theme.colorScheme.primary.withOpacity(0.8),
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        fontStyle: FontStyle.italic,
+        fontFamily: 'Playfair Display', // More classical serif font
+        letterSpacing: 1.2, // Add some letter spacing for elegance
+      ),
+    );
+    
+    brandTextPainter.layout();
+    brandTextPainter.paint(
+      canvas,
+      Offset(
+        center.dx - brandTextPainter.width / 2,
+        center.dy - radius * 0.35, // Moved up slightly from 0.3
+      ),
+    );
   }
 
   String _getMonthAbbreviation(int month) {

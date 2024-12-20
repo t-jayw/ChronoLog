@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ulid/ulid.dart';
 import '../components/measurement/tag_selector.dart';
 
-import '../components/primary_button.dart';
 import '../models/timing_measurement.dart';
 import '../providers/timing_measurements_list_provider.dart';
 
@@ -28,7 +27,8 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
 
   String tag = '';
 
-  bool _isTagSelectorExpanded = false;
+  bool _instructionsExpanded = false;
+  bool _tagsExpanded = false;
 
   void _updateTime(DateTime newTime) {
     setState(() {
@@ -102,225 +102,229 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
       appBar: AppBar(
         title: Text(
           'Add Measurement',
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
       ),
-      body: Consumer(builder: (context, ref, _) {
-        final timingMeasurementListProvider = ref
-            .watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
+      body: SafeArea(
+        child: Consumer(builder: (context, ref, _) {
+          final timingMeasurementListProvider =
+              ref.watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
 
-        DateTime timeForPicker = DateTime.now();
-
-        return Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Improved Collapsible Instructional Section
-                  Card(
-                    margin: const EdgeInsets.symmetric(vertical: 10.0),
-                    elevation: 3,
-                    child: ExpansionTile(
-                      title: Text(
-                        'How to Add a Measurement',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                      leading: Icon(
-                        Icons.info_outline,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Instructions Card
+                          Container(
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: CupertinoButton(
+                              padding: EdgeInsets.all(12),
+                              onPressed: () {
+                                setState(() {
+                                  _instructionsExpanded = !_instructionsExpanded;
+                                });
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.info_circle,
+                                        color: CupertinoTheme.of(context).primaryColor,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'How to Add a Measurement',
+                                        style: TextStyle(
+                                          color: CupertinoColors.label.resolveFrom(context),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Icon(
+                                        _instructionsExpanded
+                                            ? CupertinoIcons.chevron_up
+                                            : CupertinoIcons.chevron_down,
+                                        color: CupertinoColors.systemGrey,
+                                        size: 16,
+                                      ),
+                                    ],
                                   ),
-                                  children: [
-                                    TextSpan(text: '1. '),
-                                    TextSpan(
-                                      text: 'Set Time: ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                  if (_instructionsExpanded) ...[
+                                    SizedBox(height: 12),
+                                    Text(
+                                      '1. Use the time selector to set a time slightly ahead of your watch\n'
+                                      '2. Wait until your watch shows the time you selected\n'
+                                      '3. When your watch matches the selected time, tap "Add Measurement"\n'
+                                      '4. Optional: Add a tag to categorize your measurement',
+                                      style: TextStyle(
+                                        color: CupertinoColors.label.resolveFrom(context),
+                                        fontSize: 14,
+                                        height: 1.5,
+                                      ),
                                     ),
-                                    TextSpan(text: 'Use the picker to select the time for your measurement.'),
                                   ],
-                                ),
+                                ],
                               ),
-                              Divider(),
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(text: '2. '),
-                                    TextSpan(
-                                      text: 'Choose Tag: ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(text: 'Select a tag to categorize your measurement.'),
-                                  ],
-                                ),
-                              ),
-                              Divider(),
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(text: '3. '),
-                                    TextSpan(
-                                      text: 'Add Measurement: ',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(text: 'Tap the "Add Measurement" button to save it.'),
-                                  ],
-                                ),
-                              ),
-                              Divider(),
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    height: 1.5,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(text: 'A confirmation message will appear once your measurement is added.'),
-                                  ],
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Existing Widgets
-                  ConfigurablePrecisionTimePicker(
-                    onTimeChanged: _updateTime,
-                    initialTime: timeForPicker,
-                    mode: TimePickerMode.tap,
-                  ),
-                  // Tag selection section with iOS-style expansion
-                  CupertinoButton(
-                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-                    color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tags (optional)',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.tertiary,
+
+                          // Time Picker
+                          Text(
+                            'Select Time',
+                            style: TextStyle(
+                              color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                              fontSize: 12,
+                            ),
                           ),
-                        ),
-                        Icon(
-                          _isTagSelectorExpanded ? Icons.expand_less : Icons.expand_more,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ],
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isTagSelectorExpanded = !_isTagSelectorExpanded;
-                      });
-                    },
-                  ),
-                  if (_isTagSelectorExpanded)
-                    TagSelector(
-                      onTagSelected: _updateTag,
-                      selectedTag: tag,
-                    ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 60,
-                      child: PrimaryButton(
-                        child: Text(
-                          'Add Measurement',
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context).colorScheme.onPrimary),
-                        ),
-                        onPressed: () async {
-                          if (!_formKey.currentState!.validate()) {
-                            await _showErrorDialog(context,
-                                'Please complete the form before adding a measurement.');
-                            return;
-                          }
+                          SizedBox(height: 6),
+                          ConfigurablePrecisionTimePicker(
+                            onTimeChanged: _updateTime,
+                            initialTime: DateTime.now(),
+                            mode: TimePickerMode.tap,
+                          ),
+                          SizedBox(height: 12),
 
-                          setState(() {
-                            buttonPressTime = DateTime.now();
-                            selectedTime = selectedTime ?? timeForPicker;
-                          });
-
-                          final ulid = Ulid();
-                          final id = ulid.toString();
-
-                          final measurement = TimingMeasurement(
-                            id: id,
-                            run_id: widget.timingRunId,
-                            system_time: buttonPressTime!,
-                            user_input_time: selectedTime,
-                            image: null,
-                            tag: tag, // Set the tag
-                            difference_ms: selectedTime!
-                                .difference(buttonPressTime!)
-                                .inMilliseconds,
-                          );
-
-                          try {
-                            await timingMeasurementListProvider
-                                .addTimingMeasurement(measurement);
-
-                            if (mounted) {
-                              // Show success snackbar before navigating back
-                              await _showSuccessDialog(context);
-
-                              // Delay the pop slightly to ensure the snackbar shows
-                              Future.delayed(Duration(milliseconds: 0), () {
-                                if (Navigator.canPop(context)) {
-                                  Navigator.pop(context);
-                                }
-                              });
-                            }
-                          } catch (error) {
-                            if (mounted) {
-                              await _showErrorDialog(context, error.toString());
-                            }
-                          }
-                        },
+                          // Tag selector
+                          Container(
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: CupertinoButton(
+                              padding: EdgeInsets.all(12),
+                              onPressed: () {
+                                setState(() {
+                                  _tagsExpanded = !_tagsExpanded;
+                                });
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.tag,
+                                        color: CupertinoTheme.of(context).primaryColor,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Add Tag (Optional)',
+                                        style: TextStyle(
+                                          color: CupertinoColors.label.resolveFrom(context),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Icon(
+                                        _tagsExpanded
+                                            ? CupertinoIcons.chevron_up
+                                            : CupertinoIcons.chevron_down,
+                                        color: CupertinoColors.systemGrey,
+                                        size: 16,
+                                      ),
+                                    ],
+                                  ),
+                                  if (_tagsExpanded) ...[
+                                    SizedBox(height: 12),
+                                    TagSelector(
+                                      onTagSelected: _updateTag,
+                                      selectedTag: tag,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                // Add Measurement button
+                CupertinoButton(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    'Add Measurement',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onPressed: () async {
+                    if (!_formKey.currentState!.validate()) {
+                      await _showErrorDialog(context,
+                          'Please complete the form before adding a measurement.');
+                      return;
+                    }
+
+                    setState(() {
+                      buttonPressTime = DateTime.now();
+                      selectedTime = selectedTime ?? DateTime.now();
+                    });
+
+                    final ulid = Ulid();
+                    final id = ulid.toString();
+
+                    final measurement = TimingMeasurement(
+                      id: id,
+                      run_id: widget.timingRunId,
+                      system_time: buttonPressTime!,
+                      user_input_time: selectedTime,
+                      image: null,
+                      tag: tag, // Set the tag
+                      difference_ms: selectedTime!
+                          .difference(buttonPressTime!)
+                          .inMilliseconds,
+                    );
+
+                    try {
+                      await timingMeasurementListProvider
+                          .addTimingMeasurement(measurement);
+
+                      if (mounted) {
+                        // Show success snackbar before navigating back
+                        await _showSuccessDialog(context);
+
+                        // Delay the pop slightly to ensure the snackbar shows
+                        Future.delayed(Duration(milliseconds: 0), () {
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                        });
+                      }
+                    } catch (error) {
+                      if (mounted) {
+                        await _showErrorDialog(context, error.toString());
+                      }
+                    }
+                  },
+                ),
+              ],
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 }

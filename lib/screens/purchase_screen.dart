@@ -35,7 +35,9 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     print('checking entitlement status');
     try {
       final CustomerInfo customerInfo = await Purchases.getCustomerInfo();
-
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Update the state and individual entitlement booleans
       setState(() {
         for (String entitlement in _entitlements) {
           _entitlementStatus[entitlement] =
@@ -43,11 +45,18 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         }
       });
 
-      final prefs = await SharedPreferences.getInstance();
+      // Store individual boolean values
       for (String entitlement in _entitlements) {
         await prefs.setBool(
             '${entitlement}Active', _entitlementStatus[entitlement] ?? false);
       }
+
+      // Store the array of active entitlements
+      List<String> activeEntitlements = _entitlements
+          .where((entitlement) => _entitlementStatus[entitlement] == true)
+          .toList();
+      await prefs.setStringList('activeEntitlements', activeEntitlements);
+      
     } catch (e) {
       print("Error fetching purchaser info: $e");
     }
