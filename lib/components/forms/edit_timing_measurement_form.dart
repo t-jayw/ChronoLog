@@ -34,12 +34,15 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
   late String? tag; // Added
   bool _isEditingTime = false; // Added
 
+  bool _timeExpanded = false;
+  bool _tagsExpanded = false;
+
   @override
   void initState() {
     super.initState();
     _editedTimingMeasurement = widget.timingMeasurement;
     _systemTime = _editedTimingMeasurement.system_time;
-    _userInputTime = _editedTimingMeasurement.user_input_time;
+    _userInputTime = _editedTimingMeasurement.user_input_time ?? _editedTimingMeasurement.system_time;
     tag = _editedTimingMeasurement.tag; // Initialize with existing tag
   }
 
@@ -79,125 +82,196 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        elevation: 0,
-        title: Text('Edit Measurement',
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            padding: const EdgeInsets.all(8.0), // Padding inside the container
-            decoration: BoxDecoration(
-              border: Border.all(
-                  color: Colors.black), // Black border around the container
-              borderRadius: BorderRadius.circular(
-                  8.0), // optional, if you want the container to have rounded corners
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ... Your existing code
-
-                  // Added tag selector
-                  Divider(),
-
-                  SizedBox(height: 10),
-                  RichText(
-                    textAlign: TextAlign.left,
-                    text: TextSpan(
-                      text: 'System Time: ',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: '${formatDateTimeWithMillis(_systemTime)}',
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              color:
-                                  Theme.of(context).colorScheme.onBackground),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Divider(),
-                  SizedBox(height: 5),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        RichText(
-                          textAlign: TextAlign.left,
-                          text: TextSpan(
-                            text: 'User Input Time: ',
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.tertiary),
-                            children: <TextSpan>[
-                              TextSpan(
-                                text:
-                                    '${_userInputTime != null ? formatDateTimeWithMillis(_userInputTime!) : 'Not Set'}',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onBackground),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(_isEditingTime ? Icons.done : Icons.edit),
-                          onPressed: _toggleEditingTime,
-                        ),
-                      ]),
-                  if (_isEditingTime)
-                    CustomTimePicker(
-                      initialTime: _userInputTime ?? DateTime.now(),
-                      onTimeChanged: (newTime) {
-                        setState(() {
-                          _userInputTime = newTime;
-                        });
-                      },
-                    ),
-                  Divider(),
-                  TagSelector(
-                    onTagSelected: _updateTag,
-                    selectedTag: tag,
-                  ),
-                  Divider(),
-                  SizedBox(height: 10),
-                  Consumer(
-                    builder: (context, ref, _) {
-                      return Container(
-                          alignment: Alignment.center,
-                          width: double.infinity,
-                          child: PrimaryButton(
-                              onPressed: () => _saveForm(context, ref),
-                              child: Text(
-                                'Save',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary),
-                              )));
-                    },
-                  ),
-
-                  Divider(),
-                  SizedBox(height: 10),
-                ],
-              ),
-            ),
+        title: Text(
+          'Edit Measurement',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
+      ),
+      body: SafeArea(
+        child: Consumer(builder: (context, ref, _) {
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // System Time Display
+                          Text(
+                            'System Time',
+                            style: TextStyle(
+                              color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                              fontSize: 12,
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              formatDateTimeWithMillis(_systemTime),
+                              style: TextStyle(
+                                color: CupertinoColors.label.resolveFrom(context),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 12),
+
+                          // User Input Time Section
+                          Container(
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: CupertinoButton(
+                              padding: EdgeInsets.all(12),
+                              onPressed: () {
+                                setState(() {
+                                  _timeExpanded = !_timeExpanded;
+                                });
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.time,
+                                        color: CupertinoTheme.of(context).primaryColor,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'User Input Time: ${_userInputTime != null ? formatDateTimeWithMillis(_userInputTime!) : 'Not Set'}',
+                                        style: TextStyle(
+                                          color: CupertinoColors.label.resolveFrom(context),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Icon(
+                                        _timeExpanded
+                                            ? CupertinoIcons.chevron_up
+                                            : CupertinoIcons.chevron_down,
+                                        color: CupertinoColors.systemGrey,
+                                        size: 16,
+                                      ),
+                                    ],
+                                  ),
+                                  if (_timeExpanded) ...[
+                                    SizedBox(height: 12),
+                                    CustomTimePicker(
+                                      initialTime: _userInputTime ?? _systemTime,
+                                      onTimeChanged: (newTime) {
+                                        setState(() {
+                                          final existingTime = _userInputTime ?? _systemTime;
+                                          _userInputTime = DateTime(
+                                            existingTime.year,
+                                            existingTime.month,
+                                            existingTime.day,
+                                            newTime.hour,
+                                            newTime.minute,
+                                            newTime.second,
+                                            newTime.millisecond,
+                                          );
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Tag Section
+                          Container(
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: CupertinoButton(
+                              padding: EdgeInsets.all(12),
+                              onPressed: () {
+                                setState(() {
+                                  _tagsExpanded = !_tagsExpanded;
+                                });
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.tag,
+                                        color: CupertinoTheme.of(context).primaryColor,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Edit Tag',
+                                        style: TextStyle(
+                                          color: CupertinoColors.label.resolveFrom(context),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Icon(
+                                        _tagsExpanded
+                                            ? CupertinoIcons.chevron_up
+                                            : CupertinoIcons.chevron_down,
+                                        color: CupertinoColors.systemGrey,
+                                        size: 16,
+                                      ),
+                                    ],
+                                  ),
+                                  if (_tagsExpanded) ...[
+                                    SizedBox(height: 12),
+                                    TagSelector(
+                                      onTagSelected: _updateTag,
+                                      selectedTag: tag,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Save button
+                CupertinoButton(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    'Save Changes',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onPressed: () => _saveForm(context, ref),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }

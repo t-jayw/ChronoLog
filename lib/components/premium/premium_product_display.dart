@@ -64,6 +64,7 @@ class PremiumProductDisplay extends StatelessWidget {
                       print(
                           'Product Price: ${package.storeProduct.priceString}');
 
+                      print('Package Type: ${package.packageType}');
                       return PremiumPackageTile(
                         package: package,
                         packageType: package.packageType.toString(),

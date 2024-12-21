@@ -49,29 +49,37 @@ class NewTimepieceDisplay extends ConsumerWidget {
     return Container(
       height: 120,
       width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
-        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () {
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
+            CupertinoPageRoute(
               builder: (context) => WatchDetails(timepiece: timepiece),
             ),
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(6.0),
+          padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
                 child: SizedBox(
-                  height: 108,
+                  height: 104,
+                  width: 104,
                   child: timepiece.image != null
                       ? Image.memory(
                           timepiece.image!,
@@ -85,175 +93,204 @@ class NewTimepieceDisplay extends ConsumerWidget {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            timepiece.model,
-                            maxLines: 2,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onBackground,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              timepiece.brand,
-                              maxLines: 1,
-                              softWrap: true,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    Theme.of(context).colorScheme.tertiary,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        timepiece.model,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context).colorScheme.onBackground,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      timepiece.brand,
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+                              Icon(
+                                CupertinoIcons.chevron_right,
+                                size: 20,
+                                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Divider(
+                              height: 1,
+                              thickness: 0.5,
+                              color: CupertinoColors.separator.resolveFrom(context),
                             ),
                           ),
-                          Icon(Icons.chevron_right,
-                              size: 24,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onBackground),
-                        ],
-                      ),
-                      Divider(
-                        height: 1,
-                        thickness: .4,
-                      ),
-                      SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Active Timing Run',
-                            style: TextStyle(
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 2),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${timingRunStats.formattedSecondsPerDayForRun()}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: Theme.of(context).colorScheme.tertiary,
-                                  ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Active Timing Run',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                                 ),
-                                Text(
-                                  'sec/day',
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
+                          SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '${timingRunStats.formattedLatestOffset()}',
+                                      '${timingRunStats.formattedSecondsPerDayForRun()}',
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20,
+                                        color: Theme.of(context).colorScheme.tertiary,
                                       ),
                                     ),
                                     Text(
-                                      ' offset',
-                                      style: TextStyle(fontSize: 10),
+                                      'sec/day',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                                      ),
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text(
-                                      '${timingRunStats.formattedTimeSinceLastMeasurement()}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          timingRunStats.formattedLatestOffset() ?? '-',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                            color: Theme.of(context).colorScheme.onBackground,
+                                          ),
+                                        ),
+                                        Text(
+                                          ' offset',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      ' ago',
-                                      style: TextStyle(fontSize: 10),
+                                    SizedBox(height: 6),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'Last ',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                                          ),
+                                        ),
+                                        Text(
+                                          timingRunStats.formattedTimeSinceLastMeasurement() ?? '-',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                            color: Theme.of(context).colorScheme.onBackground,
+                                          ),
+                                        ),
+                                        Text(
+                                          ' ago',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          PrimaryButton(
-                            child: Icon(
-                              Icons.add,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                            onPressed: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              bool? isPremiumActivated =
-                                  prefs.getBool('isPremiumActive');
-                              print(timingMeasurements.length);
-                              if (isPremiumActivated != true &&
-                                  timingMeasurements.length > 400) {
-                                showPremiumNeededDialog(context,
-                                    "Free version limited to 5 measurements per Timing Run");
-                                Posthog().capture(
-                                  eventName: 'paywall',
-                                  properties: {
-                                    'reason': 'num_measurements_paywall',
-                                  },
-                                );
-                              } else {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled:
-                                      true, // Set to true to make the bottom sheet full-screen
-                                  builder: (BuildContext context) {
-                                    // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                                    return DraggableScrollableSheet(
-                                      expand: false,
-                                      builder: (_, controller) =>
-                                          SingleChildScrollView(
-                                        controller: controller,
-                                        child: MeasurementSelectorModal(
-                                          timingRunId: timingRuns.first.id,
-                                        ), // Ensure your ManageSettingsScreen is suitable for this context
-                                      ),
+                              ),
+                              SizedBox(width: 12),
+                              CupertinoButton(
+                                padding: EdgeInsets.all(8),
+                                borderRadius: BorderRadius.circular(10),
+                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.4),
+                                minSize: 0,
+                                onPressed: () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  bool? isPremiumActivated =
+                                      prefs.getBool('isPremiumActive');
+                                  print(timingMeasurements.length);
+                                  if (isPremiumActivated != true &&
+                                      timingMeasurements.length > 400) {
+                                    showPremiumNeededDialog(context,
+                                        "Free version limited to 5 measurements per Timing Run");
+                                    Posthog().capture(
+                                      eventName: 'paywall',
+                                      properties: {
+                                        'reason': 'num_measurements_paywall',
+                                      },
                                     );
-                                  },
-                                );
-                              }
-                            },
+                                  } else {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled:
+                                          true, // Set to true to make the bottom sheet full-screen
+                                      builder: (BuildContext context) {
+                                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                                        return DraggableScrollableSheet(
+                                          expand: false,
+                                          builder: (_, controller) =>
+                                              SingleChildScrollView(
+                                            controller: controller,
+                                            child: MeasurementSelectorModal(
+                                              timingRunId: timingRuns.first.id,
+                                            ), // Ensure your ManageSettingsScreen is suitable for this context
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+                                },
+                                child: Icon(
+                                  CupertinoIcons.plus,
+                                  size: 20,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
