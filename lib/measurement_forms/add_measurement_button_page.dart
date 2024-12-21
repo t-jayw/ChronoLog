@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ulid/ulid.dart';
 import '../components/measurement/tag_selector.dart';
+import '../components/measurement/timing_measurement_item.dart';
 
 import '../models/timing_measurement.dart';
 import '../providers/timing_measurements_list_provider.dart';
@@ -30,6 +31,8 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
   bool _instructionsExpanded = false;
   bool _tagsExpanded = false;
 
+  TimingMeasurement? previewMeasurement;
+
   void _updateTime(DateTime newTime) {
     setState(() {
       selectedTime = newTime;
@@ -39,6 +42,23 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
   void _updateTag(String newTag) {
     setState(() {
       tag = newTag;
+    });
+  }
+
+  void _createPreviewMeasurement() {
+    setState(() {
+      buttonPressTime = DateTime.now();
+      selectedTime = selectedTime ?? DateTime.now();
+      
+      previewMeasurement = TimingMeasurement(
+        id: Ulid().toString(),
+        run_id: widget.timingRunId,
+        system_time: buttonPressTime!,
+        user_input_time: selectedTime,
+        image: null,
+        tag: tag,
+        difference_ms: selectedTime!.difference(buttonPressTime!).inMilliseconds,
+      );
     });
   }
 
@@ -196,7 +216,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                           SizedBox(height: 6),
                           ConfigurablePrecisionTimePicker(
                             onTimeChanged: _updateTime,
-                            initialTime: DateTime.now(),
+                            initialTime: previewMeasurement?.user_input_time ?? DateTime.now(),
                             mode: TimePickerMode.tap,
                           ),
                           SizedBox(height: 12),
@@ -254,71 +274,76 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                               ),
                             ),
                           ),
+
+                          // New "Take Measurement" button
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: CupertinoButton(
+                              color: Theme.of(context).colorScheme.secondary,
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: Text('Take Measurement'),
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  _showErrorDialog(context, 'Please complete the form before capturing.');
+                                  return;
+                                }
+                                _createPreviewMeasurement();
+                              },
+                            ),
+                          ),
+
+                          // Display the preview if available
+                          if (previewMeasurement != null) ...[
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Preview',
+                                    style: TextStyle(
+                                      color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  TimingMeasurementItem(
+                                    timingMeasurement: previewMeasurement!,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+
+                          // Existing "Add Measurement" button
+                          Row(
+                            children: [
+                              if (previewMeasurement != null)
+                                Expanded(
+                                  child: CupertinoButton(
+                                    color: Theme.of(context).colorScheme.tertiary,
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text('Add Measurement'),
+                                    onPressed: () async {
+                                      try {
+                                        await timingMeasurementListProvider.addTimingMeasurement(previewMeasurement!);
+                                        if (mounted) {
+                                          await _showSuccessDialog(context);
+                                        }
+                                      } catch (error) {
+                                        if (mounted) {
+                                          await _showErrorDialog(context, error.toString());
+                                        }
+                                      }
+                                    },
+                                  ),
+                                ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
                   ),
-                ),
-                // Add Measurement button
-                CupertinoButton(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    'Add Measurement',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  onPressed: () async {
-                    if (!_formKey.currentState!.validate()) {
-                      await _showErrorDialog(context,
-                          'Please complete the form before adding a measurement.');
-                      return;
-                    }
-
-                    setState(() {
-                      buttonPressTime = DateTime.now();
-                      selectedTime = selectedTime ?? DateTime.now();
-                    });
-
-                    final ulid = Ulid();
-                    final id = ulid.toString();
-
-                    final measurement = TimingMeasurement(
-                      id: id,
-                      run_id: widget.timingRunId,
-                      system_time: buttonPressTime!,
-                      user_input_time: selectedTime,
-                      image: null,
-                      tag: tag, // Set the tag
-                      difference_ms: selectedTime!
-                          .difference(buttonPressTime!)
-                          .inMilliseconds,
-                    );
-
-                    try {
-                      await timingMeasurementListProvider
-                          .addTimingMeasurement(measurement);
-
-                      if (mounted) {
-                        // Show success snackbar before navigating back
-                        await _showSuccessDialog(context);
-
-                        // Delay the pop slightly to ensure the snackbar shows
-                        Future.delayed(Duration(milliseconds: 0), () {
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                        });
-                      }
-                    } catch (error) {
-                      if (mounted) {
-                        await _showErrorDialog(context, error.toString());
-                      }
-                    }
-                  },
                 ),
               ],
             ),

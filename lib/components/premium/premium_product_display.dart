@@ -26,56 +26,57 @@ class PremiumProductDisplay extends StatelessWidget {
     if (entitlementPackages.isEmpty) return SizedBox.shrink();
 
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
         if (isEntitlementActive)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'You have active $entitlement access!',
-              style: TextStyle(fontSize: 18),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'You have active $entitlement access!',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ],
             ),
           )
         else
           CarouselSlider(
             options: CarouselOptions(
-              height: screenHeight * 0.5, // 66% of screen height
-              viewportFraction:
-                  0.8, // Adjusted to 80% of screen width to show next card
+              height: screenHeight * 0.68,
+              viewportFraction: 0.85,
               enlargeCenterPage: true,
-              enableInfiniteScroll: true,
+              enlargeFactor: 0.2,
+              enableInfiniteScroll: entitlementPackages.length > 1,
               autoPlay: false,
             ),
             items: entitlementPackages
-                .map(
-                  (package) => Builder(
-                    builder: (BuildContext context) {
-                      print('Package ID: ${package.identifier}');
-                      print('Package Type: ${package.packageType}');
-                      print('Product Title: ${package.storeProduct.title}');
-                      print(
-                          'Product Description: ${package.storeProduct.description}');
-                      print(
-                          'Product Price: ${package.storeProduct.priceString}');
-
-                      print('Package Type: ${package.packageType}');
-                      return PremiumPackageTile(
-                        package: package,
-                        packageType: package.packageType.toString(),
-                        onPurchase: onPurchase,
-                      );
-                    },
-                  ),
-                )
+                .map((package) => PremiumPackageTile(
+                      package: package,
+                      packageType: package.packageType.toString(),
+                      onPurchase: onPurchase,
+                    ))
                 .toList(),
           ),
-        SizedBox(height: 16),
+        SizedBox(height: 24),
       ],
     );
   }

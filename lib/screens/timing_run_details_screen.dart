@@ -33,7 +33,7 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.timepiece.brand} ${widget.timepiece.model}',
+        title: Text('Timing Run Details',
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
       ),
       body: Padding(

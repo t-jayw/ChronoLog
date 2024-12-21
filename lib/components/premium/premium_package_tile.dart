@@ -35,18 +35,27 @@ class PremiumPackageTile extends StatelessWidget {
 
   Widget _buildFeatureItem(BuildContext context, String feature) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            packageType == "luxury" 
-                ? CupertinoIcons.star_fill
-                : CupertinoIcons.checkmark_circle_fill,
-            color: packageType == "luxury"
-                ? Theme.of(context).colorScheme.tertiary
-                : Theme.of(context).colorScheme.primary,
-            size: 18,
+          Container(
+            padding: EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: packageType == "luxury"
+                  ? Theme.of(context).colorScheme.tertiary.withOpacity(0.1)
+                  : Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              packageType == "luxury" 
+                  ? CupertinoIcons.star_fill
+                  : CupertinoIcons.checkmark_circle_fill,
+              color: packageType == "luxury"
+                  ? Theme.of(context).colorScheme.tertiary
+                  : Theme.of(context).colorScheme.primary,
+              size: 16,
+            ),
           ),
           SizedBox(width: 12.0),
           Expanded(
@@ -54,9 +63,9 @@ class PremiumPackageTile extends StatelessWidget {
               feature,
               style: TextStyle(
                 fontSize: 15,
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                height: 1.4,
-                letterSpacing: 0.2,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+                height: 1.3,
+                letterSpacing: 0.1,
               ),
             ),
           ),
@@ -71,144 +80,144 @@ class PremiumPackageTile extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-      child: SingleChildScrollView(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: packageType == "luxury"
-                    ? Color(0xFFE5E4E2) // Platinum color
-                    : Color(0xFFCD7F32), // Bronze color
-                width: packageType == "luxury" ? 2 : 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: packageType == "luxury"
-                      ? Color(0xFFE5E4E2).withOpacity(0.3)
-                      : Color(0xFFCD7F32).withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: packageType == "luxury"
+                  ? Color(0xFFE5E4E2).withOpacity(0.8)
+                  : Color(0xFFCD7F32).withOpacity(0.5),
+              width: packageType == "luxury" ? 1.5 : 1,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "ChronoLog",
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.5,
-                                decoration: TextDecoration.none,
-                              ),
+            boxShadow: [
+              BoxShadow(
+                color: (packageType == "luxury"
+                    ? Color(0xFFE5E4E2)
+                    : Color(0xFFCD7F32))
+                    .withOpacity(0.15),
+                blurRadius: 16,
+                offset: Offset(0, 4),
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "ChronoLog",
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.5,
+                              decoration: TextDecoration.none,
                             ),
-                            SizedBox(height: 8),
-                            Text(
-                              package.storeProduct.title,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -0.5,
-                              ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            package.storeProduct.title,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
                             ),
-                            SizedBox(height: 10),
-                            Text(
-                              package.storeProduct.description,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                                fontSize: 15,
-                                height: 1.4,
-                                letterSpacing: 0.2,
-                              ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            package.storeProduct.description,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                              fontSize: 15,
+                              height: 1.4,
+                              letterSpacing: 0.2,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              package.storeProduct.priceString,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: packageType == "luxury" 
-                                    ? Theme.of(context).colorScheme.tertiary
-                                    : Theme.of(context).colorScheme.tertiary,
-                              ),
-                            ),
-                            CupertinoButton(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              color: packageType == "luxury"
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            package.storeProduct.priceString,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: packageType == "luxury" 
                                   ? Theme.of(context).colorScheme.tertiary
                                   : Theme.of(context).colorScheme.tertiary,
-                              child: Text(
-                                "Buy Now",
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              onPressed: () => onPurchase(package),
                             ),
-                          ],
-                        ),
+                          ),
+                          CupertinoButton(
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            color: packageType == "luxury"
+                                ? Theme.of(context).colorScheme.tertiary
+                                : Theme.of(context).colorScheme.tertiary,
+                            child: Text(
+                              "Buy Now",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            onPressed: () => onPurchase(package),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Divider(
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                  ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Divider(
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Included Features",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Included Features",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
-                      SizedBox(height: 16),
-                      Column(
-                        children: _getFeatures()
-                            .map((feature) => _buildFeatureItem(context, feature))
-                            .toList(),
-                      ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 16),
+                    Column(
+                      children: _getFeatures()
+                          .map((feature) => _buildFeatureItem(context, feature))
+                          .toList(),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

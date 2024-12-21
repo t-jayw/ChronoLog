@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/providers/timing_measurements_list_provider.dart';
 import '../delete_confirmation_dialog.dart';
 import 'timing_measurement_item.dart'; // Import the TimingMeasurementItem widget
+import 'package:chronolog/models/timing_measurement.dart'; // Add this import
 
 class TimingMeasurementsContainer extends ConsumerWidget {
   const TimingMeasurementsContainer({Key? key, required this.timingRunId})
@@ -13,50 +14,47 @@ class TimingMeasurementsContainer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final timingMeasurements = ref.watch(timingMeasurementsListProvider(timingRunId));
+    final measurements = ref.watch(timingMeasurementsListProvider(timingRunId));
 
-    return timingMeasurements.isNotEmpty
-        ? Scrollbar(
-            thumbVisibility: true,
-            child: ListView.builder(
-              itemCount: timingMeasurements.length,
-              itemBuilder: (context, index) {
-                final timingMeasurement = timingMeasurements[index];
+    if (measurements.isEmpty) {
+      return const Center(child: Text('No timing measurements available.'));
+    }
 
-                return Dismissible(
-                  key: Key(timingMeasurement.id),
-                  confirmDismiss: (direction) async {
-                    return await showCupertinoDialog<bool>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return DeleteConfirmationDialog();
-                      },
-                    );
-                  },
-                  direction: DismissDirection.endToStart,
-                  onDismissed: (direction) {
-                    ref
-                        .read(timingMeasurementsListProvider(timingRunId).notifier)
-                        .deleteTimingMeasurement(timingMeasurement.id);
-                  },
-                  background: Container(
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 20.0),
-                    color: Theme.of(context).colorScheme.error,
-                    child: Icon(
-                      Icons.delete,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                  child: TimingMeasurementItem(timingMeasurement: timingMeasurement),
-                );
-              },
-            ),
-          )
-        : Center(
-            child: Text('No timing measurements available.'),
-          );
-          
+    return Scrollbar(
+      thumbVisibility: true,
+      child: ListView.builder(
+        itemCount: measurements.length,
+        itemBuilder: (_, index) => _buildDismissibleItem(
+          context,
+          ref,
+          measurements[index],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDismissibleItem(
+    BuildContext context,
+    WidgetRef ref,
+    TimingMeasurement measurement,
+  ) {
+    return Dismissible(
+      key: Key(measurement.id),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (_) => showCupertinoDialog<bool>(
+        context: context,
+        builder: (_) => const DeleteConfirmationDialog(),
+      ),
+      onDismissed: (_) => ref
+          .read(timingMeasurementsListProvider(timingRunId).notifier)
+          .deleteTimingMeasurement(measurement.id),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: Theme.of(context).colorScheme.error,
+        child: const Icon(Icons.delete, color: Colors.white, size: 40),
+      ),
+      child: TimingMeasurementItem(timingMeasurement: measurement),
+    );
   }
 }

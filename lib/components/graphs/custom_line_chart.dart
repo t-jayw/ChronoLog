@@ -167,19 +167,19 @@ class CustomLineChart extends StatelessWidget {
                 // TODO : Utilize touch event here to perform any operation
               },
               touchTooltipData: LineTouchTooltipData(
-                tooltipBgColor: Theme.of(context).colorScheme.tertiary,
-                tooltipRoundedRadius: 3.0,
+                tooltipBgColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.9),
+                tooltipRoundedRadius: 8.0,
                 showOnTopOfTheChartBoxArea: true,
                 fitInsideHorizontally: true,
                 fitInsideVertically: true,
-                tooltipMargin: 1,
-                tooltipPadding: const EdgeInsets.fromLTRB(1.0, 0.0, 1.0, 0.0),
-                tooltipBorder: BorderSide(color: Colors.black),
+                tooltipMargin: 8,
+                tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                tooltipBorder: BorderSide.none,
                 getTooltipItems: (List<LineBarSpot> touchedSpots) {
                   return touchedSpots.map((LineBarSpot touchedSpot) {
                     final TextStyle textStyle = TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: Theme.of(context).colorScheme.inversePrimary,
                     );
 
@@ -188,26 +188,27 @@ class CustomLineChart extends StatelessWidget {
                         '${plotSpots[touchedSpot.spotIndex].tag}',
                         textStyle,
                       );
-                    } else {}
-
-                    // If the current touched spot isn't the highest or doesn't belong to actual data line, don't display any tooltip
+                    }
+                    return null;
                   }).toList();
                 },
               ),
-              getTouchedSpotIndicator:
-                  (LineChartBarData barData, List<int> indicators) {
-                return indicators.map(
-                  (int index) {
-                    final line = FlLine(
-                        color: Colors.grey, strokeWidth: .5, dashArray: [2, 4]);
-                    return TouchedSpotIndicatorData(
-                      line,
-                      FlDotData(show: true),
-                    );
-                  },
-                ).toList();
-              },
-              getTouchLineEnd: (_, __) => double.infinity),
+              getTouchedSpotIndicator: (LineChartBarData barData, List<int> indicators) {
+                return indicators.map((int index) {
+                  return TouchedSpotIndicatorData(
+                    FlLine(color: Colors.grey.withOpacity(0.3), strokeWidth: 0.5),
+                    FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                        radius: 3,
+                        color: Colors.orangeAccent,
+                        strokeWidth: 2,
+                        strokeColor: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                  );
+                }).toList();
+              }),
           lineBarsData: [
             LineChartBarData(
               spots: plotSpots,
@@ -264,46 +265,66 @@ class CustomLineChart extends StatelessWidget {
               ),
           ],
           gridData: FlGridData(
+            show: true,
             drawVerticalLine: true,
-            verticalInterval: intervalX,
             drawHorizontalLine: true,
+            verticalInterval: intervalX,
             horizontalInterval: intervalY,
+            getDrawingVerticalLine: (value) {
+              return FlLine(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                strokeWidth: 0.5,
+              );
+            },
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                strokeWidth: 0.5,
+              );
+            },
           ),
           titlesData: FlTitlesData(
             show: true,
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 25,
+                reservedSize: 30,
                 getTitlesWidget: (value, meta) {
                   if (value == minY || value == maxY) return const SizedBox.shrink();
-                  return Text(
-                    '${value.toStringAsFixed(0)}s',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground,
-                      fontSize: 8,
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(
+                      '${value.toStringAsFixed(0)}s',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   );
                 },
-                interval: intervalY, // Match grid interval
+                interval: intervalY,
               ),
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
-                reservedSize: 15,
+                reservedSize: 20,
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                  if (value == minX || value == maxX)
-                    return const SizedBox.shrink();
-                  return Text(
-                    formatTimeInterval(value - minX),
-                    style: TextStyle(
-                      fontSize: 8,
-                      color: Theme.of(context).colorScheme.onBackground,
+                  if (value == minX || value == maxX) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      formatTimeInterval(value - minX),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                      ),
                     ),
                   );
                 },
-                interval: intervalX, // Match grid interval
+                interval: intervalX,
               ),
             ),
             topTitles: AxisTitles(

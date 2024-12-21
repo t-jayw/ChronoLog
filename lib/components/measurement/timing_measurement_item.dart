@@ -1,8 +1,6 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../models/timing_measurement.dart';
 import '../../providers/timing_measurements_list_provider.dart';
 import '../forms/edit_timing_measurement_form.dart';
@@ -40,18 +38,24 @@ class TimingMeasurementItem extends ConsumerWidget {
           .toStringAsFixed(1);
     }
 
-    return Card(
-      elevation: 0.5,
-      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiary.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withOpacity(0.15),
+          width: 0.5,
+        ),
+      ),
       child: InkWell(
         onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
+          CupertinoPageRoute(
             builder: (_) => EditTimingMeasurementForm(timingMeasurement: timingMeasurement),
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(12.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -59,26 +63,88 @@ class TimingMeasurementItem extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    DateFormat('MMM d, h:mm a').format(timingMeasurement.system_time),
+                    'Measurement',
                     style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.7),
-                      fontSize: 13.0,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
                     ),
                   ),
-                  Icon(CupertinoIcons.chevron_right, size: 16),
+                  Icon(CupertinoIcons.chevron_right, size: 14),
                 ],
               ),
-              Divider(height: 12),
+              Divider(height: 16, thickness: 0.5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildMetricItem('Offset', 
-                    '${(timingMeasurement.difference_ms! / 1000).toStringAsFixed(1)}s',
-                    colorScheme),
-                  if (index < sortedMeasurements.length - 1) ...[
-                    _buildMetricItem('Change', '$differenceSeconds s', colorScheme),
-                    _buildMetricItem('Rate', '$rateOfChange s/d', colorScheme),
-                  ],
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${(timingMeasurement.difference_ms! / 1000).toStringAsFixed(1)}',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: colorScheme.tertiary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'seconds offset',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onBackground,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (index < sortedMeasurements.length - 1) ...[
+                        Row(
+                          children: [
+                            Text(
+                              '$differenceSeconds',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colorScheme.tertiary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              ' change',
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              '$rateOfChange',
+                              style: TextStyle(
+                                color: colorScheme.onBackground,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Text(
+                              ' sec/day',
+                              style: TextStyle(
+                                color: colorScheme.onBackground,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      Text(
+                        timingMeasurement.user_input_time.toString(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onBackground,
+                        ),
+                      ),
+                    ],
+                  ),
                   if (timingMeasurement.tag?.isNotEmpty ?? false)
                     _buildTag(timingMeasurement.tag!, context),
                 ],
@@ -90,44 +156,24 @@ class TimingMeasurementItem extends ConsumerWidget {
     );
   }
 
-  Widget _buildMetricItem(String label, String value, ColorScheme colorScheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.w400,
-            color: colorScheme.onSurface,
-            letterSpacing: -0.5,
-          ),
-        ),
-        SizedBox(height: 4.0),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.0,
-            color: colorScheme.onSurface.withOpacity(0.6),
-            letterSpacing: 0.5,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildTag(String tag, BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.tertiary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.2),
+          width: 0.5,
+        ),
       ),
       child: Text(
         tag,
         style: TextStyle(
-          fontSize: 12,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          fontSize: 11,
+          color: Theme.of(context).colorScheme.tertiary,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.2,
         ),
       ),
     );

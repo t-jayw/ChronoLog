@@ -171,14 +171,14 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       '${timingRunStats.formattedSecondsPerDayForRun()}',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 20,
+                                        fontSize: 17,
                                         color: Theme.of(context).colorScheme.tertiary,
                                       ),
                                     ),
                                     Text(
                                       'sec/day',
                                       style: TextStyle(
-                                        fontSize: 13,
+                                        fontSize: 11,
                                         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                                       ),
                                     ),
@@ -186,7 +186,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                 ),
                               ),
                               Expanded(
-                                flex: 2,
+                                flex: 3,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
@@ -197,27 +197,27 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                           timingRunStats.formattedLatestOffset() ?? '-',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 13,
+                                            fontSize: 11,
                                             color: Theme.of(context).colorScheme.onBackground,
                                           ),
                                         ),
                                         Text(
                                           ' offset',
                                           style: TextStyle(
-                                            fontSize: 11,
+                                            fontSize: 10,
                                             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 6),
+                                    SizedBox(height: 4),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
                                           'Last ',
                                           style: TextStyle(
-                                            fontSize: 11,
+                                            fontSize: 10,
                                             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                                           ),
                                         ),
@@ -225,14 +225,14 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                           timingRunStats.formattedTimeSinceLastMeasurement() ?? '-',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 13,
+                                            fontSize: 11,
                                             color: Theme.of(context).colorScheme.onBackground,
                                           ),
                                         ),
                                         Text(
                                           ' ago',
                                           style: TextStyle(
-                                            fontSize: 11,
+                                            fontSize: 10,
                                             color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                                           ),
                                         ),
@@ -241,7 +241,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                   ],
                                 ),
                               ),
-                              SizedBox(width: 12),
+                              SizedBox(width: 8),
                               CupertinoButton(
                                 padding: EdgeInsets.all(8),
                                 borderRadius: BorderRadius.circular(10),

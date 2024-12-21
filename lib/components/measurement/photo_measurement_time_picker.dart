@@ -35,23 +35,29 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
     _selectedTenthOfSecond = currentTime.millisecond ~/ 100;
   }
 
-  void _updateTime() {
-    int adjustedHour = _selectedHour == 12 ? 0 : _selectedHour;
-    if (_isPM) {
-      adjustedHour += 12;
-    }
-    DateTime now = DateTime.now();
-    widget.onTimeChanged(
-      DateTime(
-          now.year,
-          now.month,
-          now.day,
-          adjustedHour,
-          _selectedMinute,
-          _selectedSecond,
-          _selectedTenthOfSecond * 100 + now.millisecond % 100),
-    );
+void _updateTime() {
+  int adjustedHour = _selectedHour == 12 ? 0 : _selectedHour;
+  if (_isPM) {
+    adjustedHour += 12;
   }
+
+  // This is the original date from the measurement:
+  DateTime original = widget.initialTime;
+
+  // Use the same date, just replace the hour/minute/second/millisecond:
+  widget.onTimeChanged(
+    DateTime(
+      original.year,
+      original.month,
+      original.day,
+      adjustedHour,
+      _selectedMinute,
+      _selectedSecond,
+      _selectedTenthOfSecond * 100, // e.g. if you're only storing tenths
+    ),
+  );
+}
+
 
   List<Widget> _generatePickerItems(int count, int offset) {
     return List<Widget>.generate(

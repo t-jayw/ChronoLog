@@ -25,82 +25,79 @@ class _TimingRunDetailHeaderStatsState extends ConsumerState<TimingRunDetailHead
   @override
   Widget build(BuildContext context) {
     final timingMeasurements = ref.watch(timingMeasurementsListProvider(widget.timingRun.id));
-
-    TimingRunStatistics timingRunStats = TimingRunStatistics(timingMeasurements);
-
+    final stats = TimingRunStatistics(timingMeasurements);
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color, // Or any other color you want
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.grey.withOpacity(0.5),
-        //     spreadRadius: 2,
-        //     blurRadius: 7,
-        //     offset: Offset(0, 3),
-        //   ),
-        // ],
-        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildStatColumn(context, 'sec/day', timingRunStats.formattedSecondsPerDayForRun(), true),
-              _buildStatColumn(context, 'Duration', timingRunStats.formattedTotalDuration(), true),
-              _buildStatColumn(context, 'Points', timingRunStats.totalPoints.toString(), true),
-              _buildStatColumn(context, 'Last Measured', timingRunStats.formattedTimeSinceLastMeasurement(), true),
+              _buildStatColumn(context, 'SEC/DAY', stats.formattedSecondsPerDayForRun()),
+              _buildStatColumn(context, 'DURATION', stats.formattedTotalDuration()),
+              _buildStatColumn(context, 'POINTS', stats.totalPoints.toString()),
+              _buildStatColumn(context, 'LAST', stats.formattedTimeSinceLastMeasurement()),
             ],
           ),
-          if (widget.isMostRecent ?? false) _buildAddMeasurementButton(context),
+          if (widget.isMostRecent ?? false) 
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: PrimaryButton(
+                  onPressed: () => showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) => DraggableScrollableSheet(
+                      expand: false,
+                      builder: (_, controller) => MeasurementSelectorModal(timingRunId: widget.timingRun.id),
+                    ),
+                  ),
+                  child: Text('Add Measurement',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildStatColumn(BuildContext context, String label, String value, bool highlight) {
+  Widget _buildStatColumn(BuildContext context, String label, String value) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          value,
+        Text(value,
           style: TextStyle(
-            fontSize: 14,
-            color: highlight ? Theme.of(context).colorScheme.tertiary : Theme.of(context).colorScheme.onSurface,
-            fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
+            fontSize: 15,
+            color: Theme.of(context).colorScheme.tertiary,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.5,
           ),
         ),
-        Text(
-          label,
+        const SizedBox(height: 2),
+        Text(label,
           style: TextStyle(
             fontSize: 10,
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildAddMeasurementButton(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: PrimaryButton(
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (BuildContext context) => DraggableScrollableSheet(
-            expand: false,
-            builder: (_, controller) => MeasurementSelectorModal(timingRunId: widget.timingRun.id),
-          ),
-        ),
-        child: Text(
-          'Add Measurement',
-          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary),
-        ),
-      ),
     );
   }
 
