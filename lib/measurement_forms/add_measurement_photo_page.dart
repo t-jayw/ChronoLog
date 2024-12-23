@@ -281,7 +281,7 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
 
                           // Time Picker and Tag Selector with updated styling
                           Text(
-                            'Enter clock time shown in photo',
+                            'Enter time shown in photo',
                             style: TextStyle(
                               color: CupertinoColors.secondaryLabel.resolveFrom(context),
                               fontSize: 12,

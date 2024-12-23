@@ -1,4 +1,3 @@
-import 'package:chronolog/components/measurement/photo_measurement_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../models/timing_measurement.dart';
 import '../../providers/timing_measurements_list_provider.dart';
 import '../measurement/tag_selector.dart';
-import '../primary_button.dart'; // Include the TagSelector component
+import '../measurement/photo_measurement_time_picker.dart';
 
 String formatDateTimeWithMillis(DateTime dateTime) {
   final datePart = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
@@ -43,7 +42,7 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
     _editedTimingMeasurement = widget.timingMeasurement;
     _systemTime = _editedTimingMeasurement.system_time;
     _userInputTime = _editedTimingMeasurement.user_input_time ?? _editedTimingMeasurement.system_time;
-    tag = _editedTimingMeasurement.tag; // Initialize with existing tag
+    tag = _editedTimingMeasurement.tag;
   }
 
   void _toggleEditingTime() {
@@ -154,14 +153,31 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),
-                                      Text(
-                                        'User Input Time: ${_userInputTime != null ? formatDateTimeWithMillis(_userInputTime!) : 'Not Set'}',
-                                        style: TextStyle(
-                                          color: CupertinoColors.label.resolveFrom(context),
-                                          fontSize: 14,
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'User Input Time',
+                                              style: TextStyle(
+                                                color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              _userInputTime != null 
+                                                  ? formatDateTimeWithMillis(_userInputTime!)
+                                                  : 'Not Set',
+                                              style: TextStyle(
+                                                color: CupertinoColors.label.resolveFrom(context),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      Spacer(),
                                       Icon(
                                         _timeExpanded
                                             ? CupertinoIcons.chevron_up
@@ -173,22 +189,18 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                   ),
                                   if (_timeExpanded) ...[
                                     SizedBox(height: 12),
-                                    CustomTimePicker(
-                                      initialTime: _userInputTime ?? _systemTime,
-                                      onTimeChanged: (newTime) {
-                                        setState(() {
-                                          final existingTime = _userInputTime ?? _systemTime;
-                                          _userInputTime = DateTime(
-                                            existingTime.year,
-                                            existingTime.month,
-                                            existingTime.day,
-                                            newTime.hour,
-                                            newTime.minute,
-                                            newTime.second,
-                                            newTime.millisecond,
-                                          );
-                                        });
-                                      },
+                                    Container(
+                                      constraints: BoxConstraints(
+                                        maxHeight: 200,
+                                      ),
+                                      child: CustomTimePicker(
+                                        initialTime: _userInputTime ?? _systemTime,
+                                        onTimeChanged: (newTime) {
+                                          setState(() {
+                                            _userInputTime = newTime;
+                                          });
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ],

@@ -19,6 +19,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
 
   final List<String> _entitlements = ['in_app_premium', 'in_app_luxury'];
 
+  static const String ENTITLEMENTS_KEY = 'activeEntitlements';
+
   @override
   void initState() {
     super.initState();
@@ -32,31 +34,40 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   }
 
   Future<void> _checkEntitlementStatus() async {
-    print('checking entitlement status');
     try {
       final CustomerInfo customerInfo = await Purchases.getCustomerInfo();
       final prefs = await SharedPreferences.getInstance();
       
-      // Update the state and individual entitlement booleans
-      setState(() {
-        for (String entitlement in _entitlements) {
-          _entitlementStatus[entitlement] =
-              customerInfo.entitlements.active.containsKey(entitlement);
-        }
-      });
+      Map<String, bool> newStatus = {};
+      List<String> activeEntitlements = [];
 
-      // Store individual boolean values
+      // Check each entitlement
       for (String entitlement in _entitlements) {
-        await prefs.setBool(
-            '${entitlement}Active', _entitlementStatus[entitlement] ?? false);
+        bool isActive = customerInfo.entitlements.active.containsKey(entitlement);
+        newStatus[entitlement] = isActive;
+        
+        if (isActive) {
+          activeEntitlements.add(entitlement);
+          // Store purchase date if not already stored
+          String dateKey = '${entitlement}_purchaseDate';
+          if (!prefs.containsKey(dateKey)) {
+            await prefs.setString(dateKey, DateTime.now().toIso8601String());
+          }
+        }
       }
 
-      // Store the array of active entitlements
-      List<String> activeEntitlements = _entitlements
-          .where((entitlement) => _entitlementStatus[entitlement] == true)
-          .toList();
-      await prefs.setStringList('activeEntitlements', activeEntitlements);
+      // Update state and storage
+      setState(() => _entitlementStatus = newStatus);
+      await prefs.setStringList(ENTITLEMENTS_KEY, activeEntitlements);
       
+      // Track purchase status
+      Posthog().capture(
+        eventName: 'entitlement_status_check',
+        properties: {
+          'active_entitlements': activeEntitlements,
+          'has_active_entitlements': activeEntitlements.isNotEmpty,
+        },
+      );
     } catch (e) {
       print("Error fetching purchaser info: $e");
     }
@@ -179,38 +190,57 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   }
 
   Future<void> _purchasePackage(Package package) async {
-    print('_purchasePackage()');
     try {
       final purchaseResult = await Purchases.purchasePackage(package);
-      print('Purchase result: ${purchaseResult.toJson()}');
-
-      await _checkEntitlementStatus();
-
+      
       if (purchaseResult.entitlements.active.isNotEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        final purchaseDate = DateTime.now().toIso8601String();
+
+        // Update entitlements and store purchase date
         for (String entitlement in purchaseResult.entitlements.active.keys) {
           await _setEntitlementActive(entitlement, true);
+          await prefs.setString('${entitlement}_purchaseDate', purchaseDate);
         }
-        _showSuccessDialog("Purchase was successful");
-      } else {
-        print("No active entitlements found after purchase.");
+
+        // Track successful purchase
+        Posthog().capture(
+          eventName: 'successful_purchase',
+          properties: {
+            'product_id': package.storeProduct.identifier,
+            'price': package.storeProduct.price,
+            'currency': package.storeProduct.currencyCode,
+          },
+        );
+
+        _showSuccessDialog("Thank you for your purchase!");
+        await _checkEntitlementStatus(); // Refresh status
       }
     } catch (e) {
-      if (e is PlatformException) {
-        if (e.code == '1' && e.details['userCancelled'] == true) {
-          print("Purchase was cancelled by the user.");
-          _showErrorDialog(
-              "Purchase was cancelled. Please try again if this was unintended.");
-        } else {
-          print("Purchase error: $e");
-          _showErrorDialog(
-              "An error occurred during the purchase. Please try again later.");
-        }
-      } else {
-        print("Unexpected error: $e");
-        _showErrorDialog(
-            "An unexpected error occurred. Please try again later.");
-      }
+      _handlePurchaseError(e);
     }
+  }
+
+  void _handlePurchaseError(dynamic error) {
+    String errorMessage = "An unexpected error occurred. Please try again later.";
+    
+    if (error is PlatformException) {
+      if (error.code == '1' && error.details['userCancelled'] == true) {
+        return; // Don't show error for user cancellation
+      }
+      errorMessage = error.message ?? errorMessage;
+    }
+
+    // Track purchase error
+    Posthog().capture(
+      eventName: 'purchase_error',
+      properties: {
+        'error_message': errorMessage,
+        'error_type': error.runtimeType.toString(),
+      },
+    );
+
+    _showErrorDialog(errorMessage);
   }
 
   Future<void> _setEntitlementActive(String entitlement, bool value) async {

@@ -1,6 +1,5 @@
 import 'package:chronolog/components/custom_tool_tip.dart';
 import 'package:chronolog/components/premium/premium_needed_dialog.dart';
-import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,7 +27,7 @@ class TimingRunsContainer extends ConsumerWidget {
     final startTime = DateTime.now();
     final timingRun = TimingRun(
       id: timingRunId,
-      watch_id: timepiece.id,
+      watchId: timepiece.id,
       startDate: startTime,
     );
     ref.read(timingRunProvider(timepiece.id).notifier).addTimingRun(timingRun);

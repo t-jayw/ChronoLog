@@ -23,7 +23,7 @@ class AddMeasurementButtonPage extends StatefulWidget {
 class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
   final _formKey = GlobalKey<FormState>();
 
-  DateTime? selectedTime;
+  DateTime? selectedTime = DateTime.now();
   DateTime? buttonPressTime;
 
   String tag = '';
@@ -36,6 +36,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
   void _updateTime(DateTime newTime) {
     setState(() {
       selectedTime = newTime;
+      print("Time updated in picker: ${newTime.toIso8601String()}");
     });
   }
 
@@ -47,17 +48,26 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
 
   void _createPreviewMeasurement() {
     setState(() {
-      buttonPressTime = DateTime.now();
-      selectedTime = selectedTime ?? DateTime.now();
+      // Get the time when the button is pressed (actual measurement time)
+      final measurementTime = DateTime.now();
+      
+      if (selectedTime == null) {
+        print("Error: No time selected in picker");
+        return;
+      }
+      
+      print("Selected time in picker: ${selectedTime!.toIso8601String()}");
+      print("Button press time: ${measurementTime.toIso8601String()}");
+      print("Difference in ms: ${measurementTime.difference(selectedTime!).inMilliseconds}");
       
       previewMeasurement = TimingMeasurement(
         id: Ulid().toString(),
         run_id: widget.timingRunId,
-        system_time: buttonPressTime!,
-        user_input_time: selectedTime,
+        system_time: measurementTime,
+        user_input_time: selectedTime!, // Using the picker time directly
         image: null,
         tag: tag,
-        difference_ms: selectedTime!.difference(buttonPressTime!).inMilliseconds,
+        difference_ms: measurementTime.difference(selectedTime!).inMilliseconds,
       );
     });
   }
@@ -207,7 +217,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
 
                           // Time Picker
                           Text(
-                            'Select Time',
+                            'Choose a Time Ahead of Your Watch',
                             style: TextStyle(
                               color: CupertinoColors.secondaryLabel.resolveFrom(context),
                               fontSize: 12,

@@ -215,13 +215,6 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'Last ',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                                          ),
-                                        ),
-                                        Text(
                                           timingRunStats.formattedTimeSinceLastMeasurement() ?? '-',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,

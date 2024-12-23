@@ -66,11 +66,13 @@ class InfoPage extends ConsumerWidget {
   // replace with actual value
 
   final DatabaseHelper _db = DatabaseHelper();
-    void _navigateToClockScreen(BuildContext context) {
+
+  void _navigateToClockScreen(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ClockScreen(), // Ensure ClockScreen is defined and imported
+        builder: (context) =>
+            ClockScreen(), // Ensure ClockScreen is defined and imported
       ),
     );
   }
@@ -140,13 +142,13 @@ class InfoPage extends ConsumerWidget {
           future: SharedPreferences.getInstance(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return SizedBox.shrink();
-            
+
             final prefs = snapshot.data!;
             final isLuxury = prefs.getBool('in_app_luxuryActive') ?? false;
             final isPremium = prefs.getBool('in_app_premiumActive') ?? false;
-            
+
             if (!isLuxury && !isPremium) return SizedBox.shrink();
-            
+
             return Text(
               isLuxury ? 'Luxury' : 'Premium',
               style: TextStyle(
@@ -171,17 +173,30 @@ class InfoPage extends ConsumerWidget {
                     icon: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2), // Background color
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          width: 1.0,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      padding: EdgeInsets.all(8.0), // Padding around the icon
+                      padding: EdgeInsets.all(12.0), // Increased padding
                       child: Icon(
                         Icons.access_time,
-                        size: 40,
+                        size: 24, // Increased size
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
                     onPressed: () => _navigateToClockScreen(context),
                     tooltip: 'Open Clock',
+                    iconSize: 68, // Increased overall button size
                   ),
                 ),
               ],
@@ -191,7 +206,6 @@ class InfoPage extends ConsumerWidget {
             ),
           ],
         ),
-
 
         // Expanded(child: PurchaseOptions()),
         ListGroup(
@@ -220,7 +234,7 @@ class InfoPage extends ConsumerWidget {
               },
             ),
             ListItem(
-              title: 'SubmitFeedback',
+              title: 'Email Me',
               iconData: Icons.email,
               onTap: () async {
                 sendMailWithFeedback();
@@ -508,4 +522,3 @@ void showDebugInfoModal(BuildContext context) async {
     },
   );
 }
-

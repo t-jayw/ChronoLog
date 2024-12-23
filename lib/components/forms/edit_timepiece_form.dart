@@ -349,16 +349,16 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                             Expanded(
                               child: CupertinoButton(
                                 padding: EdgeInsets.symmetric(vertical: 8),
-                                color: CupertinoTheme.of(context).primaryColor,
+                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(CupertinoIcons.camera,
-                                        size: 20, color: CupertinoColors.white),
+                                        size: 20, color: Theme.of(context).colorScheme.tertiary),
                                     SizedBox(width: 8),
                                     Text('Camera',
                                         style: TextStyle(
-                                            color: CupertinoColors.white,
+                                            color: Theme.of(context).colorScheme.tertiary,
                                             fontSize: 14)),
                                   ],
                                 ),
@@ -369,16 +369,16 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                             Expanded(
                               child: CupertinoButton(
                                 padding: EdgeInsets.symmetric(vertical: 8),
-                                color: CupertinoTheme.of(context).primaryColor,
+                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(CupertinoIcons.photo,
-                                        size: 20, color: CupertinoColors.white),
+                                        size: 20, color: Theme.of(context).colorScheme.tertiary),
                                     SizedBox(width: 8),
                                     Text('Gallery',
                                         style: TextStyle(
-                                            color: CupertinoColors.white,
+                                            color: Theme.of(context).colorScheme.tertiary,
                                             fontSize: 14)),
                                   ],
                                 ),

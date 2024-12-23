@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/time_mode_provider.dart';
 
-class CustomTimePicker extends StatefulWidget {
+class CustomTimePicker extends ConsumerWidget {
   final ValueChanged<DateTime> onTimeChanged;
   final DateTime initialTime;
 
@@ -12,52 +14,103 @@ class CustomTimePicker extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CustomTimePickerState createState() => _CustomTimePickerState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final timeMode = ref.watch(timeModeProvider);
+    
+    return _CustomTimePickerContent(
+      onTimeChanged: onTimeChanged,
+      initialTime: initialTime,
+      timeMode: timeMode,
+    );
+  }
 }
 
-class _CustomTimePickerState extends State<CustomTimePicker> {
+class _CustomTimePickerContent extends StatefulWidget {
+  final ValueChanged<DateTime> onTimeChanged;
+  final DateTime initialTime;
+  final TimeModeOption timeMode;
+
+  const _CustomTimePickerContent({
+    Key? key,
+    required this.onTimeChanged,
+    required this.initialTime,
+    required this.timeMode,
+  }) : super(key: key);
+
+  @override
+  _CustomTimePickerContentState createState() => _CustomTimePickerContentState();
+}
+
+class _CustomTimePickerContentState extends State<_CustomTimePickerContent> {
   late int _selectedHour;
   late int _selectedMinute;
   late int _selectedSecond;
   late int _selectedTenthOfSecond;
-  bool _isPM = false;
+  late bool _isPM;
+  late FixedExtentScrollController _hourController;
+  late FixedExtentScrollController _minuteController;
+  late FixedExtentScrollController _secondController;
+  late FixedExtentScrollController _tenthController;
 
   @override
   void initState() {
     super.initState();
-    DateTime currentTime = widget.initialTime;
-    _selectedHour = currentTime.hour > 12
-        ? currentTime.hour - 12
-        : (currentTime.hour == 0 ? 12 : currentTime.hour);
-    _isPM = currentTime.hour >= 12;
-    _selectedMinute = currentTime.minute;
-    _selectedSecond = currentTime.second;
-    _selectedTenthOfSecond = currentTime.millisecond ~/ 100;
+    _initializeTime(widget.initialTime);
+    _hourController = FixedExtentScrollController(initialItem: _selectedHour - 1);
+    _minuteController = FixedExtentScrollController(initialItem: _selectedMinute);
+    _secondController = FixedExtentScrollController(initialItem: _selectedSecond);
+    _tenthController = FixedExtentScrollController(initialItem: _selectedTenthOfSecond);
   }
 
-void _updateTime() {
-  int adjustedHour = _selectedHour == 12 ? 0 : _selectedHour;
-  if (_isPM) {
-    adjustedHour += 12;
+  @override
+  void dispose() {
+    _hourController.dispose();
+    _minuteController.dispose();
+    _secondController.dispose();
+    _tenthController.dispose();
+    super.dispose();
   }
 
-  // This is the original date from the measurement:
-  DateTime original = widget.initialTime;
+  void _initializeTime(DateTime time) {
+    if (widget.timeMode == TimeModeOption.military) {
+      _selectedHour = time.hour;
+      _isPM = false;
+    } else {
+      _selectedHour = time.hour % 12;
+      if (_selectedHour == 0) _selectedHour = 12;
+      _isPM = time.hour >= 12;
+    }
+    
+    _selectedMinute = time.minute;
+    _selectedSecond = time.second;
+    _selectedTenthOfSecond = time.millisecond ~/ 100;
+  }
 
-  // Use the same date, just replace the hour/minute/second/millisecond:
-  widget.onTimeChanged(
-    DateTime(
-      original.year,
-      original.month,
-      original.day,
-      adjustedHour,
-      _selectedMinute,
-      _selectedSecond,
-      _selectedTenthOfSecond * 100, // e.g. if you're only storing tenths
-    ),
-  );
-}
+  void _updateTime() {
+    int adjustedHour;
+    if (widget.timeMode == TimeModeOption.military) {
+      adjustedHour = _selectedHour;
+    } else {
+      adjustedHour = _selectedHour == 12 ? 0 : _selectedHour;
+      if (_isPM) {
+        adjustedHour += 12;
+      }
+    }
 
+    DateTime original = widget.initialTime;
+
+    widget.onTimeChanged(
+      DateTime(
+        original.year,
+        original.month,
+        original.day,
+        adjustedHour,
+        _selectedMinute,
+        _selectedSecond,
+        _selectedTenthOfSecond * 100,
+      ),
+    );
+  }
 
   List<Widget> _generatePickerItems(int count, int offset) {
     return List<Widget>.generate(
@@ -75,12 +128,17 @@ void _updateTime() {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildPicker(_selectedHour - 1, 12, 1, (int value) {
-            setState(() {
-              _selectedHour = value + 1;
-            });
-            _updateTime();
-          }),
+          _buildPicker(
+            widget.timeMode == TimeModeOption.military ? _selectedHour : _selectedHour - 1,
+            widget.timeMode == TimeModeOption.military ? 24 : 12,
+            widget.timeMode == TimeModeOption.military ? 0 : 1,
+            (int value) {
+              setState(() {
+                _selectedHour = widget.timeMode == TimeModeOption.military ? value : value + 1;
+              });
+              _updateTime();
+            }
+          ),
           Text(':',
               style: TextStyle(
                   fontSize: 22,
@@ -114,45 +172,46 @@ void _updateTime() {
             });
             _updateTime();
           }),
-          Transform.scale(
-            scale: 0.8,
-            child: ToggleButtons(
-              color: Theme.of(context).colorScheme.onBackground,
+          if (widget.timeMode == TimeModeOption.twelve)
+            Transform.scale(
+              scale: 0.8,
+              child: ToggleButtons(
+                color: Theme.of(context).colorScheme.onBackground,
 selectedColor: Theme.of(context).colorScheme.tertiary,
-              fillColor: Theme.of(context).colorScheme.primary,
-              borderColor: Theme.of(context).colorScheme.onBackground,
-              borderRadius: BorderRadius.circular(10),
-              onPressed: (int index) {
-                setState(() {
-                  _isPM = index == 1;
-                  _updateTime();
-                });
-              },
-              isSelected: [_isPM == false, _isPM == true],
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(
-                    'AM',
-                    style: TextStyle(
-                      fontSize: _isPM ? 16 : 20,
-                      fontWeight: _isPM ? FontWeight.normal : FontWeight.bold,
+                fillColor: Theme.of(context).colorScheme.primary,
+                borderColor: Theme.of(context).colorScheme.onBackground,
+                borderRadius: BorderRadius.circular(10),
+                onPressed: (int index) {
+                  setState(() {
+                    _isPM = index == 1;
+                    _updateTime();
+                  });
+                },
+                isSelected: [_isPM == false, _isPM == true],
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'AM',
+                      style: TextStyle(
+                        fontSize: _isPM ? 16 : 20,
+                        fontWeight: _isPM ? FontWeight.normal : FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(
-                    'PM',
-                    style: TextStyle(
-                      fontSize: _isPM ? 20 : 16,
-                      fontWeight: _isPM ? FontWeight.bold : FontWeight.normal,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'PM',
+                      style: TextStyle(
+                        fontSize: _isPM ? 20 : 16,
+                        fontWeight: _isPM ? FontWeight.bold : FontWeight.normal,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -160,16 +219,28 @@ selectedColor: Theme.of(context).colorScheme.tertiary,
 
   Widget _buildPicker(int selectedValue, int numberOfItems, int offset,
       ValueChanged<int> onSelectedItemChanged) {
+    final controller = FixedExtentScrollController(initialItem: selectedValue);
+    
     return SizedBox(
       height: 150,
       width: 50,
-      child: CupertinoPicker(
+      child: CupertinoPicker.builder(
+        scrollController: controller,
         diameterRatio: .8,
         itemExtent: 60,
-        looping: true,
+        useMagnifier: true,
         selectionOverlay: const CupertinoPickerDefaultSelectionOverlay(),
         onSelectedItemChanged: onSelectedItemChanged,
-        children: _generatePickerItems(numberOfItems, offset),
+        itemBuilder: (context, index) => Center(
+          child: Text(
+            '${index + offset}'.padLeft(2, '0'),
+            style: TextStyle(
+              fontSize: 18,
+              color: Theme.of(context).colorScheme.onBackground
+            )
+          )
+        ),
+        childCount: numberOfItems,
       ),
     );
   }

@@ -10,7 +10,6 @@ import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';
 import '../models/timing_run.dart';
 import '../screens/timing_run_details_screen.dart';
-import 'primary_button.dart';
 
 class TimingRunComponent extends ConsumerStatefulWidget {
   final TimingRun timingRun;

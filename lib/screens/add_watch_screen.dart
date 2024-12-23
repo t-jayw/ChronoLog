@@ -212,6 +212,8 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
   String referenceNumber = '';
   String caliber = '';
   String crystalType = '';
+  final TextEditingController _brandController = TextEditingController();
+  List<String> _brandSuggestions = [];
 
   Future<void> _cropImage() async {
     ImageHelper.cropImage(imageFile, (croppedFile) {
@@ -316,6 +318,26 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
     );
   }
 
+  void _updateBrandSuggestions(String query) {
+    setState(() {
+      brand = query;
+      if (query.isEmpty) {
+        _brandSuggestions = [];
+      } else {
+        _brandSuggestions = brandsList
+            .where((brand) =>
+                brand.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _brandController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -368,42 +390,40 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                             Expanded(
                               child: CupertinoButton(
                                 padding: EdgeInsets.symmetric(vertical: 8),
-                                color: CupertinoTheme.of(context).primaryColor,
+                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(CupertinoIcons.camera,
-                                        size: 20, color: CupertinoColors.white),
+                                        size: 20, color: Theme.of(context).colorScheme.tertiary),
                                     SizedBox(width: 8),
                                     Text('Camera',
                                         style: TextStyle(
-                                            color: CupertinoColors.white,
+                                            color: Theme.of(context).colorScheme.tertiary,
                                             fontSize: 14)),
                                   ],
                                 ),
-                                onPressed: () =>
-                                    _pickAndCropImage(ImageSource.camera),
+                                onPressed: () => _pickAndCropImage(ImageSource.camera),
                               ),
                             ),
                             SizedBox(width: 8),
                             Expanded(
                               child: CupertinoButton(
                                 padding: EdgeInsets.symmetric(vertical: 8),
-                                color: CupertinoTheme.of(context).primaryColor,
+                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(CupertinoIcons.photo,
-                                        size: 20, color: CupertinoColors.white),
+                                        size: 20, color: Theme.of(context).colorScheme.tertiary),
                                     SizedBox(width: 8),
                                     Text('Gallery',
                                         style: TextStyle(
-                                            color: CupertinoColors.white,
+                                            color: Theme.of(context).colorScheme.tertiary,
                                             fontSize: 14)),
                                   ],
                                 ),
-                                onPressed: () =>
-                                    _pickAndCropImage(ImageSource.gallery),
+                                onPressed: () => _pickAndCropImage(ImageSource.gallery),
                               ),
                             ),
                           ],
@@ -411,10 +431,70 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                         SizedBox(height: 12),
 
                         // Fields
-                        CustomEditableField(
-                          label: 'Brand*',
-                          placeholder: '',
-                          onChanged: (val) => brand = val,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Brand*',
+                              style: TextStyle(
+                                color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                                decoration: TextDecoration.none,
+                                fontSize: 12,
+                              ),
+                            ),
+                            SizedBox(height: 6),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: CupertinoTextField(
+                                controller: _brandController,
+                                placeholder: '',
+                                onChanged: _updateBrandSuggestions,
+                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                                decoration: null,
+                                style: TextStyle(
+                                  color: CupertinoColors.label.resolveFrom(context),
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                            if (_brandSuggestions.isNotEmpty)
+                              Container(
+                                constraints: BoxConstraints(maxHeight: 150),
+                                margin: EdgeInsets.only(top: 4),
+                                decoration: BoxDecoration(
+                                  color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: ListView.builder(
+                                  itemCount: _brandSuggestions.length,
+                                  itemBuilder: (context, index) {
+                                    return CupertinoButton(
+                                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          _brandSuggestions[index],
+                                          style: TextStyle(
+                                            color: CupertinoColors.label.resolveFrom(context),
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          brand = _brandSuggestions[index];
+                                          _brandController.text = _brandSuggestions[index];
+                                          _brandSuggestions = [];
+                                        });
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                          ],
                         ),
                         SizedBox(height: 12),
                         CustomEditableField(
@@ -523,7 +603,7 @@ void _addTimingRun(String watchId, WidgetRef ref) {
   final startTime = DateTime.now();
   final timingRun = TimingRun(
     id: timingRunId,
-    watch_id: watchId,
+    watchId: watchId,
     startDate: startTime,
   );
   ref.read(timingRunProvider(watchId).notifier).addTimingRun(timingRun);

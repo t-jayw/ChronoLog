@@ -39,12 +39,12 @@ class TimingMeasurementItem extends ConsumerWidget {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+      margin: EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
       decoration: BoxDecoration(
-        color: colorScheme.tertiary.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8.0),
+        color: colorScheme.tertiary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.15),
+          color: Theme.of(context).dividerColor.withOpacity(0.3),
           width: 0.5,
         ),
       ),
@@ -55,7 +55,7 @@ class TimingMeasurementItem extends ConsumerWidget {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          padding: EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -65,15 +65,14 @@ class TimingMeasurementItem extends ConsumerWidget {
                   Text(
                     'Measurement',
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.3,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Icon(CupertinoIcons.chevron_right, size: 14),
+                  Icon(CupertinoIcons.chevron_right, size: 16),
                 ],
               ),
-              Divider(height: 16, thickness: 0.5),
+              Divider(height: 4, thickness: 1),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
