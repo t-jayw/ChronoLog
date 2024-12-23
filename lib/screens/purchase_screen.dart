@@ -48,11 +48,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         
         if (isActive) {
           activeEntitlements.add(entitlement);
-          // Store purchase date if not already stored
-          String dateKey = '${entitlement}_purchaseDate';
-          if (!prefs.containsKey(dateKey)) {
-            await prefs.setString(dateKey, DateTime.now().toIso8601String());
-          }
+          // Simply set the entitlement to true
+          await prefs.setBool(entitlement, true);
         }
       }
 

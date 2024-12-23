@@ -16,8 +16,9 @@ class PremiumPackageTile extends StatelessWidget {
   List<String> _getFeatures() {
     if (package.storeProduct.identifier == "in_app_luxury") {
       return [
-        "All Premium features, plus:",
-        "Bespoke, small batch application code with a focus on quality and performance",
+        "All Premium features",
+        "Bespoke, small batch application code, with a focus on quality and performance",
+        "Unit test coverage",
         "iOS Only"
       ];
     } else {
@@ -41,18 +42,12 @@ class PremiumPackageTile extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: packageType == "luxury"
-                  ? Theme.of(context).colorScheme.tertiary.withOpacity(0.1)
-                  : Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
-              packageType == "luxury" 
-                  ? CupertinoIcons.star_fill
-                  : CupertinoIcons.checkmark_circle_fill,
-              color: packageType == "luxury"
-                  ? Theme.of(context).colorScheme.tertiary
-                  : Theme.of(context).colorScheme.primary,
+              CupertinoIcons.star_fill,
+              color: Theme.of(context).colorScheme.secondary,
               size: 14,
             ),
           ),
@@ -81,7 +76,7 @@ class PremiumPackageTile extends StatelessWidget {
           Icon(CupertinoIcons.person_2_fill, size: 16),
           SizedBox(width: 8),
           Text(
-            "Used by 10,000+ watch collectors",
+            "Used by 100+ watch collectors",
             style: TextStyle(
               fontSize: 13,
               color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
@@ -244,7 +239,7 @@ class PremiumPackageTile extends StatelessWidget {
                       children: [
                         _buildSocialProof(context),
                         SizedBox(height: 8),
-                        if (packageType == "luxury") ...[
+                        if (package.storeProduct.identifier == "in_app_luxury") ...[
                           _buildTimeLimitedBadge(),
                           SizedBox(height: 12),
                         ],

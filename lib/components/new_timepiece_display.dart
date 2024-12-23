@@ -238,7 +238,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                               CupertinoButton(
                                 padding: EdgeInsets.all(8),
                                 borderRadius: BorderRadius.circular(10),
-                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.4),
+                                color: Colors.transparent,
                                 minSize: 0,
                                 onPressed: () async {
                                   SharedPreferences prefs =
@@ -277,10 +277,19 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                     );
                                   }
                                 },
-                                child: Icon(
-                                  CupertinoIcons.plus,
-                                  size: 20,
-                                  color: Theme.of(context).colorScheme.tertiary,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Theme.of(context).colorScheme.tertiary,
+                                      width: 2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    CupertinoIcons.plus,
+                                    size: 20,
+                                    color: Theme.of(context).colorScheme.tertiary,
+                                  ),
                                 ),
                               ),
                             ],

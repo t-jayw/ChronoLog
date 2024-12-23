@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../components/ads/footer_banner_ad.dart';
@@ -465,6 +466,7 @@ Future<String> getPurchaseDebugInfo() async {
 void showDebugInfoModal(BuildContext context) async {
   final prefsData = await getSharedPreferencesData();
   final purchaseInfo = await getPurchaseDebugInfo();
+  final allDebugInfo = 'SHARED PREFERENCES:\n$prefsData\n\nPURCHASE INFO:\n$purchaseInfo';
 
   showModalBottomSheet(
     context: context,
@@ -475,13 +477,44 @@ void showDebugInfoModal(BuildContext context) async {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Debug Information',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Debug Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.copy),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: allDebugInfo));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Debug info copied to clipboard')),
+                          );
+                        },
+                        tooltip: 'Copy to clipboard',
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete_forever),
+                        onPressed: () async {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.clear();
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('All preferences cleared')),
+                          );
+                        },
+                        tooltip: 'Clear all preferences',
+                      ),
+                    ],
+                  ),
+                ],
               ),
               Divider(color: Theme.of(context).colorScheme.inverseSurface),
               Text(
