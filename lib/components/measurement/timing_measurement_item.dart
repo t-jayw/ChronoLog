@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/timing_measurement.dart';
 import '../../providers/timing_measurements_list_provider.dart';
 import '../forms/edit_timing_measurement_form.dart';
+import '../formatted_time_display.dart';
 
 class TimingMeasurementItem extends ConsumerWidget {
   const TimingMeasurementItem({
@@ -133,8 +134,8 @@ class TimingMeasurementItem extends ConsumerWidget {
                       ],
                     ),
                   ],
-                  Text(
-                    timingMeasurement.user_input_time.toString(),
+                  FormattedTimeDisplay(
+                    dateTime: timingMeasurement.user_input_time!,
                     style: TextStyle(
                       fontSize: 12,
                       color: colorScheme.onBackground,

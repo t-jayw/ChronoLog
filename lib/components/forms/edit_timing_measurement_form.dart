@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 
 import '../../models/timing_measurement.dart';
 import '../../providers/timing_measurements_list_provider.dart';
 import '../measurement/tag_selector.dart';
 import '../measurement/configurable_picker.dart';
 import '../measurement/timing_measurement_item.dart';
+import '../formatted_time_display.dart';
 
-String formatDateTimeWithMillis(DateTime dateTime) {
-  final datePart = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
-  final millis = dateTime.millisecond;
-  return '$datePart.$millis';
-}
 
 class EditTimingMeasurementForm extends StatefulWidget {
   final TimingMeasurement timingMeasurement;
@@ -137,8 +132,8 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                   .resolveFrom(context),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: Text(
-                              formatDateTimeWithMillis(_systemTime),
+                            child: FormattedTimeDisplay(
+                              dateTime: _systemTime,
                               style: TextStyle(
                                 color: CupertinoColors.label.resolveFrom(context),
                                 fontSize: 14,
@@ -188,18 +183,23 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                               ),
                                             ),
                                             SizedBox(height: 4),
-                                            Text(
-                                              _userInputTime != null
-                                                  ? formatDateTimeWithMillis(
-                                                      _userInputTime!)
-                                                  : 'Not Set',
-                                              style: TextStyle(
-                                                color: CupertinoColors.label
-                                                    .resolveFrom(context),
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
+                                            _userInputTime != null
+                                                ? FormattedTimeDisplay(
+                                                    dateTime: _userInputTime!,
+                                                    style: TextStyle(
+                                                      color: CupertinoColors.label.resolveFrom(context),
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  )
+                                                : Text(
+                                                    'Not Set',
+                                                    style: TextStyle(
+                                                      color: CupertinoColors.label.resolveFrom(context),
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
                                           ],
                                         ),
                                       ),
@@ -220,7 +220,16 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                       mode: TimePickerMode.image,
                                       onTimeChanged: (newTime) {
                                         setState(() {
-                                          _userInputTime = newTime;
+                                          final originalDate = _userInputTime ?? _systemTime;
+                                          _userInputTime = DateTime(
+                                            originalDate.year,
+                                            originalDate.month,
+                                            originalDate.day,
+                                            newTime.hour,
+                                            newTime.minute,
+                                            newTime.second,
+                                            newTime.millisecond,
+                                          );
                                         });
                                       },
                                     ),

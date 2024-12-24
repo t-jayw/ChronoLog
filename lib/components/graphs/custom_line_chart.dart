@@ -69,6 +69,20 @@ class CustomLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (measurements.isEmpty) {
+      // Handle empty measurements case first
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            "No measurements available.\nPlease add measurements.",
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          ),
+        ),
+      );
+    }
+
     List<TaggedFlSpot> offsetSpots = createOffsetDataPoints(measurements);
     List<TaggedFlSpot> rateSpots = createRateDataPoints(measurements);
 
