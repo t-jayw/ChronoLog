@@ -6,7 +6,8 @@ import 'package:intl/intl.dart';
 import '../../models/timing_measurement.dart';
 import '../../providers/timing_measurements_list_provider.dart';
 import '../measurement/tag_selector.dart';
-import '../measurement/photo_measurement_time_picker.dart';
+import '../measurement/configurable_picker.dart';
+import '../measurement/timing_measurement_item.dart';
 
 String formatDateTimeWithMillis(DateTime dateTime) {
   final datePart = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
@@ -41,7 +42,8 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
     super.initState();
     _editedTimingMeasurement = widget.timingMeasurement;
     _systemTime = _editedTimingMeasurement.system_time;
-    _userInputTime = _editedTimingMeasurement.user_input_time ?? _editedTimingMeasurement.system_time;
+    _userInputTime =
+        _editedTimingMeasurement.user_input_time ?? _editedTimingMeasurement.system_time;
     tag = _editedTimingMeasurement.tag;
   }
 
@@ -56,16 +58,21 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // Create a copy of the timing measurement with only the fields that are explicitly edited
-      _editedTimingMeasurement = _editedTimingMeasurement.copyWith(
+      // Create a new TimingMeasurement with all fields to ensure complete update
+      _editedTimingMeasurement = TimingMeasurement(
+        id: _editedTimingMeasurement.id,
+        run_id: _editedTimingMeasurement.run_id,
+        system_time: _systemTime,
         user_input_time: _userInputTime,
+        difference_ms: _userInputTime != null 
+            ? _userInputTime!.difference(_systemTime).inMilliseconds
+            : _systemTime.difference(_systemTime).inMilliseconds,
         tag: tag,
-        // Do not update system_time or any other fields unless explicitly edited
       );
 
+      // Use read instead of watch for actions
       ref
-          .watch(timingMeasurementsListProvider(_editedTimingMeasurement.run_id)
-              .notifier)
+          .read(timingMeasurementsListProvider(_editedTimingMeasurement.run_id).notifier)
           .updateTimingMeasurement(_editedTimingMeasurement);
 
       Navigator.of(context).pop();
@@ -91,6 +98,16 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
       ),
       body: SafeArea(
         child: Consumer(builder: (context, ref, _) {
+          TimingMeasurement? previousMeasurement;
+          final measurements = ref.read(timingMeasurementsListProvider(_editedTimingMeasurement.run_id));
+          final sortedMeasurements = measurements.toList()
+            ..sort((a, b) => b.system_time.compareTo(a.system_time));
+          final currentIndex = sortedMeasurements.indexOf(_editedTimingMeasurement);
+          
+          if (currentIndex < sortedMeasurements.length - 1) {
+            previousMeasurement = sortedMeasurements[currentIndex + 1];
+          }
+
           return Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -107,7 +124,8 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                           Text(
                             'System Time',
                             style: TextStyle(
-                              color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                              color:
+                                  CupertinoColors.secondaryLabel.resolveFrom(context),
                               fontSize: 12,
                             ),
                           ),
@@ -115,7 +133,8 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                           Container(
                             padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              color: CupertinoColors.tertiarySystemFill
+                                  .resolveFrom(context),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -131,7 +150,8 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                           // User Input Time Section
                           Container(
                             decoration: BoxDecoration(
-                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              color: CupertinoColors.tertiarySystemFill
+                                  .resolveFrom(context),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             margin: EdgeInsets.symmetric(vertical: 8),
@@ -149,28 +169,33 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.time,
-                                        color: CupertinoTheme.of(context).primaryColor,
+                                        color: CupertinoTheme.of(context)
+                                            .primaryColor,
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'User Input Time',
                                               style: TextStyle(
-                                                color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                                                color: CupertinoColors.secondaryLabel
+                                                    .resolveFrom(context),
                                                 fontSize: 12,
                                               ),
                                             ),
                                             SizedBox(height: 4),
                                             Text(
-                                              _userInputTime != null 
-                                                  ? formatDateTimeWithMillis(_userInputTime!)
+                                              _userInputTime != null
+                                                  ? formatDateTimeWithMillis(
+                                                      _userInputTime!)
                                                   : 'Not Set',
                                               style: TextStyle(
-                                                color: CupertinoColors.label.resolveFrom(context),
+                                                color: CupertinoColors.label
+                                                    .resolveFrom(context),
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -189,18 +214,15 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                   ),
                                   if (_timeExpanded) ...[
                                     SizedBox(height: 12),
-                                    Container(
-                                      constraints: BoxConstraints(
-                                        maxHeight: 200,
-                                      ),
-                                      child: CustomTimePicker(
-                                        initialTime: _userInputTime ?? _systemTime,
-                                        onTimeChanged: (newTime) {
-                                          setState(() {
-                                            _userInputTime = newTime;
-                                          });
-                                        },
-                                      ),
+                                    ConfigurablePrecisionTimePicker(
+                                      initialTime:
+                                          _userInputTime ?? _systemTime,
+                                      mode: TimePickerMode.image,
+                                      onTimeChanged: (newTime) {
+                                        setState(() {
+                                          _userInputTime = newTime;
+                                        });
+                                      },
                                     ),
                                   ],
                                 ],
@@ -211,7 +233,8 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                           // Tag Section
                           Container(
                             decoration: BoxDecoration(
-                              color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                              color: CupertinoColors.tertiarySystemFill
+                                  .resolveFrom(context),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             margin: EdgeInsets.symmetric(vertical: 8),
@@ -229,14 +252,16 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.tag,
-                                        color: CupertinoTheme.of(context).primaryColor,
+                                        color: CupertinoTheme.of(context)
+                                            .primaryColor,
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),
                                       Text(
                                         'Edit Tag',
                                         style: TextStyle(
-                                          color: CupertinoColors.label.resolveFrom(context),
+                                          color: CupertinoColors.label
+                                              .resolveFrom(context),
                                           fontSize: 14,
                                         ),
                                       ),
@@ -261,24 +286,74 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                               ),
                             ),
                           ),
+
+                          // Preview Section Header
+                          SizedBox(height: 20),
+                          Divider(),
+                          SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              'Preview',
+                              style: TextStyle(
+                                color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+
+                          // Preview using TimingMeasurementItem
+                          Consumer(builder: (context, ref, _) {
+                            TimingMeasurement? previousMeasurement;
+                            final measurements = ref.read(timingMeasurementsListProvider(_editedTimingMeasurement.run_id));
+                            final sortedMeasurements = measurements.toList()
+                              ..sort((a, b) => b.system_time.compareTo(a.system_time));
+                            final currentIndex = sortedMeasurements.indexOf(_editedTimingMeasurement);
+                            
+                            if (currentIndex < sortedMeasurements.length - 1) {
+                              previousMeasurement = sortedMeasurements[currentIndex + 1];
+                            }
+
+                            return TimingMeasurementItem(
+                              timingMeasurement: TimingMeasurement(
+                                id: _editedTimingMeasurement.id,
+                                run_id: _editedTimingMeasurement.run_id,
+                                system_time: _systemTime,
+                                user_input_time: _userInputTime,
+                                difference_ms: _userInputTime != null 
+                                    ? _userInputTime!.difference(_systemTime).inMilliseconds
+                                    : _systemTime.difference(_systemTime).inMilliseconds,
+                                tag: tag,
+                              ),
+                              enableNavigation: false,
+                              previousMeasurement: previousMeasurement,
+                            );
+                          }),
+
+                          SizedBox(height: 20),
                         ],
                       ),
                     ),
                   ),
                 ),
-                // Save button
-                CupertinoButton(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    'Save Changes',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                // Separate Save Button
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: CupertinoButton(
+                    color: Theme.of(context).colorScheme.primary,
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    child: Text(
+                      'Save Changes',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                    onPressed: () => _saveForm(context, ref),
                   ),
-                  onPressed: () => _saveForm(context, ref),
                 ),
               ],
             ),

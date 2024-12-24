@@ -94,14 +94,14 @@ class PremiumPackageTile extends StatelessWidget {
         color: Colors.red.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(
-        "Limited Time Offer",
-        style: TextStyle(
-          color: Colors.red,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      // child: Text(
+      //   "Limited Time Offer",
+      //   style: TextStyle(
+      //     color: Colors.red,
+      //     fontSize: 12,
+      //     fontWeight: FontWeight.w600,
+      //   ),
+      // ),
     );
   }
 

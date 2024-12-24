@@ -208,6 +208,7 @@ class _ConfigurablePrecisionTimePickerState
     int step = 1,
     FixedExtentScrollController? scrollController,
     bool loopingAllowed = true,
+    bool isSubsecond = false,
   }) {
     return SizedBox(
       height: 150,
@@ -223,10 +224,14 @@ class _ConfigurablePrecisionTimePickerState
         children: List<Widget>.generate(
             numberOfItems,
             (index) => Center(
-                  child: Text('${(index * step) + offset}'.padLeft(2, '0'),
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Theme.of(context).colorScheme.onBackground)),
+                  child: Text(
+                    isSubsecond 
+                        ? '${(index * step) + offset}'
+                        : '${(index * step) + offset}'.padLeft(2, '0'),
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Theme.of(context).colorScheme.onBackground)
+                  ),
                 )),
       ),
     );
@@ -245,7 +250,7 @@ class _ConfigurablePrecisionTimePickerState
             // Hour Picker
             Column(
               children: [
-                Text('H', style: TextStyle(fontSize: 10)),
+                Text('H', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.tertiary)),
                 _buildPicker(
                   _selectedHour,
                   _is24HourFormat ? 24 : 12,
@@ -274,7 +279,7 @@ class _ConfigurablePrecisionTimePickerState
             // Minute Picker
             Column(
               children: [
-                Text('M', style: TextStyle(fontSize: 10)),
+                Text('M', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.tertiary)),
                 _buildPicker(_selectedMinute, 60, 0, (int value) {
                   // Before setting the new minute, capture the previous state to check for rollover
                   bool isRollingOverIncrement = _selectedMinute == 59 && value == 0;
@@ -318,7 +323,7 @@ class _ConfigurablePrecisionTimePickerState
               if (widget.mode == TimePickerMode.tap)
                 Column(
                   children: [
-                    Text('S', style: TextStyle(fontSize: 10)),
+                    Text('S', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.tertiary)),
                     _buildPicker(
                       widget.mode == TimePickerMode.tap
                           ? _selectedSecond ~/ 5
@@ -338,7 +343,7 @@ class _ConfigurablePrecisionTimePickerState
               else
                 Column(
                   children: [
-                    Text('S', style: TextStyle(fontSize: 10)),
+                    Text('S', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.tertiary)),
                     _buildPicker(
                       _selectedSecond,
                       60,
@@ -373,10 +378,10 @@ class _ConfigurablePrecisionTimePickerState
                     (int value) {
                       setState(() {
                         _selectedTenthOfSecond = value;
-
                         _updateTime();
                       });
                     },
+                    isSubsecond: true,
                   ),
                 ],
               ),
