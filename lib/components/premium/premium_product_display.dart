@@ -42,7 +42,7 @@ class PremiumProductDisplay extends StatelessWidget {
               children: [
                 Icon(
                   Icons.check_circle,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
                 SizedBox(width: 12),
                 Expanded(
@@ -51,7 +51,7 @@ class PremiumProductDisplay extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                 ),

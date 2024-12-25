@@ -255,12 +255,117 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     print('All *Active keys have been removed from local storage.');
   }
 
+  Future<void> _debugPrintEntitlements() async {
+    final CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+    final prefs = await SharedPreferences.getInstance();
+    
+    String entitlementsInfo = '''
+📱 Device Status:
+${_entitlements.map((e) => '• $e: ${_entitlementStatus[e] ?? false ? "✓" : "✗"}').join('\n')}
+
+💾 Local Storage:
+${prefs.getKeys().where((k) => k.contains('Active') || k.contains('purchase')).map((k) => 
+  '• $k: ${prefs.get(k)}').join('\n')}
+
+🔑 RevenueCat Status:
+• Customer ID: ${customerInfo.originalAppUserId}
+• Latest Exp: ${customerInfo.latestExpirationDate?.toString() ?? 'None'}
+• Active Entitlements: ${customerInfo.entitlements.active.keys.isEmpty ? 'None' : customerInfo.entitlements.active.keys.join(', ')}
+
+📊 Purchase History:
+${customerInfo.nonSubscriptionTransactions.map((t) => 
+  '• ${t.productIdentifier}: ${t.purchaseDate}').join('\n')}
+''';
+    _showDebugInfoDialog('Entitlements Debug', entitlementsInfo);
+  }
+
+  Future<void> _debugPrintOfferings() async {
+    final offerings = await Purchases.getOfferings();
+    final currentOffering = offerings.current;
+    
+    String offeringsInfo = '''
+🏷️ Current Offering: ${currentOffering?.identifier ?? 'None'}
+
+📦 Available Packages:
+${_packages.map((p) => '''• ${p.identifier}
+  - Product: ${p.storeProduct.identifier}
+  - Price: ${p.storeProduct.priceString}
+  - Period: ${p.packageType}
+  - Description: ${p.storeProduct.description}''').join('\n\n')}
+
+⚠️ Issues:
+• Packages Loading: ${_loadingPackages ? "In Progress" : "Complete"}
+• Package Count: ${_packages.length}
+• Has Current Offering: ${currentOffering != null}
+''';
+    _showDebugInfoDialog('Offerings Debug', offeringsInfo);
+  }
+
+  void _showDebugInfoDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title),
+            GestureDetector(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: message));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Debug info copied to clipboard'))
+                );
+              },
+              child: Icon(Icons.copy, size: 20),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: SelectableText(
+            message,
+            style: TextStyle(
+              fontSize: 13,
+              fontFamily: 'Courier',
+              height: 1.2,
+            ),
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: Text('Close'),
+            onPressed: () => Navigator.of(ctx).pop(),
+          ),
+          CupertinoDialogAction(
+            child: Text('Refresh'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _checkEntitlementStatus().then((_) => 
+                _debugPrintEntitlements()
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _simulatePremiumPurchase() async {
     await _setEntitlementActive('in_app_premium', true);
     setState(() {
       _entitlementStatus['in_app_premium'] = true;
     });
-    _showSuccessDialog("Simulated purchase: Premium entitlement is now active.");
+    _showSuccessDialog("DEBUG: Premium entitlement activated");
+    await _debugPrintEntitlements();
+  }
+
+  Future<void> _resetPurchases() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all preferences
+    setState(() {
+      _entitlementStatus = {};
+    });
+    _showSuccessDialog("DEBUG: All purchases reset");
+    await _debugPrintEntitlements();
   }
 
   @override
@@ -276,29 +381,39 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   }
 
   Widget _buildPackageList() {
-    // Find the specific package you want to display
-    Package? selectedPackage = _packages.isNotEmpty ? _packages[1] : null;  // Gets first package, adjust index as needed
+    // Find the specific package by identifier
+    Package? selectedPackage = _packages.isEmpty ? null : _packages.firstWhere(
+      (package) => package.identifier == 'in_app_luxury',
+      orElse: () => _packages[1],
+    );
 
     return ListView(
       children: [
+        // Debug Panel
+        _buildDebugPanel(),
+
+        // Product Display
         if (_packages.isEmpty)
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Text(
-                'No products are currently available.',
+                'No products available. ${kDebugMode ? "\n\nTip: Check debug panel logs" : ""}',
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16),
               ),
             ),
           ),
-        // Single product display instead of mapping through entitlements
+
         if (selectedPackage != null)
           PremiumProductDisplay(
             entitlement: 'in_app_premium',
-            packages: [selectedPackage], // Pass only the selected package
+            packages: [selectedPackage],
             isEntitlementActive: _entitlementStatus['in_app_premium'] ?? false,
             onPurchase: _purchasePackage,
           ),
+
+        // Restore Purchases Button
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Center(
@@ -315,26 +430,95 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
             ),
           ),
         ),
-        // Only show debug buttons in debug mode
-        if (kDebugMode)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Wrap(
-              spacing: 8.0,
-              alignment: WrapAlignment.center,
+      ],
+    );
+  }
+
+  Widget _buildDebugPanel() {
+    return Card(
+      margin: EdgeInsets.all(8),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton(
-                  onPressed: _removeAllActiveKeys,
-                  child: Text('Remove All Active Keys'),
-                ),
-                ElevatedButton(
-                  onPressed: _simulatePremiumPurchase,
-                  child: Text('Simulate Premium Purchase'),
+                Text('🛠️ Debug', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                Text(
+                  _entitlementStatus['in_app_premium'] ?? false ? "Premium ✓" : "No Premium ✗",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: _entitlementStatus['in_app_premium'] ?? false 
+                        ? Colors.green 
+                        : Colors.red,
+                  ),
                 ),
               ],
             ),
+            SizedBox(height: 8),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                _debugButton(
+                  icon: Icons.check_circle_outline,
+                  color: Colors.green,
+                  onPressed: _simulatePremiumPurchase,
+                  tooltip: 'Simulate Premium',
+                ),
+                _debugButton(
+                  icon: Icons.restore,
+                  color: Colors.red,
+                  onPressed: _resetPurchases,
+                  tooltip: 'Reset All',
+                ),
+                _debugButton(
+                  icon: Icons.info_outline,
+                  color: Colors.blue,
+                  onPressed: () async {
+                    await _debugPrintEntitlements();
+                    await _debugPrintOfferings();
+                  },
+                  tooltip: 'Print Info',
+                ),
+                _debugButton(
+                  icon: Icons.refresh,
+                  color: Colors.orange,
+                  onPressed: () async {
+                    await _fetchAvailablePackages();
+                    await _checkEntitlementStatus();
+                  },
+                  tooltip: 'Refresh State',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _debugButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+    required String tooltip,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(4),
+          child: Container(
+            padding: EdgeInsets.all(8),
+            child: Icon(icon, size: 20, color: color),
           ),
-      ],
+        ),
+      ),
     );
   }
 }
