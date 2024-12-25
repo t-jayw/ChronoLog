@@ -5,6 +5,7 @@ import 'package:chronolog/models/timepiece.dart';
 import 'package:chronolog/models/timing_measurement.dart';
 import 'package:chronolog/models/timing_run.dart';
 import 'package:chronolog/providers/theme_provider.dart';
+import 'package:chronolog/providers/time_mode_provider.dart';
 
 import 'package:chronolog/screens/welcome_screen.dart';
 import 'package:chronolog/supabase_helpers.dart';
@@ -39,11 +40,12 @@ Future<void> initPlatformState() async {
 
 final theme = ThemeData(
   colorScheme: const ColorScheme.light(
-    primary: Color.fromRGBO(248, 250, 248, 1),
+    primary: Color.fromRGBO(250, 247, 240, 1),
     secondary: Color.fromRGBO(176, 152, 98, 1),
     tertiary: Color.fromRGBO(47, 75, 60, 1),
     error: Color.fromARGB(255, 171, 0, 0),
-    tertiaryContainer: Color.fromARGB(255, 240, 245, 240)
+    background: Color.fromRGBO(250, 247, 240, 1),
+    surface: Color.fromRGBO(242, 237, 227, 1),
   ),
   splashColor: Colors.transparent,
   fontFamily: 'SFProText',
@@ -73,8 +75,8 @@ final theme = ThemeData(
     ),
   ),
   cardTheme: CardTheme(
-    color: Colors.white,
-    elevation: 5,
+    color: Color.fromRGBO(250, 247, 240, 1),
+    elevation: 2,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
     // clipBehavior: Clip.antiAlias, // Uncomment this if you want to clip the content of the card with the shape's border.
@@ -83,6 +85,8 @@ final theme = ThemeData(
   textSelectionTheme: TextSelectionThemeData(
     cursorColor: Color.fromRGBO(35, 80, 52, 1),
   ),
+  scaffoldBackgroundColor: Color.fromRGBO(242, 237, 227, 1),
+  dialogBackgroundColor: Color.fromRGBO(242, 237, 227, 1),
 );
 
 final darkTheme = ThemeData(
@@ -146,10 +150,9 @@ void main() async {
   // Identify the user in PostHog
   Posthog().identify(userId: userId);
 
-  // Fetch theme mode from SharedPreferences
-  final themeModeIndex = prefs.getInt('themeModeOption') ??
-      0; // Default to 0 which we'll consider as system mode
-  ThemeModeOption themeModeOption = ThemeModeOption.values[themeModeIndex];
+  // Load user preferences
+  final themeModeIndex = prefs.getInt('themeModeOption') ?? 0;
+  final timeModeIndex = prefs.getInt('timeModeOption') ?? 0;
 
   await dotenv.load();
 
@@ -158,7 +161,16 @@ void main() async {
 
   runApp(
     ProviderScope(
-      child: App(openCount: openCount, themeModeOption: themeModeOption),
+      overrides: [
+        // Initialize providers with stored preferences
+        themeModeProvider
+            .overrideWith((ref) => ThemeModeOption.values[themeModeIndex]),
+        timeModeProvider
+            .overrideWith((ref) => TimeModeOption.values[timeModeIndex]),
+      ],
+      child: App(
+          openCount: openCount,
+          themeModeOption: ThemeModeOption.values[themeModeIndex]),
     ),
   );
 
@@ -301,7 +313,7 @@ Future<void> backfillTimingMeasurementsToSupabase(runId) async {
 
 Future<void> clearDeprecatedSharedPreferencesKeys() async {
   final prefs = await SharedPreferences.getInstance();
-  
+
   // List of deprecated keys
   List<String> deprecatedKeys = [
     'timingMeasurementsBackfillCompleted',

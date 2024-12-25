@@ -5,6 +5,7 @@ import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/premium/premium_product_display.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 class PurchaseScreen extends StatefulWidget {
   @override
@@ -17,7 +18,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   Map<String, bool> _entitlementStatus = {};
   bool _isEventFired = false;
 
-  final List<String> _entitlements = ['in_app_premium', 'in_app_luxury'];
+  final List<String> _entitlements = ['in_app_premium'];
 
   static const String ENTITLEMENTS_KEY = 'activeEntitlements';
 
@@ -72,31 +73,16 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
 
   Future<void> _fetchAvailablePackages() async {
     try {
+      setState(() => _loadingPackages = true);
       final offerings = await Purchases.getOfferings();
-      print("\n=== OFFERINGS DEBUG INFO ===");
-      print("All offerings: ${offerings.all.keys}");
-      print("Current offering: ${offerings.current?.identifier}");
-
-      if (offerings.current != null) {
-        print("\nAvailable Packages in Current Offering:");
-        offerings.current!.availablePackages.forEach((package) {
-          print("\n- Package Details:");
-          print("  • Package ID: ${package.identifier}");
-          print("  • Product ID: ${package.storeProduct.identifier}");
-          print("  • Price: ${package.storeProduct.priceString}");
-          print("  • Description: ${package.storeProduct.description}");
-        });
-      } else {
-        print("\nWARNING: No current offering available");
+      
+      if (offerings.current == null || offerings.current!.availablePackages.isEmpty) {
+        print("\nWARNING: No valid offerings found");
+        throw PlatformException(
+          code: 'no_offerings',
+          message: 'No offerings are currently available.',
+        );
       }
-
-      // Print all offerings for debugging
-      offerings.all.forEach((key, offering) {
-        print("\nOffering: $key");
-        offering.availablePackages.forEach((package) {
-          print("  • Product: ${package.storeProduct.identifier}");
-        });
-      });
 
       setState(() {
         _packages = offerings.current!.availablePackages;
@@ -104,10 +90,10 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
       });
     } catch (e) {
       print("\nERROR fetching offerings: $e");
-      print("Stack trace: ${StackTrace.current}");
       setState(() {
         _loadingPackages = false;
       });
+      _showErrorDialog('Unable to load products. Please try again later.');
     }
   }
 
@@ -198,6 +184,11 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         for (String entitlement in purchaseResult.entitlements.active.keys) {
           await _setEntitlementActive(entitlement, true);
           await prefs.setString('${entitlement}_purchaseDate', purchaseDate);
+          
+          // Add this to update the local state immediately
+          setState(() {
+            _entitlementStatus[entitlement] = true;
+          });
         }
 
         // Track successful purchase
@@ -211,7 +202,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         );
 
         _showSuccessDialog("Thank you for your purchase!");
-        await _checkEntitlementStatus(); // Refresh status
+        await _checkEntitlementStatus(); // Optional now since we update state directly
       }
     } catch (e) {
       _handlePurchaseError(e);
@@ -264,14 +255,6 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     print('All *Active keys have been removed from local storage.');
   }
 
-  Future<void> _simulateLuxuryPurchase() async {
-    await _setEntitlementActive('in_app_luxury', true);
-    setState(() {
-      _entitlementStatus['in_app_luxury'] = true;
-    });
-    _showSuccessDialog("Simulated purchase: Luxury entitlement is now active.");
-  }
-
   Future<void> _simulatePremiumPurchase() async {
     await _setEntitlementActive('in_app_premium', true);
     setState(() {
@@ -293,14 +276,29 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   }
 
   Widget _buildPackageList() {
+    // Find the specific package you want to display
+    Package? selectedPackage = _packages.isNotEmpty ? _packages[1] : null;  // Gets first package, adjust index as needed
+
     return ListView(
       children: [
-        ..._entitlements.map((entitlement) => PremiumProductDisplay(
-              entitlement: entitlement,
-              packages: _packages,
-              isEntitlementActive: _entitlementStatus[entitlement] ?? false,
-              onPurchase: _purchasePackage,
-            )),
+        if (_packages.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: Text(
+                'No products are currently available.',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        // Single product display instead of mapping through entitlements
+        if (selectedPackage != null)
+          PremiumProductDisplay(
+            entitlement: 'in_app_premium',
+            packages: [selectedPackage], // Pass only the selected package
+            isEntitlementActive: _entitlementStatus['in_app_premium'] ?? false,
+            onPurchase: _purchasePackage,
+          ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Center(
@@ -317,27 +315,25 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Wrap(
-            spacing: 8.0, // Space between buttons
-            alignment: WrapAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: _removeAllActiveKeys,
-                child: Text('Remove All Active Keys'),
-              ),
-              ElevatedButton(
-                onPressed: _simulateLuxuryPurchase,
-                child: Text('Simulate Luxury Purchase'),
-              ),
-              ElevatedButton(
-                onPressed: _simulatePremiumPurchase,
-                child: Text('Simulate Premium Purchase'),
-              ),
-            ],
+        // Only show debug buttons in debug mode
+        if (kDebugMode)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              spacing: 8.0,
+              alignment: WrapAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _removeAllActiveKeys,
+                  child: Text('Remove All Active Keys'),
+                ),
+                ElevatedButton(
+                  onPressed: _simulatePremiumPurchase,
+                  child: Text('Simulate Premium Purchase'),
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

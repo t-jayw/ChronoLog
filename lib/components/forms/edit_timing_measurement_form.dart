@@ -164,8 +164,7 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.time,
-                                        color: CupertinoTheme.of(context)
-                                            .primaryColor,
+                                        color: CupertinoColors.systemGrey,
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),
@@ -261,8 +260,7 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.tag,
-                                        color: CupertinoTheme.of(context)
-                                            .primaryColor,
+                                        color: CupertinoColors.systemGrey,
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),

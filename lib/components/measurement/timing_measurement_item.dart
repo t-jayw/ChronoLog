@@ -53,7 +53,7 @@ class TimingMeasurementItem extends ConsumerWidget {
     }
 
     Widget content = Padding(
-      padding: EdgeInsets.all(12.0),
+      padding: EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -61,14 +61,23 @@ class TimingMeasurementItem extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Measurement',
+                'Timing Measurement',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (enableNavigation)
-                Icon(CupertinoIcons.chevron_right, size: 16),
+              Row(
+                children: [
+                  if (timingMeasurement.tag?.isNotEmpty ?? false)
+                    Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: _buildTag(timingMeasurement.tag!, context),
+                    ),
+                  if (enableNavigation)
+                    Icon(CupertinoIcons.chevron_right, size: 16),
+                ],
+              ),
             ],
           ),
           Divider(height: 4, thickness: 1),
@@ -143,8 +152,6 @@ class TimingMeasurementItem extends ConsumerWidget {
                   ),
                 ],
               ),
-              if (timingMeasurement.tag?.isNotEmpty ?? false)
-                _buildTag(timingMeasurement.tag!, context),
             ],
           ),
         ],
@@ -152,9 +159,9 @@ class TimingMeasurementItem extends ConsumerWidget {
     );
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
+      margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 6.0),
       decoration: BoxDecoration(
-        color: colorScheme.tertiary.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(12.0),
         border: Border.all(
           color: Theme.of(context).dividerColor.withOpacity(0.3),
@@ -177,23 +184,26 @@ class TimingMeasurementItem extends ConsumerWidget {
   }
 
   Widget _buildTag(String tag, BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.tertiary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.2),
-          width: 0.5,
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.0),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(3),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.tertiary.withOpacity(0.2),
+            width: 0.5,
+          ),
         ),
-      ),
-      child: Text(
-        tag,
-        style: TextStyle(
-          fontSize: 11,
-          color: Theme.of(context).colorScheme.tertiary,
-          fontWeight: FontWeight.w500,
-          letterSpacing: 0.2,
+        child: Text(
+          tag,
+          style: TextStyle(
+            fontSize: 10,
+            color: Theme.of(context).colorScheme.tertiary,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.2,
+          ),
         ),
       ),
     );

@@ -13,10 +13,7 @@ class ManageSettingsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    _loadThemeModeOption(context, ref);
     ThemeModeOption themeModeOption = ref.watch(themeModeProvider);
-
-    _loadTimeModeOption(context, ref);
     TimeModeOption timeModeOption = ref.watch(timeModeProvider);
 
     return Container(
@@ -62,25 +59,11 @@ class ManageSettingsWidget extends ConsumerWidget {
     );
   }
 
-  void _loadThemeModeOption(BuildContext context, WidgetRef ref) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final themeModeIndex = prefs.getInt('themeModeOption') ?? 0;
-    ref.read(themeModeProvider.notifier).state =
-        ThemeModeOption.values[themeModeIndex];
-  }
-
   void _updateThemeModeOption(
       BuildContext context, WidgetRef ref, ThemeModeOption newOption) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('themeModeOption', newOption.index);
     ref.read(themeModeProvider.notifier).state = newOption;
-  }
-
-  void _loadTimeModeOption(BuildContext context, WidgetRef ref) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final timeModeIndex = prefs.getInt('timeModeOption') ?? 0;
-    ref.read(timeModeProvider.notifier).state =
-        TimeModeOption.values[timeModeIndex];
   }
 
   void _updateTimeModeOption(

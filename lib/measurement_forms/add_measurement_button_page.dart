@@ -43,6 +43,10 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
   void _updateTag(String newTag) {
     setState(() {
       tag = newTag;
+      // Update the preview measurement if it exists
+      if (previewMeasurement != null) {
+        previewMeasurement = previewMeasurement!.copyWith(tag: newTag);
+      }
     });
   }
 
@@ -201,7 +205,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                                     Text(
                                       '1. Use the time selector to set a time slightly ahead of your watch\n'
                                       '2. Wait until your watch shows the time you selected\n'
-                                      '3. When your watch matches the selected time, tap "Add Measurement"\n'
+                                      '3. When your watch matches the selected time, tap "Take Measurement"\n'
                                       '4. Optional: Add a tag to categorize your measurement',
                                       style: TextStyle(
                                         color: CupertinoColors.label.resolveFrom(context),
@@ -319,13 +323,13 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                                   SizedBox(height: 8),
                                   TimingMeasurementItem(
                                     timingMeasurement: previewMeasurement!,
+                                    enableNavigation: false,
                                   ),
                                 ],
                               ),
                             ),
                           ],
 
-                          // Existing "Add Measurement" button
                           Row(
                             children: [
                               if (previewMeasurement != null)
@@ -333,7 +337,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                                   child: CupertinoButton(
                                     color: Theme.of(context).colorScheme.tertiary,
                                     padding: EdgeInsets.symmetric(vertical: 10),
-                                    child: Text('Add Measurement'),
+                                    child: Text('Save Measurement'),
                                     onPressed: () async {
                                       try {
                                         await timingMeasurementListProvider.addTimingMeasurement(previewMeasurement!);

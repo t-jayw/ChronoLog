@@ -48,12 +48,12 @@ class TimingMeasurementsContainer extends ConsumerWidget {
       onDismissed: (_) => ref
           .read(timingMeasurementsListProvider(timingRunId).notifier)
           .deleteTimingMeasurement(measurement.id),
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        color: Theme.of(context).colorScheme.error,
-        child: const Icon(Icons.delete, color: Colors.white, size: 40),
-      ),
+ background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: Icon(Icons.delete,
+                      color: Theme.of(context).colorScheme.error, size: 40),
+                ),
       child: TimingMeasurementItem(timingMeasurement: measurement),
     );
   }

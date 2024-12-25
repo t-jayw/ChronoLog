@@ -71,7 +71,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
+          color: Theme.of(context).colorScheme.primary,
           borderRadius: BorderRadius.circular(12.0),
           border: Border.all(
             color: Theme.of(context).dividerColor.withOpacity(0.3),

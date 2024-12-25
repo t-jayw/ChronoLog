@@ -1,6 +1,5 @@
 import 'package:chronolog/components/measurement/measurement_selector_modal.dart';
 import 'package:chronolog/components/premium/premium_needed_dialog.dart';
-import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,7 +50,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
       width: double.infinity,
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(

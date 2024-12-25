@@ -40,9 +40,7 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
         padding: const EdgeInsets.all(4.0),
         child: Column(
           children: [
-            
             TimingRunDetailHeaderStats(timingRun: widget.timingRun),
-
             Container(
               height: 260, // Adjust as needed
               child: PageView(
@@ -63,7 +61,7 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
             SmoothPageIndicator(
                 controller: _controller, // PageController
                 count: 2, // Number of pages
-                
+
                 effect: JumpingDotEffect(
                     activeDotColor: Theme.of(context)
                         .colorScheme
@@ -75,13 +73,11 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
                     curve: Curves.ease,
                   );
                 }),
-
             Expanded(
               child:
                   TimingMeasurementsContainer(timingRunId: widget.timingRun.id),
             ),
-                                            FooterBannerAdWidget(),
-
+            FooterBannerAdWidget(),
           ],
         ),
       ),

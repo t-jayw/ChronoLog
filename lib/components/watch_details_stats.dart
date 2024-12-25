@@ -85,7 +85,7 @@ class StatsGrid extends StatelessWidget {
           TextWithLabel(
               value:
                  offset ,
-              label: 'Offset:',
+              label: 'Last Offset:',
               color: Theme.of(context).colorScheme.tertiary,
               labelSize: 14),
           Divider(
@@ -106,13 +106,13 @@ class StatsGrid extends StatelessWidget {
           ),
           TextWithLabel(
             value: '$runs',
-            label: 'Runs:',
+            label: 'Timing Runs:',
             color: Theme.of(context).colorScheme.tertiary,
           ),
 
           TextWithLabel(
             value: '$points',
-            label: 'Points:',
+            label: 'Measurements:',
             color: Theme.of(context).colorScheme.tertiary,
           ),
         ],

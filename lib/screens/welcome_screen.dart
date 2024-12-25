@@ -25,8 +25,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ), 
       _createPage(
         Icons.timer_sharp,
-        'Add measurements to timing runs',
-        "ChronoLog will calculate statistics to help you track your watches' performance over time.",
+        'Add measurements to Timing Runs',
+        "Timing Runs are a series of measurements that ChronoLog uses to calculate statistics.",
         context
       ), 
       _createPage(
@@ -68,7 +68,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               controller: _controller,
               count: pages.length,
               effect: JumpingDotEffect(activeDotColor: Theme.of(context).colorScheme.tertiary),
-
               onDotClicked: (index) {
                 _controller.animateToPage(
                   index,
@@ -78,27 +77,33 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               },
             ),
           ),
-          if (isLastPage) 
+          if (!isLastPage) 
             Padding(
-              padding: const EdgeInsets.fromLTRB(18,10,18,20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: PrimaryButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const TabsScreen()),
-                        );
-                      },
-                      child: Text('Continue', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-                    ),
-                  ),
-
-                ],
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const TabsScreen()),
+                  );
+                },
+                child: Text('Skip', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.tertiary)),
               ),
             ),
-                          SizedBox(height: 50),
+          if (isLastPage) 
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const TabsScreen()),
+                  );
+                },
+                child: Text('Continue', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.tertiary)),
+              ),
+            ),
+          SizedBox(height: 50),
 
         ],
       ),

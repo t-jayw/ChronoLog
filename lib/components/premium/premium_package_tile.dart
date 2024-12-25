@@ -89,11 +89,11 @@ class PremiumPackageTile extends StatelessWidget {
 
   Widget _buildTimeLimitedBadge() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
+      // padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      // decoration: BoxDecoration(
+      //   color: Colors.red.withOpacity(0.1),
+      //   borderRadius: BorderRadius.circular(16),
+      // ),
       // child: Text(
       //   "Limited Time Offer",
       //   style: TextStyle(

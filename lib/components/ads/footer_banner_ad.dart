@@ -6,8 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // A reusable footer banner ad widget.
 class FooterBannerAdWidget extends StatefulWidget {
+  final double bottomPadding;
+  
   const FooterBannerAdWidget({
     Key? key,
+    this.bottomPadding = 16.0,  // Default padding that can be overridden
   }) : super(key: key);
 
   @override
@@ -25,12 +28,10 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
 
   Future<void> _checkPremiumStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
     _isPremiumUser = prefs.getBool('in_app_premiumActive') == true ||
-                    prefs.getBool('in_app_luxuryActive') == true;
+                     prefs.getBool('in_app_luxuryActive') == true;
     setState(() {});
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -38,20 +39,29 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
       return SizedBox.shrink();
     }
 
-    return SafeArea(
-      child: Column(
-        children: [
-          PremiumButton(
-            isPremiumActivated: () async => _isPremiumUser,
-            onTapPremium: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => PurchaseScreen()),
-              );
-            },
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: widget.bottomPadding,
+        left: 16.0,
+        right: 16.0,
+      ),
+      child: SafeArea(
+        child: ElevatedButton(
+          style: Theme.of(context).elevatedButtonTheme.style,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PurchaseScreen()),
+            );
+          },
+          child: Text(
+            'Upgrade to Premium',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-          SizedBox(height: 8),
-        ],
+        ),
       ),
     );
   }

@@ -63,7 +63,7 @@ void sendMailWithFeedback() async {
 class InfoPage extends ConsumerWidget {
   InfoPage({Key? key}) : super(key: key);
 
-  final String versionNumber = "1.5.3";
+  final String versionNumber = "1.6.0";
   // replace with actual value
 
   final DatabaseHelper _db = DatabaseHelper();
@@ -188,11 +188,11 @@ class InfoPage extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      padding: EdgeInsets.all(12.0), // Increased padding
+                      padding: EdgeInsets.all(2.0), // Increased padding
                       child: Icon(
                         Icons.access_time,
-                        size: 24, // Increased size
-                        color: Theme.of(context).colorScheme.tertiary,
+                        size: 44, // Increased size
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                     onPressed: () => _navigateToClockScreen(context),
@@ -360,18 +360,14 @@ class InfoPage extends ConsumerWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: Text(
-                '© 2024 Tyler Wood',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+            Text(
+              '© 2024 Tyler Wood',
+              style: TextStyle(
+                fontSize: 10,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            SizedBox(height: 8),
-            FooterBannerAdWidget(),
+            FooterBannerAdWidget(bottomPadding: 20.0),
           ],
         ),
       ],
@@ -387,13 +383,17 @@ class ListGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8.0),
-          color: Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.circular(10.0),
+          color: Theme.of(context).colorScheme.surface,
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          ),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: items,
         ),
       ),
@@ -407,43 +407,55 @@ class ListItem extends StatelessWidget {
   final bool isLastItem;
   final VoidCallback onTap;
 
-  ListItem(
-      {required this.title,
-      required this.iconData,
-      required this.onTap,
-      this.isLastItem = false});
+  ListItem({
+    required this.title,
+    required this.iconData,
+    required this.onTap,
+    this.isLastItem = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        decoration: BoxDecoration(
-          border: isLastItem
-              ? Border()
-              : Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).colorScheme.inverseSurface,
-                    width: 0.5,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+          decoration: BoxDecoration(
+            border: isLastItem
+                ? null
+                : Border(
+                    bottom: BorderSide(
+                      color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+                      width: 0.5,
+                    ),
+                  ),
+          ),
+          child: Row(
+            children: <Widget>[
+              Icon(
+                iconData,
+                color: Theme.of(context).colorScheme.tertiary,
+                size: 18,
+              ),
+              SizedBox(width: 12.0),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Row(
-              children: [
-                Icon(iconData),
-                SizedBox(width: 10.0),
-                Text(title,
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.tertiary)),
-              ],
-            ),
-            Icon(Icons.navigate_next),
-          ],
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.outline,
+                size: 16,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -485,7 +497,7 @@ void showDebugInfoModal(BuildContext context) async {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                   Row(
