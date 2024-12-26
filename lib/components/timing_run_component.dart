@@ -190,7 +190,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                     SharedPreferences prefs =
                         await SharedPreferences.getInstance();
                     bool? isPremiumActivated =
-                        prefs.getBool('is_premium_active');
+                        prefs.getBool('in_app_premiumActive');
 
                     if (isPremiumActivated != true &&
                         timingMeasurements.length > 400) {

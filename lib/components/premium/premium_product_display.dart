@@ -69,6 +69,7 @@ class PremiumProductDisplay extends StatelessWidget {
                       package: package,
                       packageType: package.packageType.toString(),
                       onPurchase: onPurchase,
+                      isPremium: isEntitlementActive,
                     ))
                 .toList(),
           ),

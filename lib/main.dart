@@ -23,6 +23,7 @@ import 'package:ulid/ulid.dart';
 
 import 'components/show_review_dialog.dart';
 
+
 final theme = ThemeData(
   colorScheme: const ColorScheme.light(
     primary: Color.fromRGBO(250, 247, 240, 1),
@@ -118,25 +119,12 @@ final darkTheme = ThemeData(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Configure RevenueCat first
-  try {
-    await Purchases.setLogLevel(LogLevel.verbose);
-    PurchasesConfiguration configuration = PurchasesConfiguration("appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ");
-    
-    if (const bool.fromEnvironment('dart.vm.product') == false) {
-      print("Configuring RevenueCat for debug mode");
-      await Purchases.setSimulatesAskToBuyInSandbox(true);
-      await Purchases.setFinishTransactions(true);
-    }
-
-    await Purchases.configure(configuration);
-    final customerInfo = await Purchases.getCustomerInfo();
-    print("RevenueCat initialization successful");
-    print("CustomerInfo: ${customerInfo.toJson()}");
-  } catch (e, stackTrace) {
-    print("RevenueCat initialization error: $e");
-    print("Stack trace: $stackTrace");
-  }
+  // Initialize RevenueCat before any other purchases code
+  await Purchases.setDebugLogsEnabled(true);
+  await Purchases.configure(
+    PurchasesConfiguration("appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ")
+    // Add other configuration options as needed
+  );
 
   final prefs = await SharedPreferences.getInstance();
   int openCount = prefs.getInt('openCount') ?? 0;

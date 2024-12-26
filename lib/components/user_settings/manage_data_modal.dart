@@ -70,8 +70,7 @@ class ManageDataModal extends ConsumerWidget {
 
   Future<bool> _isPremiumActivated() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getBool('is_premium_active') == true;
+    return prefs.getBool('in_app_premiumActive') == true;
   }
 
   Future<String> _saveFile(String fileName, String content) async {

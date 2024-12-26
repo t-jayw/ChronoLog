@@ -6,22 +6,17 @@ class PremiumPackageTile extends StatelessWidget {
   final Package package;
   final Function(Package) onPurchase;
   final String packageType; // "premium" or "luxury"
+  final bool isPremium;
 
   PremiumPackageTile({
     required this.package,
     required this.onPurchase,
     required this.packageType,
+    required this.isPremium,
   });
 
   List<String> _getFeatures() {
-    if (package.storeProduct.identifier == "in_app_luxury") {
-      return [
-        "All Premium features",
-        "Bespoke, small batch application code, with a focus on quality and performance",
-        "Unit test coverage",
-        "iOS Only"
-      ];
-    } else {
+    if (package.storeProduct.identifier == "in_app_premium") {
       return [
         "One time payment.",
         "Lifetime access.",
@@ -29,6 +24,10 @@ class PremiumPackageTile extends StatelessWidget {
         "Advanced analytics and insights",
         "Backup and Export functionality",
         "Premium support"
+      ];
+    } else {
+      return [
+        "unknown identifier"
       ];
     }
   }
@@ -112,13 +111,13 @@ class PremiumPackageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Remove debug prints in production code
-    assert(() {
-      print('=== Package Debug Info ===');
-      print('Package Type: $packageType');
-      print('Product ID: ${package.storeProduct.identifier}');
-      print('Price: ${package.storeProduct.priceString}');
-      return true;
-    }());
+    // assert(() {
+    //   print('=== Package Debug Info ===');
+    //   print('Package Type: $packageType');
+    //   print('Product ID: ${package.storeProduct.identifier}');
+    //   print('Price: ${package.storeProduct.priceString}');
+    //   return true;
+    // }());
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
@@ -213,21 +212,32 @@ class PremiumPackageTile extends StatelessWidget {
                                     : Theme.of(context).colorScheme.tertiary,
                               ),
                             ),
-                            CupertinoButton(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              color: packageType == "luxury"
-                                  ? Theme.of(context).colorScheme.tertiary
-                                  : Theme.of(context).colorScheme.tertiary,
-                              child: Text(
-                                "Buy Now",
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                            if (isPremium)
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: Text(
+                                  "Premium Active ✓",
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
+                              )
+                            else
+                              CupertinoButton(
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                color: Theme.of(context).colorScheme.tertiary,
+                                child: Text(
+                                  "Buy Now",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                onPressed: () => onPurchase(package),
                               ),
-                              onPressed: () => onPurchase(package),
-                            ),
                           ],
                         ),
                       ),
@@ -244,10 +254,6 @@ class PremiumPackageTile extends StatelessWidget {
                       children: [
                         _buildSocialProof(context),
                         SizedBox(height: 8),
-                        if (package.storeProduct.identifier == "in_app_luxury") ...[
-                          _buildTimeLimitedBadge(),
-                          SizedBox(height: 12),
-                        ],
                         Text(
                           "Included Features",
                           style: TextStyle(

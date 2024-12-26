@@ -284,7 +284,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                   SharedPreferences prefs =
                                       await SharedPreferences.getInstance();
                                   bool? isPremiumActivated =
-                                      prefs.getBool('is_premium_active');
+                                      prefs.getBool('in_app_premiumActive');
                                   print(timingMeasurements.length);
                                   if (isPremiumActivated != true &&
                                   // PAYWALL

@@ -145,13 +145,12 @@ class InfoPage extends ConsumerWidget {
             if (!snapshot.hasData) return SizedBox.shrink();
 
             final prefs = snapshot.data!;
-            final isLuxury = prefs.getBool('in_app_luxuryActive') ?? false;
             final isPremium = prefs.getBool('in_app_premiumActive') ?? false;
 
-            if (!isLuxury && !isPremium) return SizedBox.shrink();
+            if (!isPremium) return SizedBox.shrink();
 
             return Text(
-              isLuxury ? 'Luxury' : 'Premium',
+              'Premium',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,

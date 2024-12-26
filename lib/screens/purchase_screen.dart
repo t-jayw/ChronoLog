@@ -18,7 +18,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   Map<String, bool> _entitlementStatus = {};
   bool _isEventFired = false;
 
-  final List<String> _entitlements = ['in_app_premium'];
+  final List<String> _entitlements = ['premiumActive'];
 
   static const String ENTITLEMENTS_KEY = 'activeEntitlements';
 
@@ -39,31 +39,27 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
       final CustomerInfo customerInfo = await Purchases.getCustomerInfo();
       final prefs = await SharedPreferences.getInstance();
       
-      Map<String, bool> newStatus = {};
-      List<String> activeEntitlements = [];
-
-      // Check each entitlement
-      for (String entitlement in _entitlements) {
-        bool isActive = customerInfo.entitlements.active.containsKey(entitlement);
-        newStatus[entitlement] = isActive;
-        
-        if (isActive) {
-          activeEntitlements.add(entitlement);
-          // Simply set the entitlement to true
-          await prefs.setBool(entitlement, true);
-        }
+      print('RevenueCat Active Entitlements: ${customerInfo.entitlements.active.keys}');
+      
+      // Store raw entitlements from RevenueCat
+      for (String entitlement in customerInfo.entitlements.active.keys) {
+        print('Setting entitlement: ${entitlement}Active to true');
+        await prefs.setBool('${entitlement}Active', true);
       }
 
-      // Update state and storage
-      setState(() => _entitlementStatus = newStatus);
-      await prefs.setStringList(ENTITLEMENTS_KEY, activeEntitlements);
-      
-      // Track purchase status
+      // Update state for UI
+      setState(() {
+        _entitlementStatus = Map.fromEntries(
+          customerInfo.entitlements.active.keys.map(
+            (key) => MapEntry(key, true)
+          )
+        );
+      });
+
       Posthog().capture(
         eventName: 'entitlement_status_check',
         properties: {
-          'active_entitlements': activeEntitlements,
-          'has_active_entitlements': activeEntitlements.isNotEmpty,
+          'active_entitlements': customerInfo.entitlements.active.keys.toList(),
         },
       );
     } catch (e) {
@@ -75,8 +71,9 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     try {
       setState(() => _loadingPackages = true);
       final offerings = await Purchases.getOfferings();
-      
-      if (offerings.current == null || offerings.current!.availablePackages.isEmpty) {
+
+      if (offerings.current == null ||
+          offerings.current!.availablePackages.isEmpty) {
         print("\nWARNING: No valid offerings found");
         throw PlatformException(
           code: 'no_offerings',
@@ -98,14 +95,31 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   }
 
   Future<void> _restorePurchases() async {
-    print('_restorePurchases');
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text(
+              'Restoring Purchases...',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+
     try {
       CustomerInfo restoredInfo = await Purchases.restorePurchases();
-      print(restoredInfo.toJson());
+      Navigator.of(context).pop(); // Dismiss loading
 
       bool anyEntitlementRestored = false;
+      List<String> restoredEntitlements = [];
 
-      // Check each entitlement in the list
       for (String entitlement in _entitlements) {
         if (restoredInfo.entitlements.active.containsKey(entitlement)) {
           await _setEntitlementActive(entitlement, true);
@@ -113,19 +127,68 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
             _entitlementStatus[entitlement] = true;
           });
           anyEntitlementRestored = true;
+          restoredEntitlements.add(entitlement);
         }
       }
 
       if (anyEntitlementRestored) {
-        _showSuccessDialog('Purchases have been restored');
+        _showRestoreSuccessDialog(restoredEntitlements);
       } else {
         _showErrorDialog('No purchases found to restore');
       }
-    } on PlatformException catch (e) {
-      print("Error restoring purchases: $e");
-      _showErrorDialog(
-          e.message ?? 'An error occurred while restoring purchases.');
+    } catch (e) {
+      Navigator.of(context).pop(); // Dismiss loading
+      _handlePurchaseError(e);
     }
+  }
+
+  void _showRestoreSuccessDialog(List<String> restoredEntitlements) {
+    showDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              CupertinoIcons.check_mark_circled_solid,
+              color: Colors.green,
+              size: 28,
+            ),
+            SizedBox(width: 8),
+            Text('Restored Successfully'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 16),
+            Text(
+              'Your purchases have been restored:',
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 8),
+            ...restoredEntitlements
+                .map((e) => Padding(
+                      padding: EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        '• ${e.replaceAll('_', ' ').toUpperCase()}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.secondaryLabel,
+                        ),
+                      ),
+                    ))
+                .toList(),
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: Text('OK'),
+            onPressed: () => Navigator.of(ctx).pop(),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showErrorDialog(String message) {
@@ -142,7 +205,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         ),
         actions: [
           CupertinoDialogAction(
-            child: Text('OK', style: TextStyle(color: CupertinoColors.activeBlue)),
+            child:
+                Text('OK', style: TextStyle(color: CupertinoColors.activeBlue)),
             onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],
@@ -164,7 +228,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         ),
         actions: [
           CupertinoDialogAction(
-            child: Text('OK', style: TextStyle(color: CupertinoColors.activeBlue)),
+            child:
+                Text('OK', style: TextStyle(color: CupertinoColors.activeBlue)),
             onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],
@@ -172,46 +237,63 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     );
   }
 
+  void showLoadingDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text(
+              message,
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _purchasePackage(Package package) async {
     try {
-      final purchaseResult = await Purchases.purchasePackage(package);
+      showLoadingDialog('Processing Purchase...');
       
-      if (purchaseResult.entitlements.active.isNotEmpty) {
+      final purchaseResult = await Purchases.purchasePackage(package);
+      final bool isPremium = purchaseResult.entitlements.active.isNotEmpty;
+      
+      if (isPremium) {
         final prefs = await SharedPreferences.getInstance();
-        final purchaseDate = DateTime.now().toIso8601String();
+        await prefs.setBool('in_app_premiumActive', true);
+        await prefs.setString('in_app_premium_purchaseDate', DateTime.now().toIso8601String());
 
-        // Update entitlements and store purchase date
-        for (String entitlement in purchaseResult.entitlements.active.keys) {
-          await prefs.setBool('is_premium_active', true);
-          await prefs.setString('premium_purchase_date', purchaseDate);
-          
-          // Add this to update the local state immediately
-          setState(() {
-            _entitlementStatus[entitlement] = true;
-          });
-        }
-
-        // Track successful purchase
+        setState(() => _entitlementStatus = {'in_app_premium': true});
+        
         Posthog().capture(
           eventName: 'successful_purchase',
           properties: {
             'product_id': package.storeProduct.identifier,
             'price': package.storeProduct.price,
-            'currency': package.storeProduct.currencyCode,
           },
         );
 
-        _showSuccessDialog("Thank you for your purchase!");
-        await _checkEntitlementStatus();
+        Navigator.of(context).pop(); // Dismiss loading before showing success
+        _showPurchaseSuccessDialog();
+      } else {
+        Navigator.of(context).pop(); // Dismiss loading if not premium
       }
     } catch (e) {
+      Navigator.of(context).pop(); // Dismiss loading on error
       _handlePurchaseError(e);
     }
   }
 
   void _handlePurchaseError(dynamic error) {
-    String errorMessage = "An unexpected error occurred. Please try again later.";
-    
+    String errorMessage =
+        "An unexpected error occurred. Please try again later.";
+
     if (error is PlatformException) {
       if (error.code == '1' && error.details['userCancelled'] == true) {
         return; // Don't show error for user cancellation
@@ -258,23 +340,21 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   Future<void> _debugPrintEntitlements() async {
     final CustomerInfo customerInfo = await Purchases.getCustomerInfo();
     final prefs = await SharedPreferences.getInstance();
-    
+
     String entitlementsInfo = '''
 📱 Device Status:
 ${_entitlements.map((e) => '• $e: ${_entitlementStatus[e] ?? false ? "✓" : "✗"}').join('\n')}
 
 💾 Local Storage:
-${prefs.getKeys().where((k) => k.contains('Active') || k.contains('purchase')).map((k) => 
-  '• $k: ${prefs.get(k)}').join('\n')}
+${prefs.getKeys().where((k) => k.contains('Active') || k.contains('purchase')).map((k) => '• $k: ${prefs.get(k)}').join('\n')}
 
-🔑 RevenueCat Status:
+���� RevenueCat Status:
 • Customer ID: ${customerInfo.originalAppUserId}
 • Latest Exp: ${customerInfo.latestExpirationDate?.toString() ?? 'None'}
 • Active Entitlements: ${customerInfo.entitlements.active.keys.isEmpty ? 'None' : customerInfo.entitlements.active.keys.join(', ')}
 
 📊 Purchase History:
-${customerInfo.nonSubscriptionTransactions.map((t) => 
-  '• ${t.productIdentifier}: ${t.purchaseDate}').join('\n')}
+${customerInfo.nonSubscriptionTransactions.map((t) => '• ${t.productIdentifier}: ${t.purchaseDate}').join('\n')}
 ''';
     _showDebugInfoDialog('Entitlements Debug', entitlementsInfo);
   }
@@ -282,7 +362,7 @@ ${customerInfo.nonSubscriptionTransactions.map((t) =>
   Future<void> _debugPrintOfferings() async {
     final offerings = await Purchases.getOfferings();
     final currentOffering = offerings.current;
-    
+
     String offeringsInfo = '''
 🏷️ Current Offering: ${currentOffering?.identifier ?? 'None'}
 
@@ -313,8 +393,7 @@ ${_packages.map((p) => '''• ${p.identifier}
               onTap: () {
                 Clipboard.setData(ClipboardData(text: message));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Debug info copied to clipboard'))
-                );
+                    SnackBar(content: Text('Debug info copied to clipboard')));
               },
               child: Icon(Icons.copy, size: 20),
             ),
@@ -339,9 +418,7 @@ ${_packages.map((p) => '''• ${p.identifier}
             child: Text('Refresh'),
             onPressed: () {
               Navigator.of(ctx).pop();
-              _checkEntitlementStatus().then((_) => 
-                _debugPrintEntitlements()
-              );
+              _checkEntitlementStatus().then((_) => _debugPrintEntitlements());
             },
           ),
         ],
@@ -351,20 +428,14 @@ ${_packages.map((p) => '''• ${p.identifier}
 
   Future<void> _simulatePremiumPurchase() async {
     final prefs = await SharedPreferences.getInstance();
-    
-    // Before
+
     await prefs.setBool('in_app_premiumActive', true);
     await prefs.setString('in_app_premium_purchaseDate', DateTime.now().toIso8601String());
-    await prefs.setStringList(ENTITLEMENTS_KEY, ['in_app_premium']);
-    
-    // After
-    await prefs.setBool('is_premium_active', true);
-    await prefs.setString('premium_purchase_date', DateTime.now().toIso8601String());
-    
+
     setState(() {
-      _entitlementStatus['premium'] = true;
+      _entitlementStatus = {'in_app_premium': true};
     });
-    
+
     _showSuccessDialog("DEBUG: Premium entitlement activated");
     await _debugPrintEntitlements();
   }
@@ -377,6 +448,59 @@ ${_packages.map((p) => '''• ${p.identifier}
     });
     _showSuccessDialog("DEBUG: All purchases reset");
     await _debugPrintEntitlements();
+  }
+
+  void _showPurchaseSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              CupertinoIcons.check_mark_circled_solid,
+              color: Colors.green,
+              size: 28,
+            ),
+            SizedBox(width: 8),
+            Text('Thank You!'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 16),
+            Text(
+              'Your purchase was successful.',
+              style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'You now have access to all premium features.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: Text(
+              'Continue',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.of(context).pop(); // Return to previous screen
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -392,20 +516,14 @@ ${_packages.map((p) => '''• ${p.identifier}
   }
 
   Widget _buildPackageList() {
-    // Find the specific package by identifier
-    Package? selectedPackage = _packages.isEmpty ? null : _packages.firstWhere(
-      (package) => package.identifier == 'in_app_luxury',
-      orElse: () => _packages[0],
-    );
+    Package? selectedPackage = _packages.isEmpty ? null : _packages[0];
 
     return ListView(
       children: [
-        // Debug Panel
         _buildDebugPanel(),
 
-        // Product Display
         if (_packages.isEmpty)
-          Padding(
+          const Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Text(
@@ -418,9 +536,9 @@ ${_packages.map((p) => '''• ${p.identifier}
 
         if (selectedPackage != null)
           PremiumProductDisplay(
-            entitlement: 'in_app_premium',
+            entitlement: 'premium',
             packages: [selectedPackage],
-            isEntitlementActive: _entitlementStatus['in_app_premium'] ?? false,
+            isEntitlementActive: _entitlementStatus.containsKey('premium'),
             onPurchase: _purchasePackage,
           ),
 
@@ -456,13 +574,17 @@ ${_packages.map((p) => '''• ${p.identifier}
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('🛠️ Debug', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                Text('🛠️ Debug',
+                    style:
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                 Text(
-                  _entitlementStatus['in_app_premium'] ?? false ? "Premium ✓" : "No Premium ✗",
+                  _entitlementStatus['premium'] ?? false
+                      ? "Premium ✓"
+                      : "No Premium ✗",
                   style: TextStyle(
                     fontSize: 12,
-                    color: _entitlementStatus['in_app_premium'] ?? false 
-                        ? Colors.green 
+                    color: _entitlementStatus['premium'] ?? false
+                        ? Colors.green
                         : Colors.red,
                   ),
                 ),
