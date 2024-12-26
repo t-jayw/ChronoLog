@@ -175,88 +175,51 @@ class CustomLineChart extends StatelessWidget {
           minY: minY,
           maxY: maxY,
           lineTouchData: LineTouchData(
-              enabled: true,
-              touchCallback:
-                  (FlTouchEvent event, LineTouchResponse? touchResponse) {
-                // TODO : Utilize touch event here to perform any operation
-              },
-              touchTooltipData: LineTouchTooltipData(
-                tooltipBgColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.9),
-                tooltipRoundedRadius: 8.0,
-                showOnTopOfTheChartBoxArea: true,
-                fitInsideHorizontally: true,
-                fitInsideVertically: true,
-                tooltipMargin: 8,
-                tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                tooltipBorder: BorderSide.none,
-                getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                  return touchedSpots.map((LineBarSpot touchedSpot) {
-                    final TextStyle textStyle = TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    );
-
-                    if (touchedSpot.barIndex == 0) {
-                      return LineTooltipItem(
-                        '${plotSpots[touchedSpot.spotIndex].tag}',
-                        textStyle,
-                      );
-                    }
-                    return null;
-                  }).toList();
-                },
-              ),
-              getTouchedSpotIndicator: (LineChartBarData barData, List<int> indicators) {
-                return indicators.map((int index) {
-                  return TouchedSpotIndicatorData(
-                    FlLine(color: Colors.grey.withOpacity(0.3), strokeWidth: 0.5),
-                    FlDotData(
-                      show: true,
-                      getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-                        radius: 3,
-                        color: Colors.orangeAccent,
-                        strokeWidth: 2,
-                        strokeColor: Theme.of(context).colorScheme.tertiary,
-                      ),
+            enabled: true,
+            touchTooltipData: LineTouchTooltipData(
+              tooltipBgColor: Theme.of(context).colorScheme.primary,
+              tooltipRoundedRadius: 12.0,
+              tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                return touchedSpots.map((spot) {
+                  return LineTooltipItem(
+                    '${plotSpots[spot.spotIndex].tag}',
+                    TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   );
                 }).toList();
-              }),
+              },
+            ),
+          ),
           lineBarsData: [
             LineChartBarData(
               spots: plotSpots,
               isCurved: false,
-              color: Colors.orangeAccent,
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.center,
-                colors: <Color>[
-                  //Color(0xff1f005c),
-                  //Color(0xff5b0060),
-                  Color(0xff870160),
-                  Color(0xffac255e),
-                  Color(0xffca485c),
-                  Color(0xffe16b5c),
-                  Color(0xfff39060),
-                  Color(0xffffb56b),
-                ], // Gradient from https://learnui.design/tools/gradient-generator.html
-                tileMode: TileMode.mirror,
-              ),
-              barWidth: 1.5,
+              color: Theme.of(context).colorScheme.tertiary,
+              barWidth: 2,
               dotData: FlDotData(
                 show: true,
-                getDotPainter: (spot, percent, barData, index) {
-                  return FlDotCirclePainter(
-                    radius:
-                        1, // Adjust the radius to increase or decrease the size of the dot
-                    color: Colors.orangeAccent,
-                    strokeWidth: 2,
-                    strokeColor: Theme.of(context).colorScheme.tertiary,
-                  );
-                },
+                getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                  radius: 3.5,
+                  color: Theme.of(context).colorScheme.tertiary,
+                  strokeWidth: 1,
+                  strokeColor: Theme.of(context).colorScheme.primary,
+                ),
               ),
-              belowBarData: BarAreaData(show: false),
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.15),
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.0),
+                  ],
+                ),
+              ),
             ),
             if (this.chartType == 'offset')
               LineChartBarData(
@@ -281,38 +244,38 @@ class CustomLineChart extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: true,
-            drawHorizontalLine: true,
-            verticalInterval: intervalX,
             horizontalInterval: intervalY,
-            getDrawingVerticalLine: (value) {
-              return FlLine(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                strokeWidth: 0.5,
-              );
-            },
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
-                strokeWidth: 0.5,
-              );
-            },
+            verticalInterval: intervalX,
+            getDrawingVerticalLine: (value) => FlLine(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              strokeWidth: 0.5,
+            ),
+            getDrawingHorizontalLine: (value) => FlLine(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              strokeWidth: 0.5,
+            ),
           ),
           titlesData: FlTitlesData(
             show: true,
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 30,
+                reservedSize: 35,
                 getTitlesWidget: (value, meta) {
                   if (value == minY || value == maxY) return const SizedBox.shrink();
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Text(
-                      '${value.toStringAsFixed(0)}s',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
+                  return SizedBox(
+                    width: 30,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Text(
+                        '${value.toStringAsFixed(1)}s',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
                       ),
                     ),
                   );
@@ -322,16 +285,16 @@ class CustomLineChart extends StatelessWidget {
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
-                reservedSize: 20,
+                reservedSize: 16,
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   if (value == minX || value == maxX) return const SizedBox.shrink();
                   return Padding(
-                    padding: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       formatTimeInterval(value - minX),
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 9,
                         fontWeight: FontWeight.w400,
                         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
                       ),
@@ -344,10 +307,22 @@ class CustomLineChart extends StatelessWidget {
             topTitles: AxisTitles(
               axisNameSize: 25,
               axisNameWidget: titleText != null
-                  ? Text(titleText!, style: TextStyle(fontSize: 12))
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        titleText!,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
+                      ),
+                    )
                   : Container(),
             ),
-            rightTitles: AxisTitles(),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false)
+            ),
           ),
           borderData: FlBorderData(show: false),
         ),

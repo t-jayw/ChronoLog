@@ -7,7 +7,7 @@ import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../components/graphs/timing_run_measurements_rate_graph.dart';
-import '../components/timing_run_details_header_stats.dart';
+import '../components/timing_run_component.dart';
 import '../models/timing_run.dart';
 
 class TimingRunDetails extends StatefulWidget {
@@ -36,50 +36,54 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
         title: Text('Timing Run Details',
             style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Column(
-          children: [
-            TimingRunDetailHeaderStats(timingRun: widget.timingRun),
-            Container(
-              height: 260, // Adjust as needed
-              child: PageView(
-                controller: _controller,
-                children: <Widget>[
-                  TimingRunMeasurementsOffsetGraph(runId: widget.timingRun.id),
-                  TimingRunMeasurementsRateGraph(runId: widget.timingRun.id),
-
-                  // Add other graphs here
-                ],
-                onPageChanged: (int page) {
-                  setState(() {
-                    _currentPage = page.toDouble();
-                  });
-                },
+      body: Column(
+        children: [
+          TimingRunComponent(
+            timingRun: widget.timingRun,
+            timepiece: widget.timepiece,
+            isMostRecent: true,
+            navigation: false,
+          ),
+          SizedBox(
+            height: 280,
+            child: PageView(
+              controller: _controller,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: TimingRunMeasurementsOffsetGraph(runId: widget.timingRun.id),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: TimingRunMeasurementsRateGraph(runId: widget.timingRun.id),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: SmoothPageIndicator(
+              controller: _controller,
+              count: 2,
+              effect: JumpingDotEffect(
+                dotHeight: 8,
+                dotWidth: 8,
+                activeDotColor: Theme.of(context).colorScheme.tertiary,
               ),
+              onDotClicked: (index) {
+                _controller.animateToPage(
+                  index,
+                  duration: Duration(milliseconds: 500),
+                  curve: Curves.ease,
+                );
+              },
             ),
-            SmoothPageIndicator(
-                controller: _controller, // PageController
-                count: 2, // Number of pages
-
-                effect: JumpingDotEffect(
-                    activeDotColor: Theme.of(context)
-                        .colorScheme
-                        .tertiary), // your preferred effect
-                onDotClicked: (index) {
-                  _controller.animateToPage(
-                    index,
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.ease,
-                  );
-                }),
-            Expanded(
-              child:
-                  TimingMeasurementsContainer(timingRunId: widget.timingRun.id),
-            ),
-            FooterBannerAdWidget(),
-          ],
-        ),
+          ),
+          Expanded(
+            child: TimingMeasurementsContainer(timingRunId: widget.timingRun.id),
+          ),
+          FooterBannerAdWidget(),
+        ],
       ),
     );
   }

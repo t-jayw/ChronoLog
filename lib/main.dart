@@ -23,21 +23,6 @@ import 'package:ulid/ulid.dart';
 
 import 'components/show_review_dialog.dart';
 
-Future<void> initPlatformState() async {
-  await Purchases.setLogLevel(LogLevel.error);
-  String testUserId = "testUser_${DateTime.now().millisecondsSinceEpoch}";
-
-  // PurchasesConfiguration configuration = PurchasesConfiguration(
-  //   "appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ",
-  // )..appUserID = testUserId;
-
-  PurchasesConfiguration configuration =
-      PurchasesConfiguration("appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ");
-
-  print(configuration.toString());
-  await Purchases.configure(configuration);
-}
-
 final theme = ThemeData(
   colorScheme: const ColorScheme.light(
     primary: Color.fromRGBO(250, 247, 240, 1),
@@ -132,9 +117,26 @@ final darkTheme = ThemeData(
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initPlatformState();
+  
+  // Configure RevenueCat first
+  try {
+    await Purchases.setLogLevel(LogLevel.verbose);
+    PurchasesConfiguration configuration = PurchasesConfiguration("appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ");
+    
+    if (const bool.fromEnvironment('dart.vm.product') == false) {
+      print("Configuring RevenueCat for debug mode");
+      await Purchases.setSimulatesAskToBuyInSandbox(true);
+      await Purchases.setFinishTransactions(true);
+    }
 
-  // MobileAds.instance.initialize();
+    await Purchases.configure(configuration);
+    final customerInfo = await Purchases.getCustomerInfo();
+    print("RevenueCat initialization successful");
+    print("CustomerInfo: ${customerInfo.toJson()}");
+  } catch (e, stackTrace) {
+    print("RevenueCat initialization error: $e");
+    print("Stack trace: $stackTrace");
+  }
 
   final prefs = await SharedPreferences.getInstance();
   int openCount = prefs.getInt('openCount') ?? 0;

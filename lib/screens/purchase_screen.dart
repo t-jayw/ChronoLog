@@ -182,8 +182,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
 
         // Update entitlements and store purchase date
         for (String entitlement in purchaseResult.entitlements.active.keys) {
-          await _setEntitlementActive(entitlement, true);
-          await prefs.setString('${entitlement}_purchaseDate', purchaseDate);
+          await prefs.setBool('is_premium_active', true);
+          await prefs.setString('premium_purchase_date', purchaseDate);
           
           // Add this to update the local state immediately
           setState(() {
@@ -202,7 +202,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         );
 
         _showSuccessDialog("Thank you for your purchase!");
-        await _checkEntitlementStatus(); // Optional now since we update state directly
+        await _checkEntitlementStatus();
       }
     } catch (e) {
       _handlePurchaseError(e);
@@ -350,10 +350,21 @@ ${_packages.map((p) => '''• ${p.identifier}
   }
 
   Future<void> _simulatePremiumPurchase() async {
-    await _setEntitlementActive('in_app_premium', true);
+    final prefs = await SharedPreferences.getInstance();
+    
+    // Before
+    await prefs.setBool('in_app_premiumActive', true);
+    await prefs.setString('in_app_premium_purchaseDate', DateTime.now().toIso8601String());
+    await prefs.setStringList(ENTITLEMENTS_KEY, ['in_app_premium']);
+    
+    // After
+    await prefs.setBool('is_premium_active', true);
+    await prefs.setString('premium_purchase_date', DateTime.now().toIso8601String());
+    
     setState(() {
-      _entitlementStatus['in_app_premium'] = true;
+      _entitlementStatus['premium'] = true;
     });
+    
     _showSuccessDialog("DEBUG: Premium entitlement activated");
     await _debugPrintEntitlements();
   }
@@ -384,7 +395,7 @@ ${_packages.map((p) => '''• ${p.identifier}
     // Find the specific package by identifier
     Package? selectedPackage = _packages.isEmpty ? null : _packages.firstWhere(
       (package) => package.identifier == 'in_app_luxury',
-      orElse: () => _packages[1],
+      orElse: () => _packages[0],
     );
 
     return ListView(

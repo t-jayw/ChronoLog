@@ -86,12 +86,12 @@ class WatchDetails extends ConsumerWidget {
                               ? Image.memory(
                                   updatedTimepiece.image!,
                                   fit: BoxFit.cover,
-                                  height: 160,
+                                  height: 150,
                                 )
                               : Image.asset(
                                   'assets/images/placeholder.png',
                                   fit: BoxFit.cover,
-                                  height: 160,
+                                  height: 150,
                                 ),
                         ),
                         Positioned(
@@ -251,14 +251,13 @@ class WatchDetails extends ConsumerWidget {
 void showShareModal(BuildContext context, Timepiece timepiece) {
   showModalBottomSheet(
     context: context,
-    isScrollControlled: true, // Allows the modal to take up full screen height
+    isScrollControlled: true,
     builder: (BuildContext context) {
-      // Calculate three-quarters of the screen height
-//      final height = MediaQuery.of(context).size.height * 0.66;
-      final height = 525.0;
+      // Calculate 90% of the screen height
+      final height = MediaQuery.of(context).size.height * 0.9;
 
       return Container(
-        height: height, // Use the calculated height here
+        height: height,
         child: ShareModalFrame(timepiece: timepiece),
       );
     },

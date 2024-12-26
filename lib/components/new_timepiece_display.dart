@@ -23,6 +23,10 @@ class NewTimepieceDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(
+        StreamProvider((ref) => Stream.periodic(const Duration(minutes: 1))),
+        (_, __) {});
+
     final List<TimingRun> timingRuns =
         ref.watch(timingRunProvider(timepiece.id));
 
@@ -71,7 +75,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(7.0),
           child: Row(
             children: [
               ClipRRect(
@@ -92,7 +96,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -113,7 +117,9 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                         style: TextStyle(
                                           fontSize: 17,
                                           fontWeight: FontWeight.w600,
-                                          color: Theme.of(context).colorScheme.onBackground,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onBackground,
                                         ),
                                       ),
                                     ),
@@ -122,7 +128,10 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                       maxLines: 1,
                                       style: TextStyle(
                                         fontSize: 15,
-                                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onBackground
+                                            .withOpacity(0.6),
                                       ),
                                     ),
                                   ],
@@ -131,7 +140,10 @@ class NewTimepieceDisplay extends ConsumerWidget {
                               Icon(
                                 CupertinoIcons.chevron_right,
                                 size: 20,
-                                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onBackground
+                                    .withOpacity(0.3),
                               ),
                             ],
                           ),
@@ -140,7 +152,8 @@ class NewTimepieceDisplay extends ConsumerWidget {
                             child: Divider(
                               height: 1,
                               thickness: 0.5,
-                              color: CupertinoColors.separator.resolveFrom(context),
+                              color: CupertinoColors.separator
+                                  .resolveFrom(context),
                             ),
                           ),
                           Row(
@@ -149,9 +162,12 @@ class NewTimepieceDisplay extends ConsumerWidget {
                               Text(
                                 'Active Timing Run',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 8,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground
+                                      .withOpacity(0.6),
                                 ),
                               ),
                             ],
@@ -159,83 +175,108 @@ class NewTimepieceDisplay extends ConsumerWidget {
                           SizedBox(height: 4),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Expanded(
-                                flex: 2,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Row(
                                   children: [
-                                    Text(
-                                      '${timingRunStats.formattedSecondsPerDayForRun()}',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 17,
-                                        color: Theme.of(context).colorScheme.tertiary,
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            timingRunStats
+                                                    .formattedLatestOffset() ??
+                                                '-',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
+                                            ),
+                                          ),
+                                          Text(
+                                            'offset',
+                                            style: TextStyle(
+                                              fontSize: 8,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onBackground,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Text(
-                                      'sec/day',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            timingRunStats
+                                                .formattedSecondsPerDayForRun(),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
+                                            ),
+                                          ),
+                                          Text(
+                                            'sec/day',
+                                            style: TextStyle(
+                                              fontSize: 8,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onBackground,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          timingRunStats.formattedLatestOffset() ?? '-',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 11,
-                                            color: Theme.of(context).colorScheme.onBackground,
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            timingRunStats
+                                                    .formattedTimeSinceLastMeasurement() ??
+                                                '-',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
                                           ),
-                                        ),
-                                        Text(
-                                          ' offset',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                                          Container(
+                                            width: double.infinity,
+                                            height: 11,
+                                            child: Text(
+                                              'last',
+                                              style: TextStyle(
+                                                fontSize: 8,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onBackground,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 4),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          timingRunStats.formattedTimeSinceLastMeasurement() ?? '-',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 11,
-                                            color: Theme.of(context).colorScheme.onBackground,
-                                          ),
-                                        ),
-                                        Text(
-                                          ' ago',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                               SizedBox(width: 8),
                               CupertinoButton(
-                                padding: EdgeInsets.all(8),
+                                padding: EdgeInsets.all(6),
                                 borderRadius: BorderRadius.circular(10),
                                 color: Colors.transparent,
                                 minSize: 0,
@@ -243,10 +284,11 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                   SharedPreferences prefs =
                                       await SharedPreferences.getInstance();
                                   bool? isPremiumActivated =
-                                      prefs.getBool('isPremiumActive');
+                                      prefs.getBool('is_premium_active');
                                   print(timingMeasurements.length);
                                   if (isPremiumActivated != true &&
-                                      timingMeasurements.length > 400) {
+                                  // PAYWALL
+                                      timingMeasurements.length > 5) {
                                     showPremiumNeededDialog(context,
                                         "Free version limited to 5 measurements per Timing Run");
                                     Posthog().capture(
@@ -279,7 +321,9 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: Theme.of(context).colorScheme.tertiary,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
                                       width: 2,
                                     ),
                                     borderRadius: BorderRadius.circular(10),
@@ -287,7 +331,8 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                   child: Icon(
                                     CupertinoIcons.plus,
                                     size: 20,
-                                    color: Theme.of(context).colorScheme.tertiary,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
                                 ),
                               ),

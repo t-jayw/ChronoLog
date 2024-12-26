@@ -15,12 +15,14 @@ class TimingRunComponent extends ConsumerStatefulWidget {
   final TimingRun timingRun;
   final Timepiece timepiece;
   final bool? isMostRecent;
+  final bool navigation;
 
   const TimingRunComponent({
     super.key,
     required this.timingRun,
     required this.timepiece,
     this.isMostRecent,
+    this.navigation = true,
   });
 
   @override
@@ -38,203 +40,231 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
     TimingRunStatistics timingRunStats =
         TimingRunStatistics(timingMeasurements);
 
-    List<Widget> certificationWidgets = [];
-    List<String> complianceStatuses = timingRunStats.checkCompliance();
-    for (var status in complianceStatuses) {
-      certificationWidgets.add(
-        Row(
-          children: [
-            SizedBox(width: 4),
-            Icon(
-              CupertinoIcons.checkmark_circle_fill,
-              color: Colors.green,
-              size: 12,
-            ),
-            SizedBox(width: 4),
-            Text(status, 
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w400
-              )
-            ),
-          ],
-        ),
-      );
-    }
-
-    return GestureDetector(
-      onTap: () => Navigator.push(
-          context,
-          CupertinoPageRoute(
-              builder: (context) => TimingRunDetails(
-                  timingRun: widget.timingRun, timepiece: widget.timepiece))),
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(
-            color: Theme.of(context).dividerColor.withOpacity(0.3),
-            width: 0.5,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
+    Widget contentWidget = Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Timing Run', 
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500
-                    )
-                  ),
-                  Icon(CupertinoIcons.chevron_right, size: 16)
-                ],
-              ),
-              Divider(
-                height: 4,
-                thickness: 1,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(timingRunStats.formattedSecondsPerDayForRun(),
-                          style: TextStyle(
-                              fontSize: 24,
-                              color: Theme.of(context).colorScheme.tertiary,
-                              fontWeight: FontWeight.bold)),
-                      Text('sec/day',
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onBackground)),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Text(timingRunStats.formattedTotalDuration(),
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color:
-                                      Theme.of(context).colorScheme.tertiary,
-                                  fontWeight: FontWeight.bold)),
-                          Text(' duration',
-                              style: TextStyle(
-                                fontSize: 10,
-                              )),
-                        ],
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Timing Run',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ),
-                      Row(
-                        children: [
-                          Text('${timingMeasurements.length}',
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onBackground,
-                                  fontSize: 12)),
-                          Text(' points',
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onBackground,
-                                  fontSize: 10)),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                              timingRunStats
-                                  .formattedTimeSinceLastMeasurement(),
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onBackground,
-                                  fontSize: 12)),
-                          Text(' ago',
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onBackground,
-                                  fontSize: 10)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  if (certificationWidgets.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: certificationWidgets,
                     ),
-                  if (widget.isMostRecent ?? false)
-                    CupertinoButton(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      color: Theme.of(context).colorScheme.tertiary,
-                      borderRadius: BorderRadius.circular(8),
-                      minSize: 0,
-                      onPressed: () async {
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
-                        bool? isPremiumActivated =
-                            prefs.getBool('isPremiumActive');
-
-                        if (isPremiumActivated != true &&
-                            timingMeasurements.length > 400) {
-                          showPremiumNeededDialog(context,
-                              "Free version limited to 5 measurements per Timing Run");
-                        } else {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled:
-                                true, // Set to true to make the bottom sheet full-screen
-                            builder: (BuildContext context) {
-                              // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                              return DraggableScrollableSheet(
-                                expand: false,
-                                builder: (_, controller) =>
-                                    SingleChildScrollView(
-                                  controller: controller,
-                                  child: MeasurementSelectorModal(
-                                    timingRunId: widget.timingRun.id,
-                                  ), // Ensure your ManageSettingsScreen is suitable for this context
-                                ),
-                              );
-                            },
-                          );
-                        }
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                    Text(
+                      "total duration: ${timingRunStats.formattedTotalDuration() ?? '-'}",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (widget.navigation)
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Divider(
+              height: 1,
+              thickness: 0.5,
+              color: CupertinoColors.separator.resolveFrom(context),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Icon(CupertinoIcons.add,
-                              size: 18,
-                              color: Theme.of(context).colorScheme.onPrimary),
-                          SizedBox(width: 4),
                           Text(
-                            'Add',
+                            timingRunStats.formattedLatestOffset(),
                             style: TextStyle(
                               fontSize: 13,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                          Text(
+                            'offset',
+                            style: TextStyle(
+                              fontSize: 8,
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
                         ],
                       ),
                     ),
-                ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            timingRunStats.formattedSecondsPerDayForRun(),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                          Text(
+                            'sec/day',
+                            style: TextStyle(
+                              fontSize: 8,
+                              color: Theme.of(context).colorScheme.onBackground,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (widget.isMostRecent ?? false)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              timingRunStats.formattedTimeSinceLastMeasurement(),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            ),
+                            Text(
+                              'since last',
+                              style: TextStyle(
+                                fontSize: 8,
+                                color: Theme.of(context).colorScheme.onBackground,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${timingMeasurements.length}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                          ),
+                          Text(
+                            'measurements',
+                            style: TextStyle(
+                              fontSize: 8,
+                              color: Theme.of(context).colorScheme.onBackground,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              if (widget.isMostRecent ?? false)
+                CupertinoButton(
+                  padding: EdgeInsets.all(6),
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.transparent,
+                  minSize: 0,
+                  onPressed: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    bool? isPremiumActivated =
+                        prefs.getBool('is_premium_active');
+
+                    if (isPremiumActivated != true &&
+                        timingMeasurements.length > 400) {
+                      showPremiumNeededDialog(context,
+                          "Free version limited to 5 measurements per Timing Run");
+                    } else {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (BuildContext context) {
+                          return DraggableScrollableSheet(
+                            expand: false,
+                            builder: (_, controller) =>
+                                SingleChildScrollView(
+                              controller: controller,
+                              child: MeasurementSelectorModal(
+                                timingRunId: widget.timingRun.id,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      CupertinoIcons.plus,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                ),
             ],
           ),
-        ),
+        ],
       ),
+    );
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: widget.navigation
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) => TimingRunDetails(
+                    timingRun: widget.timingRun,
+                    timepiece: widget.timepiece,
+                  ),
+                ),
+              ),
+              child: contentWidget,
+            )
+          : contentWidget,
     );
   }
 }

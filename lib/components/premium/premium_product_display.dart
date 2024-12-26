@@ -19,11 +19,7 @@ class PremiumProductDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entitlementPackages = packages
-        .where((package) => package.offeringIdentifier == entitlement)
-        .toList();
-
-    if (entitlementPackages.isEmpty) return SizedBox.shrink();
+    if (packages.isEmpty) return SizedBox.shrink();
 
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -65,10 +61,10 @@ class PremiumProductDisplay extends StatelessWidget {
               viewportFraction: 0.85,
               enlargeCenterPage: true,
               enlargeFactor: 0.2,
-              enableInfiniteScroll: entitlementPackages.length > 1,
+              enableInfiniteScroll: packages.length > 1,
               autoPlay: false,
             ),
-            items: entitlementPackages
+            items: packages
                 .map((package) => PremiumPackageTile(
                       package: package,
                       packageType: package.packageType.toString(),

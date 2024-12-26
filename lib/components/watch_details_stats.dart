@@ -1,13 +1,10 @@
 import 'package:chronolog/data_helpers.dart/format_duration.dart';
 import 'package:chronolog/data_helpers.dart/timepiece_aggregate_stats.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';
-import '../models/timing_measurement.dart';
-import '../models/timing_run.dart';
-import '../providers/timing_measurements_list_provider.dart';
 import '../providers/timing_run_provider.dart';
 
 class WatchDetailStats extends ConsumerWidget {
@@ -17,155 +14,114 @@ class WatchDetailStats extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final timingRuns = ref.watch(timingRunProvider(timepiece.id));
-
-    TimingRun? mostRecentRun = timingRuns.first;
-
-    List<TimingMeasurement> mostRecentRunMeasurements =
-        ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
-
-    final TimingRunStatistics timingRunStats =
-        TimingRunStatistics(mostRecentRunMeasurements);
-
-    final TimepieceAggregateStats timepieceStats =
-        TimepieceAggregateStats(timepiece, ref);
-
-    if (timingRuns.isEmpty) {
-      return StatsGrid(
-        runs: 0,
-        points: 0,
-        duration: 0,
-        offset: '--',
-        rateSecPerDay: 0,
-      );
-    }
-
-    return StatsGrid(
-      runs: timingRuns.length,
-      points: timepieceStats.totalMeasurements,
-      duration: timepieceStats.totalDuration.inSeconds,
-      offset: timingRunStats.formattedLatestOffset(),
-      rateSecPerDay: timepieceStats.averageSecondsPerDay,
-    );
-  }
-}
-
-class StatsGrid extends StatelessWidget {
-  final int runs;
-  final int points;
-  final int duration;
-  final String offset;
-  final double rateSecPerDay;
-
-  StatsGrid(
-      {Key? key,
-      required this.runs,
-      required this.points,
-      required this.duration,
-      required this.offset,
-      required this.rateSecPerDay})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    String rate = rateSecPerDay.toStringAsFixed(1);
+    final timepieceStats = TimepieceAggregateStats(timepiece, ref);
 
     return Container(
-      padding: EdgeInsets.all(4.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Text(
-          //   'All Measurements',
-          //   style: TextStyle(
-          //     fontSize: 18,
-          //     fontWeight: FontWeight.bold,
-          //     color: Theme.of(context).colorScheme.secondary,
-          //   ),
-          // ),
-          TextWithLabel(
-              value:
-                 offset ,
-              label: 'Last Offset:',
-              color: Theme.of(context).colorScheme.tertiary,
-              labelSize: 14),
-          Divider(
-            height: 8,
-          ),
-
-          Text('All Runs', style: TextStyle(fontSize: 16)),
-          TextWithLabel(
-            value: '$rate s/d',
-            label: 'Sec/Day:',
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
-
-          TextWithLabel(
-            value: '${formatDuration(Duration(seconds: duration))}',
-            label: 'Duration:',
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
-          TextWithLabel(
-            value: '$runs',
-            label: 'Timing Runs:',
-            color: Theme.of(context).colorScheme.tertiary,
-          ),
-
-          TextWithLabel(
-            value: '$points',
-            label: 'Measurements:',
-            color: Theme.of(context).colorScheme.tertiary,
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
         ],
       ),
-    );
-  }
-}
-
-class TextWithLabel extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color color;
-  final double? labelSize;
-
-  TextWithLabel({
-    Key? key,
-    required this.value,
-    required this.label,
-    required this.color,
-    this.labelSize,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 0.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(context).colorScheme.inverseSurface,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'All Time',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+                Text(
+                  "${timingRuns.length} timing runs",
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                  ),
+                ),
+              ],
             ),
-          ),
-          Flexible(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: labelSize ?? 14,
-                fontWeight: FontWeight.bold,
-                color: color,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Divider(
+                height: 1,
+                thickness: 0.5,
+                color: CupertinoColors.separator.resolveFrom(context),
               ),
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  timingRuns.isEmpty ? '--' : '${timepieceStats.averageSecondsPerDay.toStringAsFixed(1)}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                Text(
+                  'sec/day',
+                  style: TextStyle(
+                    fontSize: 8,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  timingRuns.isEmpty ? '0:00' : formatDuration(timepieceStats.totalDuration).toString(),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                ),
+                Text(
+                  'duration',
+                  style: TextStyle(
+                    fontSize: 8,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  timingRuns.isEmpty ? '0' : '${timepieceStats.totalMeasurements}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                ),
+                Text(
+                  'measurements',
+                  style: TextStyle(
+                    fontSize: 8,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

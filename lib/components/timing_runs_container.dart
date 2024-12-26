@@ -47,9 +47,9 @@ class TimingRunsContainer extends ConsumerWidget {
               Expanded(
                 child: CustomToolTip(
                   child: Text(
-                    "Start a new timing run after setting your watch",
+                    "Start a new timing run when you set the watch",
                     style: TextStyle(
-                      fontSize: 11.0,
+                      fontSize: 10.0,
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                     ),
                   ),
@@ -63,7 +63,7 @@ class TimingRunsContainer extends ConsumerWidget {
                 minSize: 0,
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
-                  bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                  bool? isPremiumActivated = prefs.getBool('is_premium_active');
                   int numTimingRuns = timingRuns.length;
 
                   if (isPremiumActivated != true && numTimingRuns == 2) {

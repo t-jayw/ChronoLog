@@ -43,10 +43,6 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
   void _updateTag(String newTag) {
     setState(() {
       tag = newTag;
-      // Update the preview measurement if it exists
-      if (previewMeasurement != null) {
-        previewMeasurement = previewMeasurement!.copyWith(tag: newTag);
-      }
     });
   }
 
@@ -145,6 +141,12 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
         child: Consumer(builder: (context, ref, _) {
           final timingMeasurementListProvider =
               ref.watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
+          
+          // Get the existing measurements
+          final measurements = ref.watch(timingMeasurementsListProvider(widget.timingRunId));
+          
+          // Get the most recent measurement (measurements are already sorted in descending order)
+          final previousMeasurement = measurements.isNotEmpty ? measurements[0] : null;
 
           return Padding(
             padding: const EdgeInsets.all(8),
@@ -324,12 +326,13 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                                   TimingMeasurementItem(
                                     timingMeasurement: previewMeasurement!,
                                     enableNavigation: false,
+                                    previousMeasurement: previousMeasurement,
                                   ),
                                 ],
                               ),
                             ),
                           ],
-
+                          // Existing "Add Measurement" button
                           Row(
                             children: [
                               if (previewMeasurement != null)

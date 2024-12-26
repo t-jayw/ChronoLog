@@ -73,7 +73,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
                 
                 // Turning on paywall
                 // SharedPreferences prefs = await SharedPreferences.getInstance();
-                // bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                // bool? isPremiumActivated = prefs.getBool('is_premium_active');
                 // int numWatches = timepieces.length;
 
                 // if (isPremiumActivated != true && numWatches >= 2) {

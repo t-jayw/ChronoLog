@@ -75,11 +75,15 @@ class PremiumPackageTile extends StatelessWidget {
         children: [
           Icon(CupertinoIcons.person_2_fill, size: 16),
           SizedBox(width: 8),
-          Text(
-            "Used by 100+ watch collectors",
-            style: TextStyle(
-              fontSize: 13,
-              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+          Expanded(
+            child: Text(
+              "Used by 100+ watch collectors",
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+              ),
+              softWrap: true,
+              maxLines: 2,
             ),
           ),
         ],
@@ -121,6 +125,7 @@ class PremiumPackageTile extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
           child: Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,

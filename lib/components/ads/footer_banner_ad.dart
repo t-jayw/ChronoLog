@@ -1,7 +1,5 @@
-import 'package:chronolog/components/premium/premium_list_item.dart';
 import 'package:chronolog/screens/purchase_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // A reusable footer banner ad widget.
@@ -10,7 +8,7 @@ class FooterBannerAdWidget extends StatefulWidget {
   
   const FooterBannerAdWidget({
     Key? key,
-    this.bottomPadding = 16.0,  // Default padding that can be overridden
+    this.bottomPadding = 16.0,
   }) : super(key: key);
 
   @override
@@ -19,31 +17,33 @@ class FooterBannerAdWidget extends StatefulWidget {
 
 class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
   bool _isPremiumUser = false;
+  bool _shouldShowAd = false;
 
   @override
   void initState() {
     super.initState();
-    _checkPremiumStatus();
+    _checkStatus();
   }
 
-  Future<void> _checkPremiumStatus() async {
+  Future<void> _checkStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _isPremiumUser = prefs.getBool('in_app_premiumActive') == true ||
-                     prefs.getBool('in_app_luxuryActive') == true;
+    _isPremiumUser = prefs.getBool('is_premium_active') == true;
+    int openCount = prefs.getInt('openCount') ?? 0;
+    _shouldShowAd = openCount > 5;
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isPremiumUser) {
+    if (_isPremiumUser || !_shouldShowAd) {
       return SizedBox.shrink();
     }
 
     return Padding(
       padding: EdgeInsets.only(
         bottom: widget.bottomPadding,
-        left: 16.0,
-        right: 16.0,
+        left: 8.0,
+        right: 8.0,
       ),
       child: SafeArea(
         child: ElevatedButton(
@@ -57,7 +57,7 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
           child: Text(
             'Upgrade to Premium',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),

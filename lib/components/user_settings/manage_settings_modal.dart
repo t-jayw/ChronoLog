@@ -1,4 +1,5 @@
 import 'package:chronolog/components/primary_button.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,21 +18,59 @@ class ManageSettingsWidget extends ConsumerWidget {
     TimeModeOption timeModeOption = ref.watch(timeModeProvider);
 
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Theme.of(context)
-            .dialogBackgroundColor, // Set the background color here
+        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.primary,
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            'Manage Settings',
-            style: TextStyle(
-                fontSize: 30, color: Theme.of(context).colorScheme.tertiary),
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Manage Settings',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
+              ),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                minSize: 0,
+                onPressed: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      width: 1.5,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    CupertinoIcons.xmark,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 20),
+          Divider(
+            height: 24,
+            thickness: 0.5,
+            color: CupertinoColors.separator.resolveFrom(context),
+          ),
           DisplayModeSection(
             ref: ref,
             themeModeOption: themeModeOption,
@@ -43,16 +82,6 @@ class ManageSettingsWidget extends ConsumerWidget {
             timeModeOption: timeModeOption,
             updateTimeModeOption: (newOption) =>
                 _updateTimeModeOption(context, ref, newOption),
-          ),
-          SizedBox(height: 20),
-          PrimaryButton(
-            child: Text(
-              "Close",
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
           ),
         ],
       ),

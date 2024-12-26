@@ -14,9 +14,6 @@ class CertificationStandard {
   }
 }
 
-
-
-
 class TimingRunStatistics {
   final List<TimingMeasurement> measurements;
   late final double secondsPerDayForRun;
@@ -75,7 +72,7 @@ class TimingRunStatistics {
 
   Duration _calculateTimeSinceLastMeasurement() {
     if (measurements.isEmpty) return Duration.zero;
-    return DateTime.now().difference(measurements.first.system_time);
+    return DateTime.now().difference(measurements.last.system_time);
   }
 
   String _formatFirstMeasurementDateTime() {
@@ -97,9 +94,11 @@ class TimingRunStatistics {
         : secondsPerDayForRun.toStringAsFixed(1);
   }
 
-  String formattedTotalDuration() => formatDuration(totalDuration);
+  String formattedTotalDuration() => formatDurationDays(totalDuration);
+
   String formattedTimeSinceLastMeasurement() =>
-      formatDuration(timeSinceLastMeasurement);
+      formatDurationDays(timeSinceLastMeasurement);
+
   String formattedLatestOffset() =>
       "${latestOffsetSeconds.toStringAsFixed(1)} s"; // Format the latest offset
 
@@ -114,7 +113,7 @@ class TimingRunStatistics {
   double calculateRatePerDay() {
     if (measurements.isEmpty) return 0.0;
     // Assuming you have a way to calculate this value
-    return measurements.first.difference_ms! / 1000.0;  // Simplified example
+    return measurements.first.difference_ms! / 1000.0; // Simplified example
   }
 
 // Certification Standards
@@ -125,15 +124,25 @@ class TimingRunStatistics {
   ];
 
   bool isCoscCompliant() {
-    return totalMeasurements >= 2 && standards.firstWhere((standard) => standard.name == 'COSC').isCompliant(secondsPerDayForRun);
+    return totalMeasurements >= 2 &&
+        standards
+            .firstWhere((standard) => standard.name == 'COSC')
+            .isCompliant(secondsPerDayForRun);
   }
 
   bool isMetasCompliant() {
-    return totalMeasurements >= 2 && standards.firstWhere((standard) => standard.name == 'METAS').isCompliant(secondsPerDayForRun);
+    return totalMeasurements >= 2 &&
+        standards
+            .firstWhere((standard) => standard.name == 'METAS')
+            .isCompliant(secondsPerDayForRun);
   }
 
   bool isSuperlativeChronometer() {
-    return totalMeasurements >= 2 && standards.firstWhere((standard) => standard.name == 'Superlative Chronometer').isCompliant(secondsPerDayForRun);
+    return totalMeasurements >= 2 &&
+        standards
+            .firstWhere(
+                (standard) => standard.name == 'Superlative Chronometer')
+            .isCompliant(secondsPerDayForRun);
   }
 
   List<String> checkCompliance() {
@@ -151,4 +160,3 @@ class TimingRunStatistics {
     return complianceStatuses;
   }
 }
-

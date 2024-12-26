@@ -58,100 +58,68 @@ class TimingMeasurementItem extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Timing Measurement',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FormattedTimeDisplay(
+                      dateTime: timingMeasurement.system_time,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onBackground.withOpacity(0.7),
+                      ),
+                    ),
+                    if (timingMeasurement.tag?.isNotEmpty ?? false)
+                      Padding(
+                        padding: EdgeInsets.only(top: 4.0),
+                        child: _buildTag(timingMeasurement.tag!, context),
+                      ),
+                  ],
                 ),
               ),
-              Row(
-                children: [
-                  if (timingMeasurement.tag?.isNotEmpty ?? false)
-                    Padding(
-                      padding: EdgeInsets.only(right: 8.0),
-                      child: _buildTag(timingMeasurement.tag!, context),
-                    ),
-                  if (enableNavigation)
-                    Icon(CupertinoIcons.chevron_right, size: 16),
-                ],
-              ),
+              if (enableNavigation)
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 16,
+                  color: colorScheme.onBackground.withOpacity(0.3),
+                ),
             ],
           ),
-          Divider(height: 4, thickness: 1),
+          
+          Divider(height: 12, thickness: 1),
+          
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${(timingMeasurement.difference_ms! / 1000).toStringAsFixed(1)}',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: colorScheme.tertiary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'seconds offset',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onBackground,
-                    ),
-                  ),
-                ],
+              Expanded(
+                child: _buildMeasurementColumn(
+                  value: (timingMeasurement.difference_ms! / 1000).toStringAsFixed(1),
+                  label: 'offset (sec)',
+                  valueColor: colorScheme.secondary,
+                  context: context,
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (prevMeasurement != null) ...[
-                    Row(
-                      children: [
-                        Text(
-                          '$differenceSeconds',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.tertiary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          ' change',
-                          style: TextStyle(fontSize: 10),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          '$rateOfChange',
-                          style: TextStyle(
-                            color: colorScheme.onBackground,
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          ' sec/day',
-                          style: TextStyle(
-                            color: colorScheme.onBackground,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  FormattedTimeDisplay(
-                    dateTime: timingMeasurement.user_input_time!,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onBackground,
-                    ),
+              if (prevMeasurement != null) ...[
+                SizedBox(width: 12),
+                Expanded(
+                  child: _buildMeasurementColumn(
+                    value: differenceSeconds!,
+                    label: 'change (sec)',
+                    valueColor: colorScheme.secondary,
+                    context: context,
                   ),
-                ],
-              ),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: _buildMeasurementColumn(
+                    value: rateOfChange!,
+                    label: 'sec/day',
+                    valueColor: colorScheme.tertiary,
+                    context: context,
+                  ),
+                ),
+              ],
             ],
           ),
         ],
@@ -159,18 +127,22 @@ class TimingMeasurementItem extends ConsumerWidget {
     );
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 6.0),
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.3),
-          width: 0.5,
-        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: enableNavigation
-          ? InkWell(
-              onTap: () => Navigator.of(context).push(
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.of(context).push(
                 CupertinoPageRoute(
                   builder: (_) => EditTimingMeasurementForm(
                     timingMeasurement: timingMeasurement,
@@ -206,6 +178,34 @@ class TimingMeasurementItem extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMeasurementColumn({
+    required String value,
+    required String label,
+    required Color valueColor,
+    required BuildContext context,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 12,
+            color: valueColor,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 8,
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
+      ],
     );
   }
 }

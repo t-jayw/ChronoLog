@@ -73,7 +73,7 @@ class _TimeDisplayContentState extends State<_TimeDisplayContent> {
         Text(
           widget.formatter.format(currentTime),
           style: const TextStyle(
-            fontSize: 32,
+            fontSize: 26,
             fontWeight: FontWeight.w300,
           ),
         ),
@@ -81,7 +81,7 @@ class _TimeDisplayContentState extends State<_TimeDisplayContent> {
         Text(
           DateFormat('EEEE, MMMM d, y').format(currentTime),
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: FontWeight.w400,
             color: Colors.grey,
           ),

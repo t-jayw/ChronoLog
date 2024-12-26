@@ -166,22 +166,22 @@ class ClockPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius, facePaint);
 
-    // Updated border with stronger contrast
+    // Updated border with secondary color
     final borderPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          theme.colorScheme.primary,
-          theme.colorScheme.primary.withOpacity(0.7),
+          theme.colorScheme.secondary,  // Changed from primary to secondary
+          theme.colorScheme.secondary.withOpacity(0.7),  // Changed from primary to secondary
         ],
       ).createShader(Rect.fromCircle(center: center, radius: radius))
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8;
 
-    // Darker border outline for better definition
+    // Darker border outline using secondary color
     final borderOutlinePaint = Paint()
-      ..color = theme.colorScheme.primary.withOpacity(0.8)
+      ..color = theme.colorScheme.secondary.withOpacity(0.8)  // Changed from primary to secondary
       ..style = PaintingStyle.stroke
       ..strokeWidth = 10;
 
@@ -333,7 +333,7 @@ class ClockPainter extends CustomPainter {
     brandTextPainter.text = TextSpan(
       text: 'ChronoLog',
       style: TextStyle(
-        color: theme.colorScheme.onSurface.withOpacity(0.7), // Slightly transparent
+        color: theme.colorScheme.tertiary.withOpacity(0.9), // Slightly transparent
         fontSize: 16, // Slightly smaller
         fontWeight: FontWeight.w500,
         fontStyle: FontStyle.italic,
@@ -363,53 +363,80 @@ class ClockPainter extends CustomPainter {
     final hourHandX = center.dx + radius * 0.5 * cos(hourAngle);
     final hourHandY = center.dy + radius * 0.5 * sin(hourAngle);
 
-    // Then use the coordinates in the shader
+    // Hour Hand (Sword-shaped)
+    final hourHandPath = Path();
+    final hourHandLength = radius * 0.5;
+    final hourHandWidth = 14.0;
+    
+    hourHandPath.moveTo(
+      center.dx + cos(hourAngle - pi/2) * (hourHandWidth/2),
+      center.dy + sin(hourAngle - pi/2) * (hourHandWidth/2)
+    );
+    hourHandPath.lineTo(
+      center.dx + cos(hourAngle) * hourHandLength,
+      center.dy + sin(hourAngle) * hourHandLength
+    );
+    hourHandPath.lineTo(
+      center.dx + cos(hourAngle + pi/2) * (hourHandWidth/2),
+      center.dy + sin(hourAngle + pi/2) * (hourHandWidth/2)
+    );
+    hourHandPath.close();
+
     final hourHandPaint = Paint()
       ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
         colors: [
           Colors.grey[400]!,
           Colors.grey[600]!,
         ],
-      ).createShader(Rect.fromPoints(center, Offset(hourHandX, hourHandY)))
-      ..strokeWidth = 12
-      ..strokeCap = StrokeCap.round;
-    
-    // Add a subtle border to the hour hand
-    final hourHandBorderPaint = Paint()
-      ..color = Colors.grey[800]!
-      ..strokeWidth = 14
-      ..strokeCap = StrokeCap.round;
-    
-    canvas.drawLine(center, Offset(hourHandX, hourHandY), hourHandBorderPaint);
-    canvas.drawLine(center, Offset(hourHandX, hourHandY), hourHandPaint);
+      ).createShader(Rect.fromCenter(
+        center: center,
+        width: hourHandLength * 2,
+        height: hourHandWidth,
+      ));
+
+    canvas.drawPath(hourHandPath, hourHandPaint);
 
     // Calculate minute hand position first
     final minuteAngle = (dateTime.minute + dateTime.second / 60) * 6 * pi / 180 - pi / 2;
     final minuteHandX = center.dx + radius * 0.7 * cos(minuteAngle);
     final minuteHandY = center.dy + radius * 0.7 * sin(minuteAngle);
 
-    // Then create the paint object using the calculated coordinates
+    // Minute Hand (Thinner sword shape)
+    final minuteHandPath = Path();
+    final minuteHandLength = radius * 0.7;
+    final minuteHandWidth = 10.0;
+
+    minuteHandPath.moveTo(
+      center.dx + cos(minuteAngle - pi/2) * (minuteHandWidth/2),
+      center.dy + sin(minuteAngle - pi/2) * (minuteHandWidth/2)
+    );
+    minuteHandPath.lineTo(
+      center.dx + cos(minuteAngle) * minuteHandLength,
+      center.dy + sin(minuteAngle) * minuteHandLength
+    );
+    minuteHandPath.lineTo(
+      center.dx + cos(minuteAngle + pi/2) * (minuteHandWidth/2),
+      center.dy + sin(minuteAngle + pi/2) * (minuteHandWidth/2)
+    );
+    minuteHandPath.close();
+
     final minuteHandPaint = Paint()
       ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
         colors: [
           Colors.grey[300]!,
           Colors.grey[500]!,
         ],
-      ).createShader(Rect.fromPoints(center, Offset(minuteHandX, minuteHandY)))
-      ..strokeWidth = 8
-      ..strokeCap = StrokeCap.round;
-    
-    final minuteHandBorderPaint = Paint()
-      ..color = Colors.grey[700]!
-      ..strokeWidth = 10
-      ..strokeCap = StrokeCap.round;
+      ).createShader(Rect.fromCenter(
+        center: center,
+        width: minuteHandLength * 2,
+        height: minuteHandWidth,
+      ));
 
-    canvas.drawLine(center, Offset(minuteHandX, minuteHandY), minuteHandBorderPaint);
-    canvas.drawLine(center, Offset(minuteHandX, minuteHandY), minuteHandPaint);
+    canvas.drawPath(minuteHandPath, minuteHandPaint);
 
     // Calculate second hand position first
     final secondFraction = dateTime.millisecond / 1000 + dateTime.second;
@@ -417,30 +444,49 @@ class ClockPainter extends CustomPainter {
     final secondHandX = center.dx + radius * 0.9 * cos(secondAngle);
     final secondHandY = center.dy + radius * 0.9 * sin(secondAngle);
 
-    // Then create the paint object using the calculated coordinates
+    // Second Hand (Very thin sword shape with counterweight)
+    final secondHandPath = Path();
+    final secondHandLength = radius * 0.9;
+    final secondHandWidth = 4.0;
+
+    secondHandPath.moveTo(
+      center.dx + cos(secondAngle - pi/2) * (secondHandWidth/2),
+      center.dy + sin(secondAngle - pi/2) * (secondHandWidth/2)
+    );
+    secondHandPath.lineTo(
+      center.dx + cos(secondAngle) * secondHandLength,
+      center.dy + sin(secondAngle) * secondHandLength
+    );
+    secondHandPath.lineTo(
+      center.dx + cos(secondAngle + pi/2) * (secondHandWidth/2),
+      center.dy + sin(secondAngle + pi/2) * (secondHandWidth/2)
+    );
+    secondHandPath.close();
+
+    // Second hand counterweight
+    final counterweightPath = Path();
+    final counterweightLength = radius * 0.2;
+    final counterweightWidth = 8.0;
+
+    counterweightPath.moveTo(
+      center.dx + cos(secondAngle + pi - pi/2) * (counterweightWidth/2),
+      center.dy + sin(secondAngle + pi - pi/2) * (counterweightWidth/2)
+    );
+    counterweightPath.lineTo(
+      center.dx + cos(secondAngle + pi) * counterweightLength,
+      center.dy + sin(secondAngle + pi) * counterweightLength
+    );
+    counterweightPath.lineTo(
+      center.dx + cos(secondAngle + pi + pi/2) * (counterweightWidth/2),
+      center.dy + sin(secondAngle + pi + pi/2) * (counterweightWidth/2)
+    );
+    counterweightPath.close();
+
     final secondHandPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          Colors.grey[400]!,
-          Colors.grey[600]!,
-        ],
-      ).createShader(Rect.fromPoints(center, Offset(secondHandX, secondHandY)))
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
+      ..color = Colors.grey[600]!;
 
-    // Add counterweight to second hand
-    final counterweightPaint = Paint()
-      ..color = Colors.grey[600]!
-      ..strokeWidth = 6
-      ..strokeCap = StrokeCap.round;
-
-    // Draw counterweight
-    final counterweightX = center.dx + radius * 0.2 * cos(secondAngle + pi);
-    final counterweightY = center.dy + radius * 0.2 * sin(secondAngle + pi);
-    canvas.drawLine(center, Offset(counterweightX, counterweightY), counterweightPaint);
-    canvas.drawLine(center, Offset(secondHandX, secondHandY), secondHandPaint);
+    canvas.drawPath(secondHandPath, secondHandPaint);
+    canvas.drawPath(counterweightPath, secondHandPaint);
 
     // Draw center cap
     final centerCapPaint = Paint()

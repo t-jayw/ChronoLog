@@ -191,7 +191,7 @@ class InfoPage extends ConsumerWidget {
                       padding: EdgeInsets.all(2.0), // Increased padding
                       child: Icon(
                         Icons.access_time,
-                        size: 44, // Increased size
+                        size: 40, // Increased size
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
@@ -317,7 +317,7 @@ class InfoPage extends ConsumerWidget {
             // Add more items as needed
           ],
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 4),
 
         // Expanded(
         //     child: Column(
@@ -334,7 +334,7 @@ class InfoPage extends ConsumerWidget {
                   Text(
                     'Made with ',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
@@ -345,7 +345,7 @@ class InfoPage extends ConsumerWidget {
                     child: Text(
                       '⛰️',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -353,7 +353,7 @@ class InfoPage extends ConsumerWidget {
                   Text(
                     ' in Boulder, CO',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
@@ -363,7 +363,7 @@ class InfoPage extends ConsumerWidget {
             Text(
               '© 2024 Tyler Wood',
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 8,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
@@ -421,7 +421,7 @@ class ListItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+          padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
           decoration: BoxDecoration(
             border: isLastItem
                 ? null
@@ -437,14 +437,14 @@ class ListItem extends StatelessWidget {
               Icon(
                 iconData,
                 color: Theme.of(context).colorScheme.tertiary,
-                size: 18,
+                size: 16,
               ),
               SizedBox(width: 12.0),
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),

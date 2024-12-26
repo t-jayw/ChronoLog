@@ -24,7 +24,7 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
           height: 250,
           child: Card(
             child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 4.0, 18.0, 4.0),
+                padding: const EdgeInsets.fromLTRB(12, 4.0, 12.0, 4.0),
                 child: Flex(direction: Axis.horizontal, children: [
                   RateCustomLineChart(
                     runId: runId,
