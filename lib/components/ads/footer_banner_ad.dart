@@ -27,7 +27,7 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
 
   Future<void> _checkStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _isPremiumUser = prefs.getBool('in_app_premiumActive') == true;
+    _isPremiumUser = prefs.getBool('premiumActive') == true;
     int openCount = prefs.getInt('openCount') ?? 0;
     _shouldShowAd = openCount >= 0;
     setState(() {});

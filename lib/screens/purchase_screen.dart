@@ -18,7 +18,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   Map<String, bool> _entitlementStatus = {};
   bool _isEventFired = false;
 
-  final List<String> _entitlements = ['premiumActive'];
+  final List<String> _entitlements = ['premium'];
 
   static const String ENTITLEMENTS_KEY = 'activeEntitlements';
 
@@ -348,7 +348,7 @@ ${_entitlements.map((e) => '• $e: ${_entitlementStatus[e] ?? false ? "✓" : "
 💾 Local Storage:
 ${prefs.getKeys().where((k) => k.contains('Active') || k.contains('purchase')).map((k) => '• $k: ${prefs.get(k)}').join('\n')}
 
-���� RevenueCat Status:
+������� RevenueCat Status:
 • Customer ID: ${customerInfo.originalAppUserId}
 • Latest Exp: ${customerInfo.latestExpirationDate?.toString() ?? 'None'}
 • Active Entitlements: ${customerInfo.entitlements.active.keys.isEmpty ? 'None' : customerInfo.entitlements.active.keys.join(', ')}
@@ -442,10 +442,21 @@ ${_packages.map((p) => '''• ${p.identifier}
 
   Future<void> _resetPurchases() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Clear all preferences
+    
+    // Remove all known premium-related keys
+    await prefs.remove('in_app_premiumActive');      // Main premium status
+    await prefs.remove('is_premium_active');         // Legacy key still in use
+    await prefs.remove('premium_purchase_date');     // Legacy purchase date
+    await prefs.remove('in_app_premium_purchaseDate'); // Current purchase date
+    
+    // Clear entitlement status state
     setState(() {
       _entitlementStatus = {};
     });
+
+    // Force a refresh of RevenueCat status
+    await _checkEntitlementStatus();
+    
     _showSuccessDialog("DEBUG: All purchases reset");
     await _debugPrintEntitlements();
   }
@@ -605,7 +616,24 @@ ${_packages.map((p) => '''• ${p.identifier}
                   icon: Icons.restore,
                   color: Colors.red,
                   onPressed: _resetPurchases,
-                  tooltip: 'Reset All',
+                  tooltip: 'Reset Local',
+                ),
+                _debugButton(
+                  icon: Icons.cloud_off,
+                  color: Colors.orange,
+                  onPressed: () async {
+                    try {
+                      showLoadingDialog('Revoking entitlements...');
+                      await Purchases.invalidateCustomerInfoCache();
+                      await _checkEntitlementStatus();
+                      Navigator.of(context).pop(); // Dismiss loading
+                      _showSuccessDialog('RevenueCat cache invalidated');
+                    } catch (e) {
+                      Navigator.of(context).pop(); // Dismiss loading
+                      _showErrorDialog('Failed to invalidate: $e');
+                    }
+                  },
+                  tooltip: 'Revoke RC Access',
                 ),
                 _debugButton(
                   icon: Icons.info_outline,
@@ -615,15 +643,6 @@ ${_packages.map((p) => '''• ${p.identifier}
                     await _debugPrintOfferings();
                   },
                   tooltip: 'Print Info',
-                ),
-                _debugButton(
-                  icon: Icons.refresh,
-                  color: Colors.orange,
-                  onPressed: () async {
-                    await _fetchAvailablePackages();
-                    await _checkEntitlementStatus();
-                  },
-                  tooltip: 'Refresh State',
                 ),
               ],
             ),

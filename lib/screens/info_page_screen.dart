@@ -145,7 +145,7 @@ class InfoPage extends ConsumerWidget {
             if (!snapshot.hasData) return SizedBox.shrink();
 
             final prefs = snapshot.data!;
-            final isPremium = prefs.getBool('in_app_premiumActive') ?? false;
+            final isPremium = prefs.getBool('premiumActive') ?? false;
 
             if (!isPremium) return SizedBox.shrink();
 
