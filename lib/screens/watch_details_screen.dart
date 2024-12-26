@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chronolog/components/share_content/share_modal_frame.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -196,15 +197,89 @@ class WatchDetails extends ConsumerWidget {
   }
 
   void _showFirstAddedDialog(BuildContext context) {
-    showGenericAlert(
+    showDialog(
       context: context,
-      title: "You've added your first watch!",
-      contentLines: [
-        'Now add your first measurement',
-        "",
-        'More time between measurements will yield more accurate results.'
-      ],
-      cancelButtonText: 'OK',
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  CupertinoIcons.checkmark_circle,
+                  size: 28,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              SizedBox(height: 12),
+              Text(
+                "You've added your first watch!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onBackground,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              SizedBox(height: 6),
+              Text(
+                'Now add your first measurement',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'More time between measurements will yield more accurate results.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              SizedBox(height: 16),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      width: 1.5,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

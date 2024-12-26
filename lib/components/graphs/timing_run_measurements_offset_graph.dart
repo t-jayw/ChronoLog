@@ -36,12 +36,17 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
           // ),
           child: Card(
             child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 4.0, 12.0, 4.0),
-                child: Flex(direction: Axis.horizontal, children: [
-                  OffsetCustomLineChart(
-                    runId: runId,
-                  )
-                ])),
+              padding: const EdgeInsets.fromLTRB(12, 4.0, 12.0, 4.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OffsetCustomLineChart(
+                      runId: runId,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],

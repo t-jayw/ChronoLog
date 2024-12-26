@@ -59,11 +59,11 @@ class TimingRunsContainer extends ConsumerWidget {
               CupertinoButton(
                 padding: EdgeInsets.all(4),
                 borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.8),
                 minSize: 0,
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
-                  bool? isPremiumActivated = prefs.getBool('is_premium_active');
+                  bool? isPremiumActivated = prefs.getBool('isPremiumActive');
                   int numTimingRuns = timingRuns.length;
 
                   if (isPremiumActivated != true && numTimingRuns == 2) {
@@ -82,7 +82,7 @@ class TimingRunsContainer extends ConsumerWidget {
                 child: Icon(
                   CupertinoIcons.plus,
                   size: 16,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
             ],

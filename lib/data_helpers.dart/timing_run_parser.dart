@@ -159,4 +159,9 @@ class TimingRunStatistics {
     print(complianceStatuses);
     return complianceStatuses;
   }
+
+  //   List<String> checkCompliance() {
+  //   // Mock implementation
+  //   return ['COSC', 'METAS', 'Superlative'];
+  // }
 }

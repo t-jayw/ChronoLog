@@ -21,9 +21,22 @@ class TimingRunDetails extends StatefulWidget {
   _TimingRunDetailsState createState() => _TimingRunDetailsState();
 }
 
-class _TimingRunDetailsState extends State<TimingRunDetails> {
-  final _controller = PageController();
-  double _currentPage = 0;
+class _TimingRunDetailsState extends State<TimingRunDetails> with SingleTickerProviderStateMixin {
+  final _pageController = PageController();
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,43 +57,63 @@ class _TimingRunDetailsState extends State<TimingRunDetails> {
             isMostRecent: true,
             navigation: false,
           ),
-          SizedBox(
-            height: 280,
-            child: PageView(
-              controller: _controller,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: TimingRunMeasurementsOffsetGraph(runId: widget.timingRun.id),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: TimingRunMeasurementsRateGraph(runId: widget.timingRun.id),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: SmoothPageIndicator(
-              controller: _controller,
-              count: 2,
-              effect: JumpingDotEffect(
-                dotHeight: 8,
-                dotWidth: 8,
-                activeDotColor: Theme.of(context).colorScheme.tertiary,
-              ),
-              onDotClicked: (index) {
-                _controller.animateToPage(
-                  index,
-                  duration: Duration(milliseconds: 500),
-                  curve: Curves.ease,
-                );
-              },
-            ),
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'Graphs'),
+              Tab(text: 'Measurements'),
+            ],
+            labelColor: Theme.of(context).colorScheme.onSurface,
+            unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
           ),
           Expanded(
-            child: TimingMeasurementsContainer(timingRunId: widget.timingRun.id),
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // Graphs tab
+                Column(
+                  children: [
+                    SizedBox(
+                      height: 250, // Increased height for graphs
+                      child: PageView(
+                        controller: _pageController,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: TimingRunMeasurementsOffsetGraph(runId: widget.timingRun.id),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: TimingRunMeasurementsRateGraph(runId: widget.timingRun.id),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: SmoothPageIndicator(
+                        controller: _pageController,
+                        count: 2,
+                        effect: JumpingDotEffect(
+                          dotHeight: 8,
+                          dotWidth: 8,
+                          activeDotColor: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        onDotClicked: (index) {
+                          _pageController.animateToPage(
+                            index,
+                            duration: Duration(milliseconds: 500),
+                            curve: Curves.ease,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                // Measurements tab
+                TimingMeasurementsContainer(timingRunId: widget.timingRun.id),
+              ],
+            ),
           ),
           FooterBannerAdWidget(),
         ],

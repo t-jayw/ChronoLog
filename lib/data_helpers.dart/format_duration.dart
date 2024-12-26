@@ -26,5 +26,5 @@ String formatDurationDays(Duration d) {
     return (d.inMinutes, d.inMinutes == 1 ? 'minute' : 'minutes');
   }
   
-  return (d.inSeconds, d.inSeconds == 1 ? 'second' : 'seconds');
+  return (d.inSeconds, d.inSeconds == 1 ? 'sec' : 'secs');
 }
