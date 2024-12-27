@@ -1,0 +1,59 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Watch Face Background with Gradient -->
+  <defs>
+    <radialGradient id="faceGradient" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="currentColor" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="currentColor" stop-opacity="0.05"/>
+    </radialGradient>
+    
+    <linearGradient id="borderGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="currentColor" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="currentColor" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Main Watch Face -->
+  <circle cx="100" cy="100" r="90" fill="url(#faceGradient)"/>
+  
+  <!-- Border with Gradient -->
+  <circle cx="100" cy="100" r="90" stroke="url(#borderGradient)" stroke-width="8"/>
+  <circle cx="100" cy="100" r="90" stroke="currentColor" stroke-width="10" stroke-opacity="0.15"/>
+
+  <!-- Hour Markers (12 positions) -->
+  <g stroke="currentColor" stroke-width="2" stroke-opacity="0.6">
+    <!-- Draw 12 hour markers -->
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(0 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(30 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(60 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(90 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(120 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(150 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(180 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(210 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(240 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(270 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(300 100 100)"/>
+    <line x1="100" y1="20" x2="100" y2="30" transform="rotate(330 100 100)"/>
+  </g>
+
+  <!-- Hour Numbers -->
+  <g fill="currentColor" font-family="Arial" font-size="14" text-anchor="middle" fill-opacity="0.8">
+    <text x="100" y="45">12</text>
+    <text x="150" y="105">3</text>
+    <text x="100" y="165">6</text>
+    <text x="50" y="105">9</text>
+  </g>
+
+  <!-- Brand Text -->
+  <text x="100" y="75" text-anchor="middle" font-family="Playfair Display" font-style="italic" font-size="16" fill="currentColor" fill-opacity="0.9" letter-spacing="2">
+    ChronoLog
+  </text>
+  
+  <!-- Secondary Text -->
+  <text x="100" y="120" text-anchor="middle" font-family="Arial" font-size="12" fill="currentColor" fill-opacity="0.6">
+    ADD PHOTO
+  </text>
+
+  <!-- Center Cap -->
+  <circle cx="100" cy="100" r="4" fill="currentColor" fill-opacity="0.8"/>
+</svg>
