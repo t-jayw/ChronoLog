@@ -115,7 +115,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             timingRunStats.formattedLatestOffset(),
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 15,
                               fontWeight: FontWeight.w500,
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
@@ -123,7 +123,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             'offset',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 9,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
@@ -137,15 +137,15 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             timingRunStats.formattedSecondsPerDayForRun(),
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.w500,
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
                           ),
                           Text(
-                            'sec/day',
+                            'offset',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 9,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
@@ -161,19 +161,18 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                               timingRunStats
                                   .formattedTimeSinceLastMeasurement(),
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.tertiary,
                             ),
-                            Text(
-                              'since last',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color:
-                                    Theme.of(context).colorScheme.onBackground,
-                              ),
+                          ),
+                          Text(
+                            'offset',
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
+                          ),
                           ],
                         ),
                       ),
