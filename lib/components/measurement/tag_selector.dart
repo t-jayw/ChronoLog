@@ -45,27 +45,27 @@ class TagSelector extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Select a tag',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.tertiary),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.tertiary),
                 ),
                 SizedBox(width: 4),
                 Text(
                   '(optional)',
-                  style: TextStyle(fontWeight: FontWeight.normal, color: Theme.of(context).colorScheme.tertiary),
+                  style: TextStyle(fontSize: 12,fontWeight: FontWeight.normal, color: Theme.of(context).colorScheme.tertiary),
                 ),
               ],
             ),
           ),
           Wrap(
             alignment: WrapAlignment.center,
-            spacing: 8.0, // gap between adjacent chips
-            runSpacing: 4.0, // gap between lines
+            spacing: 2.0, // gap between adjacent chips
+            runSpacing: 0.0, // gap between lines
             children: Tag.values.map((Tag tag) {
               String tagValue = enumToString(tag);
               bool isSelected = selectedTag == tagValue;
@@ -73,7 +73,9 @@ class TagSelector extends StatelessWidget {
                 onPressed: () => onTagSelected(isSelected ? '' : tagValue),
                 child: Text(
                   tagValue,
-                  style: TextStyle(color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inverseSurface ),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.inverseSurface ),
                 ),
                 style: TextButton.styleFrom(
                   backgroundColor: isSelected ? Theme.of(context).colorScheme.tertiary : null,
@@ -85,18 +87,4 @@ class TagSelector extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _buildTag(String tag, BuildContext context) {
-  return Container(
-    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.tertiary,
-      borderRadius: BorderRadius.circular(10),
-    ),
-    child: Text(
-      tag,
-      style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-    ),
-  );
 }

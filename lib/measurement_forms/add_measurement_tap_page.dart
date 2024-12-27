@@ -43,6 +43,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
   void _updateTag(String newTag) {
     setState(() {
       tag = newTag;
+      _createPreviewMeasurement();
     });
   }
 
@@ -212,7 +213,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                                       '1. Use the time selector to set a time slightly ahead of your watch\n'
                                       '2. Wait until your watch shows the time you selected\n'
                                       '3. When your watch matches the selected time, tap "Take Measurement"\n'
-                                      '4. Optional: Add a tag to categorize your measurement',
+                                      '4. Preview and edit the measurement before tapping "Save Measurement"',
                                       style: TextStyle(
                                         color: CupertinoColors.label.resolveFrom(context),
                                         fontSize: 14,
@@ -262,7 +263,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.tag,
-                                        color: CupertinoTheme.of(context).primaryColor,
+                                        color: CupertinoColors.label.resolveFrom(context),
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),

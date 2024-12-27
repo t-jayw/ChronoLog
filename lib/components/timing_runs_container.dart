@@ -38,7 +38,7 @@ class TimingRunsContainer extends ConsumerWidget {
     final timingRuns = ref.watch(timingRunProvider(timepiece.id));
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -59,7 +59,7 @@ class TimingRunsContainer extends ConsumerWidget {
               CupertinoButton(
                 padding: EdgeInsets.all(4),
                 borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                 minSize: 0,
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();

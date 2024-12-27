@@ -40,7 +40,7 @@ class WatchDetails extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          updatedTimepiece.model,
+          'Watch Details',
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
           ),
