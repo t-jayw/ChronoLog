@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../models/timepiece.dart';
 import '../../providers/timepiece_list_provider.dart';
@@ -338,10 +339,14 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
                                       height: 80,
                                       fit: BoxFit.cover,
                                     )
-                                  : Image.asset(
-                                      'assets/images/placeholder.png',
+                                  : SvgPicture.asset(
+                                      'assets/images/watch_placeholder.svg',
                                       height: 80,
                                       fit: BoxFit.cover,
+                                      colorFilter: ColorFilter.mode(
+                                          Theme.of(context).colorScheme.onSurface,
+                                          BlendMode.srcIn,
+                                      ),
                                     )),
                         ),
                         SizedBox(height: 8),

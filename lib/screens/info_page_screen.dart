@@ -18,6 +18,8 @@ import '../components/user_settings/manage_data_modal.dart';
 import 'package:chronolog/screens/clock_screen.dart';
 import 'package:chronolog/screens/purchase_screen.dart';
 
+import '../components/analog_clock_face.dart';
+
 Future<void> logAllPreferences() async {
   final prefs = await SharedPreferences.getInstance();
   print('--- SharedPreferences State ---');
@@ -219,10 +221,14 @@ class InfoPage extends ConsumerWidget {
                         width: 1.0,
                       ),
                     ),
-                    child: Icon(
-                      Icons.access_time,
-                      size: 24,
-                      color: Theme.of(context).colorScheme.tertiary,
+                    child: StreamBuilder(
+                      stream: Stream.periodic(Duration(seconds: 1)),
+                      builder: (context, snapshot) {
+                        return AnalogClockFace(
+                          time: DateTime.now(),
+                          size: 24.0,
+                        );
+                      },
                     ),
                   ),
                 ),

@@ -4,6 +4,7 @@ import 'package:chronolog/models/timepiece.dart';
 import 'package:chronolog/components/timing_run_component.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/providers/timing_run_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ShareModalContent extends ConsumerWidget {
   final Timepiece timepiece;
@@ -21,7 +22,8 @@ class ShareModalContent extends ConsumerWidget {
     if (timepiece.image != null && timepiece.image!.isNotEmpty) {
       imageProvider = MemoryImage(timepiece.image!);
     } else {
-      imageProvider = AssetImage('assets/images/placeholder.png');
+      // Remove this since we'll use SvgPicture directly instead of ImageProvider
+      // imageProvider = AssetImage('assets/images/placeholder.png');
     }
 
     final timingRuns = ref.watch(timingRunProvider(timepiece.id));
@@ -61,7 +63,14 @@ class ShareModalContent extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                       child: timepiece.image != null
                           ? Image.memory(timepiece.image!, fit: BoxFit.cover)
-                          : Image.asset('assets/images/placeholder.png', fit: BoxFit.cover),
+                          : SvgPicture.asset(
+                              'assets/images/watch_placeholder.svg',
+                              fit: BoxFit.cover,
+                              colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.onSurface,
+                                BlendMode.srcIn,
+                              ),
+                            ),
                     ),
                   ),
                   SizedBox(width: 16),

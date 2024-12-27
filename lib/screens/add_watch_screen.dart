@@ -13,6 +13,7 @@ import '../models/timepiece.dart';
 import '../models/timing_run.dart';
 import '../providers/timepiece_list_provider.dart';
 import '../providers/timing_run_provider.dart';
+import 'package:flutter_svg/svg.dart';
 
 String _formatDate(DateTime date) {
   var format = 'MM/dd/yyyy';
@@ -375,10 +376,14 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                                         height: 80,
                                         fit: BoxFit.cover,
                                       )
-                                    : Image.asset(
-                                        'assets/images/placeholder.png',
+                                    : SvgPicture.asset(
+                                        'assets/images/watch_placeholder.svg',
                                         height: 80,
                                         fit: BoxFit.cover,
+                                        colorFilter: ColorFilter.mode(
+                                          Theme.of(context).colorScheme.onSurface,
+                                          BlendMode.srcIn,
+                                        ),
                                       ),
                               ),
                             ),

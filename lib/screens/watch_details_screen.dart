@@ -5,12 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../components/forms/edit_timepiece_form.dart';
 import '../components/timing_runs_container.dart';
 import '../components/watch_details_stats.dart';
 import '../models/timepiece.dart';
 import '../providers/timepiece_list_provider.dart';
+import '../screens/tabs.dart';
 
 class WatchDetails extends ConsumerWidget {
   final Timepiece timepiece;
@@ -37,19 +39,19 @@ class WatchDetails extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Watch Details",
-            style: TextStyle(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface)), // Use the updated name from the provider
+        title: Text(
+          updatedTimepiece.model,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) =>
-                      EditTimepieceForm(timepiece: updatedTimepiece),
+                  builder: (_) => EditTimepieceForm(timepiece: updatedTimepiece),
                 ),
               );
             },
@@ -84,40 +86,55 @@ class WatchDetails extends ConsumerWidget {
                                   fit: BoxFit.cover,
                                   height: 150,
                                 )
-                              : Image.asset(
-                                  'assets/images/placeholder.png',
+                              : SvgPicture.asset(
+                                  'assets/images/watch_placeholder.svg',
                                   fit: BoxFit.cover,
                                   height: 150,
+                                  colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.onSurface,
+                                      BlendMode.srcIn,
+                                  ),
                                 ),
                         ),
                         Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: IconButton(
-                            icon: Icon(Icons.zoom_in),
-                            color: Colors.white,
-                            onPressed: () {
-                              _openFullSizeImage(
-                                  context, updatedTimepiece.image);
+                          right: 4,
+                          bottom: 4,
+                          child: GestureDetector(
+                            onTap: () {
+                              _openFullSizeImage(context, updatedTimepiece.image);
                             },
+                            child: Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Icon(
+                                Icons.zoom_in,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
                           ),
                         ),
 
-                        // Icon at the bottom left
                         Positioned(
-                          left: 0,
-                          bottom: 0,
-                          child: IconButton(
-                            icon: Icon(Icons.upload),
-                            color: Colors.white,
-                            onPressed: () =>
-                                showShareModal(context, updatedTimepiece),
-                            // onPressed: () => Navigator.of(context).push(
-                            //   MaterialPageRoute(
-                            //     builder: (context) => ShareModalFrame(
-                            //         timepiece: updatedTimepiece),
-                            //   ),
-                            // ),
+                          left: 4,
+                          bottom: 4,
+                          child: GestureDetector(
+                            onTap: () => showShareModal(context, updatedTimepiece),
+                            child: Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Icon(
+                                Icons.upload,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
                           ),
                         ),
                       ]),
@@ -284,33 +301,30 @@ class WatchDetails extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: GestureDetector(
-            onTap: () =>
-                Navigator.of(context).pop(), // Optional: tap anywhere to close
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Image.memory(
+        return Dialog.fullscreen(
+          backgroundColor: Colors.black,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              InteractiveViewer(
+                child: Image.memory(
                   imageBytes,
                   fit: BoxFit.contain,
                 ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: CircleAvatar(
-                      radius: 14, // Size of close button
-                      backgroundColor: Colors.black
-                          .withOpacity(0.6), // Semi-transparent background
-                      child: Icon(Icons.close, size: 18, color: Colors.white),
-                    ),
+              ),
+              Positioned(
+                right: 8,
+                top: 8,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: Icon(
+                    Icons.close,
+                    color: Theme.of(context).colorScheme.tertiary,
+                    size: 24,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

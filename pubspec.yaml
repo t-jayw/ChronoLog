@@ -72,6 +72,7 @@ dependencies:
   # timezone: ^0.7.0
   carousel_slider: ^5.0.0
   dependency_validator: ^4.1.2
+  flutter_svg: ^2.0.9
 
 dev_dependencies:
   flutter_test:
@@ -97,10 +98,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/placeholder.png
+    - assets/images/wathclogo-40@2x.png
     - assets/fonts/SFProText-Regular.ttf
     - assets/fonts/NewYork-Regular.ttf
-    - assets/images/wathclogo-40@2x.png
+    - assets/images/watch_placeholder.svg
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ImageHelper {
   static Future<void> pickImage(ImageSource source, Function(XFile?) setImageFile) async {
@@ -130,9 +131,13 @@ class _ImageDisplayState extends State<ImageDisplay> {
             height: 200,
           )
         else
-          Image.asset(
-            'assets/images/placeholder.png',
+          SvgPicture.asset(
+            'assets/images/watch_placeholder.svg',
             height: 200,
+            colorFilter: ColorFilter.mode(
+              Theme.of(context).colorScheme.onSurface,
+              BlendMode.srcIn,
+            ),
           ),
         SizedBox(
           height: 8,

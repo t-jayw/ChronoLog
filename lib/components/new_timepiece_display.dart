@@ -3,8 +3,8 @@ import 'package:chronolog/components/premium/premium_needed_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../data_helpers.dart/timing_run_parser.dart';
 import '../models/timepiece.dart';
@@ -87,9 +87,13 @@ class NewTimepieceDisplay extends ConsumerWidget {
                           timepiece.image!,
                           fit: BoxFit.cover,
                         )
-                      : Image.asset(
-                          'assets/images/placeholder.png',
+                      : SvgPicture.asset(
+                          'assets/images/watch_placeholder.svg',
                           fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.onSurface,
+                            BlendMode.srcIn,
+                          ),
                         ),
                 ),
               ),

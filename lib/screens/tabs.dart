@@ -6,7 +6,8 @@ import '../providers/timepiece_list_provider.dart';
 import '../screens/add_watch_screen.dart';
 
 class TabsScreen extends ConsumerStatefulWidget {
-  const TabsScreen({Key? key}) : super(key: key);
+  final int initialIndex;
+  const TabsScreen({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   ConsumerState<TabsScreen> createState() {
@@ -15,7 +16,7 @@ class TabsScreen extends ConsumerStatefulWidget {
 }
 
 class _TabsScreenState extends ConsumerState<TabsScreen> {
-  int _selectedPageIndex = 0;
+  late int _selectedPageIndex;
   final List<Widget> _pages = [
     WatchboxScreen(),
     InfoPage(),
@@ -25,6 +26,12 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     "ChronoLog",
     "ChronoLog",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedPageIndex = widget.initialIndex;
+  }
 
   void _selectPage(int index) {
     setState(() {

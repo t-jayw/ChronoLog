@@ -117,7 +117,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context).colorScheme.tertiary,
                             ),
                           ),
                           Text(
@@ -139,7 +139,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: Theme.of(context).colorScheme.tertiary,
                             ),
                           ),
                           Text(
@@ -163,7 +163,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: Theme.of(context).colorScheme.tertiary,
                               ),
                             ),
                             Text(
@@ -214,7 +214,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                     padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.tertiary,
+                        color: Theme.of(context).colorScheme.secondary,
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(8),
