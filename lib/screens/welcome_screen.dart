@@ -1,3 +1,4 @@
+import 'package:chronolog/components/premium/premium_needed_dialog.dart';
 import 'package:chronolog/screens/tabs.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -31,7 +32,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         'See trends over time',
         "Measurements should have at least 6 hours between them for best results.",
         context
-      )
+      ),
+      _createPremiumPage(context),
     ];
 
     return Scaffold(
@@ -127,6 +129,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _createPremiumPage(BuildContext context) {
+    return PremiumNeededDialog(
+      primaryText: "Unlock all features with ChronoLog Premium!",
     );
   }
 }

@@ -346,7 +346,7 @@ class InfoPage extends ConsumerWidget {
         ]),
 
         // ... rest of the existing footer content ...
-        SizedBox(height: 4),
+        SizedBox(height: 30),
 
         Column(
           children: [
@@ -570,21 +570,7 @@ void showDebugInfoModal(BuildContext context) async {
                 ),
               ),
               SizedBox(height: 20),
-              Text(
-                'Purchase Information:',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              Text(
-                purchaseInfo,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
+          
             ],
           ),
         ),

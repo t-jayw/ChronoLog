@@ -253,8 +253,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                               fontSize: 15,
                                               color: Theme.of(context)
                                                   .colorScheme
-                                                  .tertiary
-                                                  .withOpacity(0.8),
+                                                  .tertiary,
                                               fontWeight: FontWeight.w500,
                                             ),
                                             maxLines: 1,
