@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chronolog/components/share_content/share_modal_frame.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../components/forms/edit_timepiece_form.dart';
-import '../components/generic_alert.dart';
 import '../components/timing_runs_container.dart';
 import '../components/watch_details_stats.dart';
 import '../models/timepiece.dart';
@@ -16,7 +14,7 @@ import '../providers/timepiece_list_provider.dart';
 
 class WatchDetails extends ConsumerWidget {
   final Timepiece timepiece;
-  bool firstAdded; // hack to show a dialog on first added watch
+  final bool firstAdded; // Make this final
 
   WatchDetails({
     Key? key,
@@ -32,12 +30,9 @@ class WatchDetails extends ConsumerWidget {
         timepieces.firstWhere((tp) => tp.id == timepiece.id);
 
     if (firstAdded) {
-      // Note: We're using `firstAdded` field directly here.
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         _showFirstAddedDialog(context);
       });
-      // this is to only show the first added dialog once
-      firstAdded = false;
     }
 
     return Scaffold(
