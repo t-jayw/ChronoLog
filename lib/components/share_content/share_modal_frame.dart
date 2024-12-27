@@ -1,5 +1,4 @@
 import 'package:chronolog/components/custom_tool_tip.dart';
-import 'package:chronolog/components/primary_button.dart';
 import 'package:chronolog/components/share_content/share_modal_content.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

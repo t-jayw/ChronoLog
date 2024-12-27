@@ -137,34 +137,34 @@ class WatchDetails extends ConsumerWidget {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  AutoSizeText(
-                                    updatedTimepiece.model,
-                                    maxLines: 2,
-                                    softWrap: true,
-                                    overflow: TextOverflow.fade,
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onBackground,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
                                   Expanded(
-                                    child: AutoSizeText(
-                                      updatedTimepiece.brand,
-                                      maxLines: 1,
-                                      softWrap: true,
-                                      overflow: TextOverflow.ellipsis,
-                                      minFontSize: 12,
-                                      style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary,
-                                      ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            updatedTimepiece.model,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onBackground,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          updatedTimepiece.brand,
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onBackground
+                                                .withOpacity(0.6),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],

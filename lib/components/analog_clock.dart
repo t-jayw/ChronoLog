@@ -363,18 +363,23 @@ class ClockPainter extends CustomPainter {
     final hourHandX = center.dx + radius * 0.5 * cos(hourAngle);
     final hourHandY = center.dy + radius * 0.5 * sin(hourAngle);
 
-    // Hour Hand (Sword-shaped)
+    // Hour Hand (Sword-shaped with blunter tip)
     final hourHandPath = Path();
     final hourHandLength = radius * 0.5;
     final hourHandWidth = 14.0;
+    final hourHandTipWidth = 6.0;  // New: width at the tip
     
     hourHandPath.moveTo(
       center.dx + cos(hourAngle - pi/2) * (hourHandWidth/2),
       center.dy + sin(hourAngle - pi/2) * (hourHandWidth/2)
     );
     hourHandPath.lineTo(
-      center.dx + cos(hourAngle) * hourHandLength,
-      center.dy + sin(hourAngle) * hourHandLength
+      center.dx + cos(hourAngle) * hourHandLength + cos(hourAngle - pi/2) * (hourHandTipWidth/2),
+      center.dy + sin(hourAngle) * hourHandLength + sin(hourAngle - pi/2) * (hourHandTipWidth/2)
+    );
+    hourHandPath.lineTo(
+      center.dx + cos(hourAngle) * hourHandLength + cos(hourAngle + pi/2) * (hourHandTipWidth/2),
+      center.dy + sin(hourAngle) * hourHandLength + sin(hourAngle + pi/2) * (hourHandTipWidth/2)
     );
     hourHandPath.lineTo(
       center.dx + cos(hourAngle + pi/2) * (hourHandWidth/2),
@@ -403,18 +408,23 @@ class ClockPainter extends CustomPainter {
     final minuteHandX = center.dx + radius * 0.7 * cos(minuteAngle);
     final minuteHandY = center.dy + radius * 0.7 * sin(minuteAngle);
 
-    // Minute Hand (Thinner sword shape)
+    // Minute Hand (Thinner sword shape with blunter tip)
     final minuteHandPath = Path();
     final minuteHandLength = radius * 0.7;
-    final minuteHandWidth = 10.0;
+    final minuteHandWidth = 12.0;
+    final minuteHandTipWidth = 4.0;  // New: width at the tip
 
     minuteHandPath.moveTo(
       center.dx + cos(minuteAngle - pi/2) * (minuteHandWidth/2),
       center.dy + sin(minuteAngle - pi/2) * (minuteHandWidth/2)
     );
     minuteHandPath.lineTo(
-      center.dx + cos(minuteAngle) * minuteHandLength,
-      center.dy + sin(minuteAngle) * minuteHandLength
+      center.dx + cos(minuteAngle) * minuteHandLength + cos(minuteAngle - pi/2) * (minuteHandTipWidth/2),
+      center.dy + sin(minuteAngle) * minuteHandLength + sin(minuteAngle - pi/2) * (minuteHandTipWidth/2)
+    );
+    minuteHandPath.lineTo(
+      center.dx + cos(minuteAngle) * minuteHandLength + cos(minuteAngle + pi/2) * (minuteHandTipWidth/2),
+      center.dy + sin(minuteAngle) * minuteHandLength + sin(minuteAngle + pi/2) * (minuteHandTipWidth/2)
     );
     minuteHandPath.lineTo(
       center.dx + cos(minuteAngle + pi/2) * (minuteHandWidth/2),
@@ -427,8 +437,8 @@ class ClockPainter extends CustomPainter {
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
         colors: [
-          Colors.grey[300]!,
-          Colors.grey[500]!,
+          Colors.grey[400]!,
+          Colors.grey[600]!,
         ],
       ).createShader(Rect.fromCenter(
         center: center,
@@ -444,18 +454,23 @@ class ClockPainter extends CustomPainter {
     final secondHandX = center.dx + radius * 0.9 * cos(secondAngle);
     final secondHandY = center.dy + radius * 0.9 * sin(secondAngle);
 
-    // Second Hand (Very thin sword shape with counterweight)
+    // Second Hand (with blunter tip)
     final secondHandPath = Path();
     final secondHandLength = radius * 0.9;
-    final secondHandWidth = 4.0;
+    final secondHandWidth = 5.0;
+    final secondHandTipWidth = 2.0;  // New: width at the tip
 
     secondHandPath.moveTo(
       center.dx + cos(secondAngle - pi/2) * (secondHandWidth/2),
       center.dy + sin(secondAngle - pi/2) * (secondHandWidth/2)
     );
     secondHandPath.lineTo(
-      center.dx + cos(secondAngle) * secondHandLength,
-      center.dy + sin(secondAngle) * secondHandLength
+      center.dx + cos(secondAngle) * secondHandLength + cos(secondAngle - pi/2) * (secondHandTipWidth/2),
+      center.dy + sin(secondAngle) * secondHandLength + sin(secondAngle - pi/2) * (secondHandTipWidth/2)
+    );
+    secondHandPath.lineTo(
+      center.dx + cos(secondAngle) * secondHandLength + cos(secondAngle + pi/2) * (secondHandTipWidth/2),
+      center.dy + sin(secondAngle) * secondHandLength + sin(secondAngle + pi/2) * (secondHandTipWidth/2)
     );
     secondHandPath.lineTo(
       center.dx + cos(secondAngle + pi/2) * (secondHandWidth/2),
@@ -483,7 +498,7 @@ class ClockPainter extends CustomPainter {
     counterweightPath.close();
 
     final secondHandPaint = Paint()
-      ..color = Colors.grey[600]!;
+      ..color = Colors.grey[500]!;
 
     canvas.drawPath(secondHandPath, secondHandPaint);
     canvas.drawPath(counterweightPath, secondHandPaint);

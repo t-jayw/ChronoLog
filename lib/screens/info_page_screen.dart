@@ -420,7 +420,7 @@ class ListItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+          padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
           decoration: BoxDecoration(
             border: isLastItem
                 ? null
@@ -443,7 +443,7 @@ class ListItem extends StatelessWidget {
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),

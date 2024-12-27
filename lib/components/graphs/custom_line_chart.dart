@@ -167,7 +167,8 @@ class CustomLineChart extends StatelessWidget {
     List<TaggedFlSpot> plotSpots =
         chartType == 'rate' ? rateSpots : offsetSpots;
 
-    return Expanded(
+    return SizedBox(
+      height: 200,
       child: LineChart(
         LineChartData(
           minX: minX,
@@ -258,19 +259,26 @@ class CustomLineChart extends StatelessWidget {
           titlesData: FlTitlesData(
             show: true,
             leftTitles: AxisTitles(
+              axisNameWidget: Text(
+                chartType == 'rate' ? 'Rate (s/day)' : 'Offset (s)',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                ),
+              ),
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 35,
+                reservedSize: 40,
                 getTitlesWidget: (value, meta) {
                   if (value == minY || value == maxY) return const SizedBox.shrink();
                   return SizedBox(
-                    width: 30,
+                    width: 35,
                     child: Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: Text(
                         '${value.toStringAsFixed(1)}s',
                         style: TextStyle(
-                          fontSize: 9,
+                          fontSize: 8,
                           fontWeight: FontWeight.w400,
                           color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                         ),
@@ -284,8 +292,15 @@ class CustomLineChart extends StatelessWidget {
               ),
             ),
             bottomTitles: AxisTitles(
+              axisNameWidget: Text(
+                'Time',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                ),
+              ),
               sideTitles: SideTitles(
-                reservedSize: 16,
+                reservedSize: 22,
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   if (value == minX || value == maxX) return const SizedBox.shrink();
@@ -294,7 +309,7 @@ class CustomLineChart extends StatelessWidget {
                     child: Text(
                       formatTimeInterval(value - minX),
                       style: TextStyle(
-                        fontSize: 9,
+                        fontSize: 8,
                         fontWeight: FontWeight.w400,
                         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
                       ),

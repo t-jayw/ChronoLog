@@ -52,18 +52,28 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Timing Run',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onBackground,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          CupertinoIcons.graph_square,
+                          size: 13,
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'Timing Run',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                        ),
+                      ],
                     ),
                     Text(
                       "total duration: ${timingRunStats.formattedTotalDuration() ?? '-'}",
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 11,
                         color: Theme.of(context)
                             .colorScheme
                             .onBackground
@@ -105,15 +115,15 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             timingRunStats.formattedLatestOffset(),
                             style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
                               color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                           Text(
                             'offset',
                             style: TextStyle(
-                              fontSize: 8,
+                              fontSize: 10,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
@@ -127,15 +137,15 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             timingRunStats.formattedSecondsPerDayForRun(),
                             style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                               color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                           Text(
                             'sec/day',
                             style: TextStyle(
-                              fontSize: 8,
+                              fontSize: 10,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
@@ -151,15 +161,15 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                               timingRunStats
                                   .formattedTimeSinceLastMeasurement(),
                               style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
                             ),
                             Text(
                               'since last',
                               style: TextStyle(
-                                fontSize: 8,
+                                fontSize: 10,
                                 color:
                                     Theme.of(context).colorScheme.onBackground,
                               ),
@@ -174,14 +184,14 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             '${timingMeasurements.length}',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 16,
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
                           ),
                           Text(
                             'measurements',
                             style: TextStyle(
-                              fontSize: 8,
+                              fontSize: 10,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
@@ -191,64 +201,13 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                   ],
                 ),
               ),
-              // Commented out plus button for new measurements
-              // if (widget.isMostRecent ?? false)
-              //   CupertinoButton(
-              //     padding: EdgeInsets.all(6),
-              //     borderRadius: BorderRadius.circular(10),
-              //     color: Colors.transparent,
-              //     minSize: 0,
-              //     onPressed: () async {
-              //       SharedPreferences prefs =
-              //           await SharedPreferences.getInstance();
-              //       bool? isPremiumActivated =
-              //           prefs.getBool('in_app_premiumActive');
-
-              //       if (isPremiumActivated != true &&
-              //           timingMeasurements.length > 400) {
-              //         showPremiumNeededDialog(context,
-              //             "Free version limited to 5 measurements per Timing Run");
-              //       } else {
-              //         showModalBottomSheet(
-              //           context: context,
-              //           isScrollControlled: true,
-              //           builder: (BuildContext context) {
-              //             return DraggableScrollableSheet(
-              //               expand: false,
-              //               builder: (_, controller) =>
-              //                   SingleChildScrollView(
-              //                 controller: controller,
-              //                 child: MeasurementSelectorModal(
-              //                   timingRunId: widget.timingRun.id,
-              //                 ),
-              //               ),
-              //             );
-              //           },
-              //         );
-              //       }
-              //     },
-              //     child: Container(
-              //       decoration: BoxDecoration(
-              //         border: Border.all(
-              //           color: Theme.of(context).colorScheme.tertiary,
-              //           width: 2,
-              //         ),
-              //         borderRadius: BorderRadius.circular(10),
-              //       ),
-              //       child: Icon(
-              //         CupertinoIcons.plus,
-              //         size: 20,
-              //         color: Theme.of(context).colorScheme.tertiary,
-              //       ),
-              //     ),
-              //   ),
             ],
           ),
           if (widget.isMostRecent ?? false)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Expanded(child: _buildComplianceBadges()),
                   Container(
@@ -261,16 +220,16 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: CupertinoButton(
-                      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
+                      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 5),
                       minSize: 0,
                       onPressed: () async {
                         SharedPreferences prefs =
                             await SharedPreferences.getInstance();
                         bool? isPremiumActivated =
-                            prefs.getBool('in_app_premiumActive');
+                            prefs.getBool('premiumActive');
 
                         if (isPremiumActivated != true &&
-                            timingMeasurements.length > 400) {
+                            timingMeasurements.length > 5) {
                           showPremiumNeededDialog(context,
                               "Free version limited to 5 measurements per Timing Run");
                         } else {
@@ -303,12 +262,12 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           ),
                           SizedBox(width: 4),
                           Text(
-                            'Take Measurement',
+                            'Add Measurement',
                             style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w300,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
                               color: Theme.of(context).colorScheme.tertiary,
-                              letterSpacing: -0.2,
+                              letterSpacing: -0.1,
                             ),
                           ),
                         ],
@@ -391,9 +350,9 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                 child: Text(
                   standard,
                   style: TextStyle(
-                    fontSize: 9,
+                    fontSize: 10,
                     color: Theme.of(context).colorScheme.onBackground,
-                    fontWeight: FontWeight.w300,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),

@@ -1,6 +1,4 @@
-import 'package:chronolog/components/custom_tool_tip.dart';
-import 'package:chronolog/components/primary_button.dart';
-import 'package:chronolog/measurement_forms/add_measurement_button_page.dart';
+import 'package:chronolog/measurement_forms/add_measurement_tap_page.dart';
 import 'package:chronolog/measurement_forms/add_measurement_photo_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

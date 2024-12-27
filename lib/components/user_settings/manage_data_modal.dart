@@ -3,17 +3,16 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../generic_alert.dart';
 import '../premium/premium_needed_dialog.dart';
 import '../../database_helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:share_plus/share_plus.dart';
 
 import '../../providers/timepiece_list_provider.dart';
-import '../primary_button.dart';
+
 
 enum ThemeModeOption { system, dark, light }
 
@@ -79,6 +78,32 @@ class ManageDataModal extends ConsumerWidget {
     return file.path;
   }
 
+  void _showCupertinoAlert({
+    required BuildContext context,
+    required String title,
+    required String message,
+  }) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: <CupertinoDialogAction>[
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'OK',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder<bool>(
@@ -91,118 +116,135 @@ class ManageDataModal extends ConsumerWidget {
         bool isPremium = snapshot.data ?? false;
 
         return Container(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
           decoration: BoxDecoration(
-            color: CupertinoColors.systemBackground.resolveFrom(context),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: BorderRadius.circular(12),
+            color: Theme.of(context).colorScheme.primary,
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                blurRadius: 10,
+                offset: Offset(0, 2),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                // Drag indicator
-                Container(
-                  width: 36,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.separator.resolveFrom(context),
-                    borderRadius: BorderRadius.circular(2.5),
-                  ),
-                  margin: EdgeInsets.only(bottom: 16),
-                ),
-                
-                Text(
-                  'Manage Data',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: CupertinoColors.label.resolveFrom(context),
-                  ),
-                ),
-                
-                Divider(
-                  color: CupertinoColors.separator.resolveFrom(context),
-                  height: 32,
-                ),
-
-                Stack(
-                  children: [
-                    Column(
-                      children: [
-                        _buildDataItem(
-                          context,
-                          title: 'Export Data to CSV',
-                          subtitle: 'Export CSV formatted data of all measurements',
-                          icon: CupertinoIcons.arrow_down_doc,
-                          onTap: () async {
-                            String csvData = await _db.exportDataToCsv();
-                            String fileName = "exported_data.csv";
-                            final path = await _saveFile(fileName, csvData);
-                            final xfile = XFile(path);
-                            await Share.shareXFiles([xfile]);
-                          },
-                        ),
-                        _buildDataItem(
-                          context,
-                          title: 'Backup Data',
-                          subtitle: 'Backup database state to restore on a new device',
-                          icon: CupertinoIcons.cloud_download,
-                          onTap: () async {
-                            await _db.backupDatabase();
-                          },
-                        ),
-                        _buildDataItem(
-                          context,
-                          title: 'Restore (Caution!)',
-                          subtitle: '⚠️ Choose backup file to restore. Overwrites everything',
-                          icon: CupertinoIcons.cloud_upload,
-                          onTap: () async {
-                            bool success = await _db.restoreDatabase();
-                            if (success) {
-                              ref.read(timepieceListProvider.notifier).initTimepieces();
-                              showGenericAlert(
-                                context: context,
-                                title: 'Restore Successful',
-                                contentLines: ['Your database has been restored successfully.'],
-                              );
-                            } else {
-                              showGenericAlert(
-                                context: context,
-                                title: 'Restore Failed',
-                                contentLines: ['Unable to restore from selected file.'],
-                              );
-                            }
-                          },
-                        ),
-                      ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Manage Data',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
-                    if (!isPremium)
-                      Positioned.fill(
-                        child: GestureDetector(
-                          onTap: () => _showPremiumNeededDialog(context, 'Premium Required'),
-                          child: Container(
-                            color: CupertinoColors.systemBackground.withOpacity(0.7),
-                          ),
+                  ),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minSize: 0,
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Container(
+                      padding: EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        CupertinoIcons.xmark,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Divider(
+                height: 24,
+                thickness: 0.5,
+                color: CupertinoColors.separator.resolveFrom(context),
+              ),
+              Stack(
+                children: [
+                  Column(
+                    children: [
+                      _buildDataItem(
+                        context,
+                        title: 'Export Data to CSV',
+                        subtitle: 'Export CSV formatted data of all measurements',
+                        icon: CupertinoIcons.arrow_down_doc,
+                        onTap: () async {
+                          String csvData = await _db.exportDataToCsv();
+                          String fileName = "exported_data.csv";
+                          final path = await _saveFile(fileName, csvData);
+                          final xfile = XFile(path);
+                          await Share.shareXFiles([xfile]);
+                        },
+                      ),
+                      _buildDataItem(
+                        context,
+                        title: 'Backup Data',
+                        subtitle: 'Backup database state to restore on a new device',
+                        icon: CupertinoIcons.cloud_download,
+                        onTap: () async {
+                          await _db.backupDatabase();
+                        },
+                      ),
+                      _buildDataItem(
+                        context,
+                        title: 'Restore (Caution!)',
+                        subtitle: '⚠️ Choose backup file to restore. Overwrites everything',
+                        icon: CupertinoIcons.cloud_upload,
+                        onTap: () async {
+                          bool success = await _db.restoreDatabase();
+                          if (success) {
+                            ref.read(timepieceListProvider.notifier).initTimepieces();
+                            _showCupertinoAlert(
+                              context: context,
+                              title: 'Restore Successful',
+                              message: 'Your database has been restored successfully.',
+                            );
+                          } else {
+                            _showCupertinoAlert(
+                              context: context,
+                              title: 'Restore Failed',
+                              message: 'Unable to restore from selected file.',
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  if (!isPremium)
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: () => _showPremiumNeededDialog(context, 'Premium Required'),
+                        child: Container(
+                          color: CupertinoColors.systemBackground.withOpacity(0.7),
                         ),
                       ),
-                  ],
-                ),
-
-                SizedBox(height: 20),
-                
-                CupertinoButton(
-                  child: Text(
-                    'Close',
-                    style: TextStyle(
-                      color: CupertinoColors.label.resolveFrom(context),
-                      fontWeight: FontWeight.w500,
                     ),
+                ],
+              ),
+
+              SizedBox(height: 20),
+              
+              CupertinoButton(
+                child: Text(
+                  'Close',
+                  style: TextStyle(
+                    color: CupertinoColors.label.resolveFrom(context),
+                    fontWeight: FontWeight.w500,
                   ),
-                  onPressed: () => Navigator.of(context).pop(),
                 ),
-              ],
-            ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
           ),
         );
       },

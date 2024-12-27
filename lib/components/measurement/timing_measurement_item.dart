@@ -63,13 +63,25 @@ class TimingMeasurementItem extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FormattedTimeDisplay(
-                      dateTime: timingMeasurement.system_time,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.onBackground.withOpacity(0.7),
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'System time: ',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onBackground.withOpacity(0.7),
+                          ),
+                        ),
+                        FormattedTimeDisplay(
+                          dateTime: timingMeasurement.system_time,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onBackground.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
                     ),
                     if (timingMeasurement.tag?.isNotEmpty ?? false)
                       Padding(
@@ -88,7 +100,7 @@ class TimingMeasurementItem extends ConsumerWidget {
             ],
           ),
           
-          Divider(height: 12, thickness: 1),
+          Divider(height: 4, thickness: 1),
           
           Row(
             children: [
@@ -193,15 +205,15 @@ class TimingMeasurementItem extends ConsumerWidget {
         Text(
           value,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 15,
             color: valueColor,
-            fontWeight: FontWeight.normal,
+            fontWeight: FontWeight.w500,
           ),
         ),
         Text(
           label,
           style: TextStyle(
-            fontSize: 8,
+            fontSize: 9,
             color: Theme.of(context).colorScheme.onBackground,
           ),
         ),

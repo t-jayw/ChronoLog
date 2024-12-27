@@ -607,12 +607,15 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                 ),
                 // Fixed Add Watch button
                 CupertinoButton(
-                  color: CupertinoTheme.of(context).primaryColor,
+                  color: Theme.of(context).colorScheme.tertiary,
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
                     'Add Watch',
-                    style:
-                        TextStyle(color: CupertinoColors.white, fontSize: 14),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   onPressed: () => _validateAndSubmit(ref),
                 ),

@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../primary_button.dart';
-
 class ImageHelper {
   static Future<void> pickImage(ImageSource source, Function(XFile?) setImageFile) async {
     final picker = ImagePicker();
@@ -142,23 +140,52 @@ class _ImageDisplayState extends State<ImageDisplay> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            PrimaryButton(
-              child: Text(
-                'Camera',
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.onPrimary),
+            CupertinoButton(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              color: Theme.of(context).colorScheme.tertiary,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.camera,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Camera',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ],
               ),
               onPressed: () {
                 widget.onImagePick(ImageSource.camera);
               },
             ),
-            PrimaryButton(
-              child: Text(
-                'Photo Roll',
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.onPrimary),
+            SizedBox(width: 8),
+            CupertinoButton(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              color: Theme.of(context).colorScheme.tertiary,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.photo,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Photo Roll',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ],
               ),
               onPressed: () {
                 widget.onImagePick(ImageSource.gallery);

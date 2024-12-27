@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chronolog/components/forms/form_components.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +10,7 @@ import 'package:intl/intl.dart';
 
 import '../../models/timepiece.dart';
 import '../../providers/timepiece_list_provider.dart';
-import 'form_components.dart';
+
 
 class CustomEditableField extends StatefulWidget {
   final String label;

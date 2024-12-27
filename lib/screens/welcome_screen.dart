@@ -2,9 +2,6 @@ import 'package:chronolog/screens/tabs.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import '../components/info_item_list.dart';
-import '../components/primary_button.dart';
-
 class WelcomeScreen extends StatefulWidget {
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();

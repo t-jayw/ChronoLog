@@ -39,9 +39,9 @@ class WatchDetailStats extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'All Time',
+                  'All Runs',
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
@@ -49,7 +49,7 @@ class WatchDetailStats extends ConsumerWidget {
                 Text(
                   "${timingRuns.length} timing runs",
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                   ),
                 ),
@@ -69,14 +69,15 @@ class WatchDetailStats extends ConsumerWidget {
                 Text(
                   timingRuns.isEmpty ? '--' : '${timepieceStats.averageSecondsPerDay.toStringAsFixed(1)}',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
                 Text(
                   'sec/day',
                   style: TextStyle(
-                    fontSize: 8,
+                    fontSize: 9,
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
                 ),
@@ -88,14 +89,14 @@ class WatchDetailStats extends ConsumerWidget {
                 Text(
                   timingRuns.isEmpty ? '0:00' : formatDuration(timepieceStats.totalDuration).toString(),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 15,
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
                 ),
                 Text(
                   'duration',
                   style: TextStyle(
-                    fontSize: 8,
+                    fontSize: 9,
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
                 ),
@@ -107,14 +108,14 @@ class WatchDetailStats extends ConsumerWidget {
                 Text(
                   timingRuns.isEmpty ? '0' : '${timepieceStats.totalMeasurements}',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 15,
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
                 ),
                 Text(
                   'measurements',
                   style: TextStyle(
-                    fontSize: 8,
+                    fontSize: 9,
                     color: Theme.of(context).colorScheme.onBackground,
                   ),
                 ),

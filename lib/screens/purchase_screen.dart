@@ -40,25 +40,32 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
       
       print('RevenueCat Active Entitlements: ${customerInfo.entitlements.active.keys}');
       
-      // Store raw entitlements from RevenueCat
+      // Check both RevenueCat and local storage
+      Map<String, bool> status = {};
+      
+      // Check RevenueCat entitlements
       for (String entitlement in customerInfo.entitlements.active.keys) {
         print('Setting entitlement: ${entitlement}Active to true');
         await prefs.setBool('${entitlement}Active', true);
+        status[entitlement] = true;
+      }
+      
+      // Check local storage for simulated purchases
+      if (prefs.getBool('premiumActive') == true || 
+          prefs.getBool('in_app_premiumActive') == true) {
+        status['premium'] = true;
+        status['in_app_premium'] = true;
       }
 
       // Update state for UI
       setState(() {
-        _entitlementStatus = Map.fromEntries(
-          customerInfo.entitlements.active.keys.map(
-            (key) => MapEntry(key, true)
-          )
-        );
+        _entitlementStatus = status;
       });
 
       Posthog().capture(
         eventName: 'entitlement_status_check',
         properties: {
-          'active_entitlements': customerInfo.entitlements.active.keys.toList(),
+          'active_entitlements': status.keys.toList(),
         },
       );
     } catch (e) {
@@ -265,10 +272,10 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
       
       if (isPremium) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('in_app_premiumActive', true);
-        await prefs.setString('in_app_premium_purchaseDate', DateTime.now().toIso8601String());
+        await prefs.setBool('premiumActive', true);
+        await prefs.setString('premium_purchaseDate', DateTime.now().toIso8601String());
 
-        setState(() => _entitlementStatus = {'in_app_premium': true});
+        setState(() => _entitlementStatus = {'premium': true});
         
         Posthog().capture(
           eventName: 'successful_purchase',
@@ -427,12 +434,11 @@ ${_packages.map((p) => '''• ${p.identifier}
 
   Future<void> _simulatePremiumPurchase() async {
     final prefs = await SharedPreferences.getInstance();
-
-    await prefs.setBool('in_app_premiumActive', true);
-    await prefs.setString('in_app_premium_purchaseDate', DateTime.now().toIso8601String());
+    await prefs.setBool('premiumActive', true);
+    await prefs.setString('premium_purchaseDate', DateTime.now().toIso8601String());
 
     setState(() {
-      _entitlementStatus = {'in_app_premium': true};
+      _entitlementStatus = {'premium': true};
     });
 
     _showSuccessDialog("DEBUG: Premium entitlement activated");
@@ -440,24 +446,7 @@ ${_packages.map((p) => '''• ${p.identifier}
   }
 
   Future<void> _resetPurchases() async {
-    final prefs = await SharedPreferences.getInstance();
-    
-    // Remove all known premium-related keys
-    await prefs.remove('in_app_premiumActive');      // Main premium status
-    await prefs.remove('is_premium_active');         // Legacy key still in use
-    await prefs.remove('premium_purchase_date');     // Legacy purchase date
-    await prefs.remove('in_app_premium_purchaseDate'); // Current purchase date
-    
-    // Clear entitlement status state
-    setState(() {
-      _entitlementStatus = {};
-    });
-
-    // Force a refresh of RevenueCat status
-    await _checkEntitlementStatus();
-    
-    _showSuccessDialog("DEBUG: All purchases reset");
-    await _debugPrintEntitlements();
+    _removeAllActiveKeys();
   }
 
   void _showPurchaseSuccessDialog() {

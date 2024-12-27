@@ -43,10 +43,10 @@ final theme = ThemeData(
   ),
   appBarTheme: const AppBarTheme(
       iconTheme: IconThemeData(
-        color: Colors.black, // change this to preferred icon color
+        color: Colors.black,
       ),
       titleTextStyle:
-          TextStyle(fontFamily: 'NewYork', fontSize: 20, color: Colors.black)),
+          TextStyle(fontFamily: 'NewYork', fontSize: 18, color: Colors.black)),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       backgroundColor: MaterialStateProperty.resolveWith<Color>(
@@ -90,7 +90,7 @@ final darkTheme = ThemeData(
       iconTheme: IconThemeData(
         color: Colors.white,
       ),
-      titleTextStyle: TextStyle(fontFamily: 'NewYork', fontSize: 20)),
+      titleTextStyle: TextStyle(fontFamily: 'NewYork', fontSize: 18)),
   fontFamily: 'SFProText',
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(

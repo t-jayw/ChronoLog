@@ -139,7 +139,7 @@ class TimingRunStatistics {
     if (isSuperlativeChronometer()) {
       complianceStatuses.add('Superlative');
     }
-    return ['COSC', 'METAS', 'Superlative'];
+    return complianceStatuses;
   }
 
   // Remove measurement checks from individual compliance methods

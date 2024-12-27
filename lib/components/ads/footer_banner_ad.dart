@@ -55,9 +55,9 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
             );
           },
           child: Text(
-            'Upgrade to Premium',
+            'Upgrade to Premium!',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
           ),
