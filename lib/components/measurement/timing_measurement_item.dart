@@ -66,6 +66,14 @@ class TimingMeasurementItem extends ConsumerWidget {
                     Row(
                       children: [
                         Text(
+                          '• ',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onBackground.withOpacity(0.7),
+                          ),
+                        ),
+                        Text(
                           'System time: ',
                           style: TextStyle(
                             fontSize: 12,

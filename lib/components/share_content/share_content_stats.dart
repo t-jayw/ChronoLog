@@ -16,13 +16,8 @@ class ShareModalStats extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final timingRuns = ref.watch(timingRunProvider(timepiece.id));
     TimingRun? mostRecentRun = timingRuns.first;
-    List<TimingMeasurement> mostRecentRunMeasurements =
-        ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
 
-    TimingRunStatistics timingRunStats =
-        TimingRunStatistics(mostRecentRunMeasurements);
 
-    List<String> complianceStatuses = timingRunStats.checkCompliance();
     
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -34,44 +29,7 @@ class ShareModalStats extends ConsumerWidget {
           
           
           // Compliance row
-          if (complianceStatuses.isNotEmpty)
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.2),
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                children: complianceStatuses.map((status) => 
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.check_circle,
-                          color: Theme.of(context).colorScheme.tertiary,
-                          size: 14,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          status,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.8),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ).toList(),
-              ),
-            ),
+          
           
           
           // Graph

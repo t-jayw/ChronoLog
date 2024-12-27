@@ -143,7 +143,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                             ),
                           ),
                           Text(
-                            'offset',
+                            'sec/day',
                             style: TextStyle(
                               fontSize: 8,
                               color: Theme.of(context).colorScheme.onBackground,
@@ -167,7 +167,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                             ),
                           ),
                           Text(
-                            'offset',
+                            'last',
                             style: TextStyle(
                               fontSize: 8,
                               color: Theme.of(context).colorScheme.onBackground,
@@ -336,7 +336,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
             (standard) => Padding(
               padding: const EdgeInsets.only(right: 4.0),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
                 decoration: BoxDecoration(
                   color:
                       Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
@@ -349,7 +349,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                 child: Text(
                   standard,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 9,
                     color: Theme.of(context).colorScheme.onBackground,
                     fontWeight: FontWeight.w400,
                   ),

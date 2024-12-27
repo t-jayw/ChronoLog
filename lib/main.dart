@@ -46,7 +46,7 @@ final theme = ThemeData(
         color: Colors.black,
       ),
       titleTextStyle:
-          TextStyle(fontFamily: 'NewYork', fontSize: 18, color: Colors.black)),
+          TextStyle(fontFamily: 'NewYork', fontSize: 16, color: Colors.black)),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       backgroundColor: MaterialStateProperty.resolveWith<Color>(
