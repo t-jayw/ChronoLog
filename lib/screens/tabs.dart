@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/screens/info_page_screen.dart';
 import 'package:chronolog/screens/watchbox_screen.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../components/premium/premium_needed_dialog.dart';
 import '../providers/timepiece_list_provider.dart';
 import '../screens/add_watch_screen.dart';
 
@@ -26,7 +23,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
 
   final List<String> _pageTitles = [
     "ChronoLog",
-    "Info",
+    "ChronoLog",
   ];
 
   void _selectPage(int index) {
@@ -68,25 +65,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
               icon: const Icon(Icons.add), // Plus sign icon
               onPressed: () async {
                 _navigateToAddWatchScreen(context);
-
-                // Make it async
-                
-                // Turning on paywall
-                // SharedPreferences prefs = await SharedPreferences.getInstance();
-                // bool? isPremiumActivated = prefs.getBool('is_premium_active');
-                // int numWatches = timepieces.length;
-
-                // if (isPremiumActivated != true && numWatches >= 2) {
-                //   Posthog().capture(
-                //     eventName: 'paywall',
-                //     properties: {
-                //       'reason': 'num_watches_paywall',
-                //     },
-                //   );
-                //   showPremiumNeededDialog(context, "Free version limited to 2 timepieces");
-                // } else {
-                //   _navigateToAddWatchScreen(context);
-                // }
               },
             ),
         ],

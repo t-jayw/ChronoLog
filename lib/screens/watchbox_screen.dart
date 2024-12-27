@@ -95,9 +95,12 @@ class WatchboxScreen extends ConsumerWidget {
                       },
                       background: Container(
                         alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 20.0),
-                        color: Theme.of(context).colorScheme.error,
-                        child: const Icon(Icons.delete, size: 40),
+                        padding: const EdgeInsets.only(right: 4.0),
+                        child: Icon(
+                          Icons.delete,
+                          color: Theme.of(context).colorScheme.error,
+                          size: 40
+                        ),
                       ),
                       child: NewTimepieceDisplay(timepiece: timepiece),
                     );

@@ -51,6 +51,41 @@ class _TimingRunDetailsState extends State<TimingRunDetails> with SingleTickerPr
       ),
       body: Column(
         children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  widget.timepiece.model,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+                SizedBox(width: 4),
+                Text(
+                  widget.timepiece.brand,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 17,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
           TimingRunComponent(
             timingRun: widget.timingRun,
             timepiece: widget.timepiece,

@@ -93,235 +93,255 @@ class InfoPage extends ConsumerWidget {
     );
   }
 
+  Widget _buildDisplayElement(
+    BuildContext context, {
+    required Widget upperElement,
+    required String label,
+    VoidCallback? onTap,
+  }) {
+    Widget content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        upperElement,
+        SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            letterSpacing: 1,
+            color: Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+          ),
+        ),
+      ],
+    );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        child: content,
+      );
+    }
+
+    return content;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     print('info_page');
-    Posthog().screen(
-      screenName: 'info_page',
-    );
+    Posthog().screen(screenName: 'info_page');
     logAllPreferences();
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Text(
-          'ChronoLog',
-          style: TextStyle(
-              fontSize: 24, color: Theme.of(context).colorScheme.tertiary),
+        // Version info - tight at the top
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('v$versionNumber', style: TextStyle(fontSize: 11)),
+              Text(' • ', style: TextStyle(fontSize: 11)),
+              FutureBuilder<String>(
+                future: _db.getDatabaseVersion(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text('DB ${snapshot.data}', style: TextStyle(fontSize: 11));
+                  }
+                  return SizedBox(
+                    width: 10,
+                    height: 10,
+                    child: CircularProgressIndicator(strokeWidth: 1.5),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Version: $versionNumber',
-              style: TextStyle(fontSize: 12),
-            ),
-            Text(
-              ' • ', // Bullet separator
-              style: TextStyle(fontSize: 12),
-            ),
-            FutureBuilder<String>(
-              future: _db.getDatabaseVersion(),
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                if (snapshot.hasData) {
-                  return Text('DB version: ${snapshot.data}',
-                      style: TextStyle(fontSize: 12));
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}',
-                      style: TextStyle(fontSize: 12));
-                }
-                return SizedBox(
-                  width: 12,
-                  height: 12,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                );
-              },
-            ),
-          ],
-        ),
+
+        // Premium badge
         FutureBuilder<SharedPreferences>(
           future: SharedPreferences.getInstance(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return SizedBox.shrink();
-
-            final prefs = snapshot.data!;
-            final isPremium = prefs.getBool('premiumActive') ?? false;
-
+            final isPremium = snapshot.data!.getBool('premiumActive') ?? false;
             if (!isPremium) return SizedBox.shrink();
 
-            return Text(
-              'Premium',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.tertiary,
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                'Premium',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
               ),
             );
           },
         ),
 
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Row(
+        // Time display and clock button section
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+          child: Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+              ),
+            ),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(width: 0), // Placeholder to balance the Row
-                Tooltip(
-                  message: 'Open Clock Screen',
-                  child: IconButton(
-                    icon: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          width: 1.0,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                            spreadRadius: 2,
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: EdgeInsets.all(2.0), // Increased padding
-                      child: Icon(
-                        Icons.access_time,
-                        size: 40, // Increased size
-                        color: Theme.of(context).colorScheme.secondary,
+                Expanded(
+                  child: TimeDisplay(),
+                ),
+                GestureDetector(
+                  onTap: () => _navigateToClockScreen(context),
+                  child: Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        width: 1.0,
                       ),
                     ),
-                    onPressed: () => _navigateToClockScreen(context),
-                    tooltip: 'Open Clock',
-                    iconSize: 68, // Increased overall button size
+                    child: Icon(
+                      Icons.access_time,
+                      size: 24,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
                   ),
                 ),
               ],
             ),
-            Center(
-              child: TimeDisplay(),
-            ),
-          ],
+          ),
         ),
 
-        // Expanded(child: PurchaseOptions()),
-        ListGroup(
-          items: [
-            ListItem(
-              title: 'Show Information',
-              iconData: Icons.info,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
-                );
-              },
-            ),
+        // List of options (existing ListGroup widget)
+        ListGroup(items: [
+          ListItem(
+            title: 'Show Information',
+            iconData: Icons.info,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => WelcomeScreen()),
+              );
+            },
+          ),
 
-            ListItem(
-              title: 'Website',
-              iconData: Icons.web_asset,
-              onTap: () async {
-                const url = 'https://www.tylerjaywood.com/chronolog';
-                if (await canLaunch(url)) {
-                  await launch(url);
-                } else {
-                  throw 'Could not launch $url';
-                }
-              },
-            ),
-            ListItem(
-              title: 'Email Me',
-              iconData: Icons.email,
-              onTap: () async {
-                sendMailWithFeedback();
-              },
-            ),
+          ListItem(
+            title: 'Website',
+            iconData: Icons.web_asset,
+            onTap: () async {
+              const url = 'https://www.tylerjaywood.com/chronolog';
+              if (await canLaunch(url)) {
+                await launch(url);
+              } else {
+                throw 'Could not launch $url';
+              }
+            },
+          ),
+          ListItem(
+            title: 'Email Me',
+            iconData: Icons.email,
+            onTap: () async {
+              sendMailWithFeedback();
+            },
+          ),
 
-            ListItem(
-              title: 'Review on App Store',
-              iconData: Icons.star_border,
-              onTap: () async {
-                const url =
-                    'https://apps.apple.com/us/app/apple-store/6452083510';
-                if (await canLaunch(url)) {
-                  await launch(url);
-                } else {
-                  throw 'Could not launch $url';
-                }
-              },
-            ),
+          ListItem(
+            title: 'Review on App Store',
+            iconData: Icons.star_border,
+            onTap: () async {
+              const url =
+                  'https://apps.apple.com/us/app/apple-store/6452083510';
+              if (await canLaunch(url)) {
+                await launch(url);
+              } else {
+                throw 'Could not launch $url';
+              }
+            },
+          ),
 
-            ListItem(
-              title: 'Manage Data',
-              iconData: Icons.dataset,
-              onTap: () async {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled:
-                      true, // Set to true to make the bottom sheet full-screen
-                  builder: (BuildContext context) {
-                    // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                    return DraggableScrollableSheet(
-                      expand: false,
-                      builder: (_, controller) => SingleChildScrollView(
-                        controller: controller,
-                        child:
-                            ManageDataModal(), // Ensure your ManageSettingsScreen is suitable for this context
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+          ListItem(
+            title: 'Manage Data',
+            iconData: Icons.dataset,
+            onTap: () async {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled:
+                    true, // Set to true to make the bottom sheet full-screen
+                builder: (BuildContext context) {
+                  // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                  return DraggableScrollableSheet(
+                    expand: false,
+                    builder: (_, controller) => SingleChildScrollView(
+                      controller: controller,
+                      child:
+                          ManageDataModal(), // Ensure your ManageSettingsScreen is suitable for this context
+                    ),
+                  );
+                },
+              );
+            },
+          ),
 
-            ListItem(
-              title: 'Manage Settings',
-              iconData: Icons.settings,
-              onTap: () async {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled:
-                      true, // Set to true to make the bottom sheet full-screen
-                  builder: (BuildContext context) {
-                    // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                    return DraggableScrollableSheet(
-                      expand: false,
-                      builder: (_, controller) => SingleChildScrollView(
-                        controller: controller,
-                        child:
-                            ManageSettingsWidget(), // Ensure your ManageSettingsScreen is suitable for this context
-                      ),
-                    );
-                  },
-                );
-              },
-              isLastItem: false,
-            ),
+          ListItem(
+            title: 'Manage Settings',
+            iconData: Icons.settings,
+            onTap: () async {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled:
+                    true, // Set to true to make the bottom sheet full-screen
+                builder: (BuildContext context) {
+                  // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
+                  return DraggableScrollableSheet(
+                    expand: false,
+                    builder: (_, controller) => SingleChildScrollView(
+                      controller: controller,
+                      child:
+                          ManageSettingsWidget(), // Ensure your ManageSettingsScreen is suitable for this context
+                    ),
+                  );
+                },
+              );
+            },
+            isLastItem: false,
+          ),
 
-            ListItem(
-              title: 'Purchase Options',
-              iconData: Icons.shopping_cart,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PurchaseScreen()),
-                );
-              },
-            ),
+          ListItem(
+            title: 'Purchase Options',
+            iconData: Icons.shopping_cart,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PurchaseScreen()),
+              );
+            },
+          ),
 
-            // Add more items as needed
-          ],
-        ),
+          // Add more items as needed
+        ]),
+
+        // ... rest of the existing footer content ...
         SizedBox(height: 4),
 
-        // Expanded(
-        //     child: Column(
-        //   children: [],
-        // )),
         Column(
           children: [
             Padding(
@@ -333,7 +353,7 @@ class InfoPage extends ConsumerWidget {
                   Text(
                     'Made with ',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
@@ -352,7 +372,7 @@ class InfoPage extends ConsumerWidget {
                   Text(
                     ' in Boulder, CO',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
@@ -362,7 +382,7 @@ class InfoPage extends ConsumerWidget {
             Text(
               '© 2024 Tyler Wood',
               style: TextStyle(
-                fontSize: 8,
+                fontSize: 9,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),

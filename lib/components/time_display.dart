@@ -77,7 +77,7 @@ class _TimeDisplayContentState extends State<_TimeDisplayContent> {
             fontWeight: FontWeight.w300,
           ),
         ),
-        const SizedBox(height: 2), // Add some spacing between the time and date
+        const SizedBox(height: 2),
         Text(
           DateFormat('EEEE, MMMM d, y').format(currentTime),
           style: const TextStyle(
