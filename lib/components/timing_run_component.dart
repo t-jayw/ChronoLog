@@ -123,7 +123,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             'offset',
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 8,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
@@ -145,7 +145,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             'offset',
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 8,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
@@ -169,7 +169,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             'offset',
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 8,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
@@ -183,14 +183,14 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           Text(
                             '${timingMeasurements.length}',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
                           ),
                           Text(
                             'measurements',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 8,
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
