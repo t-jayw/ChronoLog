@@ -123,7 +123,6 @@ void main() async {
   await Purchases.setDebugLogsEnabled(true);
   await Purchases.configure(
     PurchasesConfiguration("appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ")
-    // Add other configuration options as needed
   );
 
   final prefs = await SharedPreferences.getInstance();
@@ -133,21 +132,17 @@ void main() async {
 
   clearDeprecatedSharedPreferencesKeys();
 
-  // Attempt to fetch a stored unique identifier for the user, or generate a new one.
   String userId = prefs.getString('userId') ?? Ulid().toString();
-  await prefs.setString(
-      'userId', userId); // Save it back in case it was generated new
-  // Identify the user in PostHog
+  await prefs.setString('userId', userId);
   Posthog().identify(userId: userId);
 
-  // Load user preferences
   final themeModeIndex = prefs.getInt('themeModeOption') ?? 0;
   final timeModeIndex = prefs.getInt('timeModeOption') ?? 0;
 
   await dotenv.load();
 
-  // Backfill timepieces to Posthog
-  await backfillTimepiecesToSupabase();
+  // Replace backfill call with new function
+  await handleDataMigrationIfNeeded();
 
   runApp(
     ProviderScope(
@@ -229,76 +224,17 @@ class App extends ConsumerWidget {
   }
 }
 
-Future<void> backfillTimepiecesToSupabase() async {
-  final prefs = await SharedPreferences.getInstance();
-  bool backfillCompleted = prefs.getBool('v1.5.2_backfill_completed') ?? false;
-
-  if (!backfillCompleted) {
-    final List<Timepiece> timepieces = await DatabaseHelper().getTimepieces();
-
-    // Initialize SupabaseManager and load environment variables
-    final supabase = SupabaseManager();
-    await supabase.init();
-
-    for (var timepiece in timepieces) {
-      print("backfilling timepiece to Supabase");
-      print(timepiece.toString());
-
-      // Instead of Posthog, insert into Supabase
-      try {
-        await supabase.insertEvent(timepiece, 'timepieces_events',
-            customEventType: 'v1.5.2_backfill');
-        print('Timepiece backfilled successfully');
-      } catch (e) {
-        print('Error backfilling timepiece: $e');
-      }
-      backfillTimingRunsToSupabase(timepiece.id);
-    }
-    // Mark the backfill as completed to prevent it from running again
-    await prefs.setBool('v1.5.2_backfill_completed', true);
-  }
-}
-
-// Backfill Timing Runs
-Future<void> backfillTimingRunsToSupabase(watchId) async {
-  final List<TimingRun> timingRuns =
-      await DatabaseHelper().getTimingRunsByWatchId(watchId);
-
-  final supabase = SupabaseManager();
-  await supabase.init();
-
-  for (var timingRun in timingRuns) {
-    print("Backfilling timing run to Supabase: ${timingRun.id}");
-    try {
-      await supabase.insertEvent(timingRun, 'timing_runs_events',
-          customEventType: 'v1.5.2_backfill');
-      print('Timing run backfilled successfully');
-    } catch (e) {
-      print('Error backfilling timing run: $e');
-    }
-
-    backfillTimingMeasurementsToSupabase(timingRun.id);
-  }
-}
-
-// Backfill Timing Measurements
-Future<void> backfillTimingMeasurementsToSupabase(runId) async {
-  final List<TimingMeasurement> timingMeasurements =
-      await DatabaseHelper().getTimingMeasurementsByRunId(runId);
-
-  final supabase = SupabaseManager();
-  await supabase.init();
-
-  for (var measurement in timingMeasurements) {
-    print("Backfilling timing measurement to Supabase: ${measurement.id}");
-    try {
-      await supabase.insertEvent(measurement, 'timing_measurements_events',
-          customEventType: 'v1.5.2_backfill');
-      print('Timing measurement backfilled successfully');
-    } catch (e) {
-      print('Error backfilling timing measurement: $e');
-    }
-  }
+/// Handles any required data migrations or backfills.
+/// This function should be implemented when new migrations are needed.
+Future<void> handleDataMigrationIfNeeded() async {
+  // Implementation can be added here when needed for future migrations
+  // Example structure:
+  // final prefs = await SharedPreferences.getInstance();
+  // final migrationCompleted = prefs.getBool('migration_key') ?? false;
+  // if (!migrationCompleted) {
+  //   // Perform migration
+  //   await prefs.setBool('migration_key', true);
+  // }
 }
 
 Future<void> clearDeprecatedSharedPreferencesKeys() async {
