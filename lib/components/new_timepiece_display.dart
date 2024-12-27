@@ -50,7 +50,6 @@ class NewTimepieceDisplay extends ConsumerWidget {
     // Handle all time
 
     return Container(
-      height: 120,
       width: double.infinity,
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -189,7 +188,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                                     .formattedLatestOffset() ??
                                                 '-',
                                             style: TextStyle(
-                                              fontSize: 13,
+                                              fontSize: 12,
                                               color: Theme.of(context)
                                                   .colorScheme
                                                   .secondary,
@@ -216,7 +215,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                             timingRunStats
                                                 .formattedSecondsPerDayForRun(),
                                             style: TextStyle(
-                                              fontSize: 13,
+                                              fontSize: 12,
                                               color: Theme.of(context)
                                                   .colorScheme
                                                   .secondary,
@@ -274,65 +273,69 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                   ],
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              CupertinoButton(
-                                padding: EdgeInsets.all(6),
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.transparent,
-                                minSize: 0,
-                                onPressed: () async {
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  bool? isPremiumActivated =
-                                      prefs.getBool('in_app_premiumActive');
-                                  print(timingMeasurements.length);
-                                  if (isPremiumActivated != true &&
-                                  // PAYWALL
-                                      timingMeasurements.length > 5) {
-                                    showPremiumNeededDialog(context,
-                                        "Free version limited to 5 measurements per Timing Run");
-                                    Posthog().capture(
-                                      eventName: 'paywall',
-                                      properties: {
-                                        'reason': 'num_measurements_paywall',
-                                      },
-                                    );
-                                  } else {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled:
-                                          true, // Set to true to make the bottom sheet full-screen
-                                      builder: (BuildContext context) {
-                                        // You can return the ManageSettingsScreen or a widget that is more suited for a modal layout
-                                        return DraggableScrollableSheet(
-                                          expand: false,
-                                          builder: (_, controller) =>
-                                              SingleChildScrollView(
-                                            controller: controller,
-                                            child: MeasurementSelectorModal(
-                                              timingRunId: timingRuns.first.id,
-                                            ), // Ensure your ManageSettingsScreen is suitable for this context
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  }
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                      width: 2,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 3, vertical: 0),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Theme.of(context).colorScheme.tertiary,
+                                    width: 1,
                                   ),
-                                  child: Icon(
-                                    CupertinoIcons.plus,
-                                    size: 20,
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: CupertinoButton(
+                                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                                  minSize: 0,
+                                  onPressed: () async {
+                                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                                    bool? isPremiumActivated = prefs.getBool('in_app_premiumActive');
+
+                                    if (isPremiumActivated != true && timingMeasurements.length > 400) {
+                                      showPremiumNeededDialog(context,
+                                          "Free version limited to 5 measurements per Timing Run");
+                                    } else {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        builder: (BuildContext context) {
+                                          return DraggableScrollableSheet(
+                                            expand: false,
+                                            builder: (_, controller) => SingleChildScrollView(
+                                              controller: controller,
+                                              child: MeasurementSelectorModal(
+                                                timingRunId: mostRecentRun?.id ?? '',
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        CupertinoIcons.plus,
+                                        size: 10,
+                                        color: Theme.of(context).colorScheme.tertiary,
+                                      ),
+                                      SizedBox(width: 2),
+                                      Text(
+                                        'Take Measurement',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.tertiary,
+                                          letterSpacing: -0.3,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),

@@ -43,7 +43,7 @@ class PremiumProductDisplay extends StatelessWidget {
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'You have active $entitlement access!',
+                    '$entitlement enabled! thank you for your support!',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

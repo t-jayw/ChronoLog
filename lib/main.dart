@@ -27,7 +27,7 @@ import 'components/show_review_dialog.dart';
 final theme = ThemeData(
   colorScheme: const ColorScheme.light(
     primary: Color.fromRGBO(250, 247, 240, 1),
-    secondary: Color.fromRGBO(176, 152, 98, 1),
+    secondary: Color.fromRGBO(145, 120, 65, 1),
     tertiary: Color.fromRGBO(47, 75, 60, 1),
     error: Color.fromARGB(255, 171, 0, 0),
     background: Color.fromRGBO(250, 247, 240, 1),

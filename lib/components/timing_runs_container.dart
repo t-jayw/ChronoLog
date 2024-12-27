@@ -50,7 +50,7 @@ class TimingRunsContainer extends ConsumerWidget {
                     "Start a new timing run when you set the watch",
                     style: TextStyle(
                       fontSize: 10.0,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
                     ),
                   ),
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -59,7 +59,7 @@ class TimingRunsContainer extends ConsumerWidget {
               CupertinoButton(
                 padding: EdgeInsets.all(4),
                 borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.onTertiary.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.7),
                 minSize: 0,
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -82,7 +82,7 @@ class TimingRunsContainer extends ConsumerWidget {
                 child: Icon(
                   CupertinoIcons.plus,
                   size: 16,
-                  color: Theme.of(context).colorScheme.tertiary,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
             ],

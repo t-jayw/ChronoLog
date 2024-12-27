@@ -65,53 +65,61 @@ class _TimingRunDetailsState extends State<TimingRunDetails> with SingleTickerPr
             ],
             labelColor: Theme.of(context).colorScheme.onSurface,
             unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            indicatorColor: Theme.of(context).colorScheme.secondary,
           ),
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
                 // Graphs tab
-                Column(
-                  children: [
-                    SizedBox(
-                      height: 250, // Increased height for graphs
-                      child: PageView(
-                        controller: _pageController,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                            child: TimingRunMeasurementsOffsetGraph(runId: widget.timingRun.id),
+                Container(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          height: 250,
+                          child: PageView(
+                            controller: _pageController,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                child: TimingRunMeasurementsOffsetGraph(runId: widget.timingRun.id),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                child: TimingRunMeasurementsRateGraph(runId: widget.timingRun.id),
+                              ),
+                            ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                            child: TimingRunMeasurementsRateGraph(runId: widget.timingRun.id),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SmoothPageIndicator(
-                        controller: _pageController,
-                        count: 2,
-                        effect: JumpingDotEffect(
-                          dotHeight: 8,
-                          dotWidth: 8,
-                          activeDotColor: Theme.of(context).colorScheme.onSurface,
                         ),
-                        onDotClicked: (index) {
-                          _pageController.animateToPage(
-                            index,
-                            duration: Duration(milliseconds: 500),
-                            curve: Curves.ease,
-                          );
-                        },
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: SmoothPageIndicator(
+                            controller: _pageController,
+                            count: 2,
+                            effect: JumpingDotEffect(
+                              dotHeight: 8,
+                              dotWidth: 8,
+                              activeDotColor: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            onDotClicked: (index) => _pageController.animateToPage(
+                              index,
+                              duration: Duration(milliseconds: 500),
+                              curve: Curves.ease,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
                 // Measurements tab
-                TimingMeasurementsContainer(timingRunId: widget.timingRun.id),
+                Container(
+                  child: TimingMeasurementsContainer(
+                    timingRunId: widget.timingRun.id,
+                  ),
+                ),
               ],
             ),
           ),

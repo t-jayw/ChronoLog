@@ -214,7 +214,7 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.info_circle,
-                                        color: CupertinoTheme.of(context).primaryColor,
+                                          color: CupertinoColors.label.resolveFrom(context),
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),
@@ -259,17 +259,18 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: CupertinoButton(
                               padding: EdgeInsets.symmetric(vertical: 16),
-                              color: CupertinoTheme.of(context).primaryColor,
+                              color: Theme.of(context).colorScheme.tertiary,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(CupertinoIcons.camera_fill,
-                                      size: 24, color: CupertinoColors.white),
+                                      size: 20,
+                                      color: Theme.of(context).colorScheme.onPrimary),
                                   SizedBox(width: 8),
                                   Text('Take Photo',
                                       style: TextStyle(
-                                          color: CupertinoColors.white,
-                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.onPrimary,
+                                          fontSize: 14,
                                           fontWeight: FontWeight.w600)),
                                 ],
                               ),
@@ -315,7 +316,7 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.tag,
-                                        color: CupertinoTheme.of(context).primaryColor,
+                                        color: CupertinoColors.systemGrey,
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),

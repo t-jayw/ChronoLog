@@ -17,10 +17,9 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
   bool _loadingPackages = true;
   Map<String, bool> _entitlementStatus = {};
   bool _isEventFired = false;
+  bool _isDebugExpanded = false;
 
   final List<String> _entitlements = ['premium'];
-
-  static const String ENTITLEMENTS_KEY = 'activeEntitlements';
 
   @override
   void initState() {
@@ -575,34 +574,37 @@ ${_packages.map((p) => '''• ${p.identifier}
   }
 
   Widget _buildDebugPanel() {
+    if (!kDebugMode) return SizedBox.shrink();
+
     return Card(
       margin: EdgeInsets.all(8),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: ExpansionTile(
+        initiallyExpanded: _isDebugExpanded,
+        onExpansionChanged: (expanded) {
+          setState(() => _isDebugExpanded = expanded);
+        },
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('🛠️ Debug',
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                Text(
-                  _entitlementStatus['premium'] ?? false
-                      ? "Premium ✓"
-                      : "No Premium ✗",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: _entitlementStatus['premium'] ?? false
-                        ? Colors.green
-                        : Colors.red,
-                  ),
-                ),
-              ],
+            Text('🛠️ Debug Tools',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+            Text(
+              _entitlementStatus['premium'] ?? false
+                  ? "Premium ✓"
+                  : "No Premium ✗",
+              style: TextStyle(
+                fontSize: 12,
+                color: _entitlementStatus['premium'] ?? false
+                    ? Colors.green
+                    : Colors.red,
+              ),
             ),
-            SizedBox(height: 8),
-            Wrap(
+          ],
+        ),
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Wrap(
               spacing: 4,
               runSpacing: 4,
               children: [
@@ -646,8 +648,8 @@ ${_packages.map((p) => '''• ${p.identifier}
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

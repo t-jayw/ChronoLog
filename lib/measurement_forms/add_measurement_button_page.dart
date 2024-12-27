@@ -181,7 +181,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.info_circle,
-                                        color: CupertinoTheme.of(context).primaryColor,
+                                        color: CupertinoColors.label.resolveFrom(context),
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),

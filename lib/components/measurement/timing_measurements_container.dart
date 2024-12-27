@@ -6,28 +6,48 @@ import '../delete_confirmation_dialog.dart';
 import 'timing_measurement_item.dart'; // Import the TimingMeasurementItem widget
 import 'package:chronolog/models/timing_measurement.dart'; // Add this import
 
-class TimingMeasurementsContainer extends ConsumerWidget {
+class TimingMeasurementsContainer extends ConsumerStatefulWidget {
   const TimingMeasurementsContainer({Key? key, required this.timingRunId})
       : super(key: key);
 
   final String timingRunId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final measurements = ref.watch(timingMeasurementsListProvider(timingRunId));
+  ConsumerState<TimingMeasurementsContainer> createState() => _TimingMeasurementsContainerState();
+}
+
+class _TimingMeasurementsContainerState extends ConsumerState<TimingMeasurementsContainer> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final measurements = ref.watch(timingMeasurementsListProvider(widget.timingRunId));
 
     if (measurements.isEmpty) {
       return const Center(child: Text('No timing measurements available.'));
     }
 
-    return Scrollbar(
-      thumbVisibility: true,
-      child: ListView.builder(
-        itemCount: measurements.length,
-        itemBuilder: (_, index) => _buildDismissibleItem(
-          context,
-          ref,
-          measurements[index],
+    return Container(
+      child: Scrollbar(
+        controller: _scrollController,
+        thumbVisibility: true,
+        child: ListView.builder(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: measurements.length,
+          itemBuilder: (context, index) {
+            return _buildDismissibleItem(
+              context,
+              ref,
+              measurements[index],
+            );
+          },
         ),
       ),
     );
@@ -46,14 +66,14 @@ class TimingMeasurementsContainer extends ConsumerWidget {
         builder: (_) => const DeleteConfirmationDialog(),
       ),
       onDismissed: (_) => ref
-          .read(timingMeasurementsListProvider(timingRunId).notifier)
+          .read(timingMeasurementsListProvider(widget.timingRunId).notifier)
           .deleteTimingMeasurement(measurement.id),
- background: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 4.0),
-                  child: Icon(Icons.delete,
-                      color: Theme.of(context).colorScheme.error, size: 40),
-                ),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 4.0),
+        child: Icon(Icons.delete,
+            color: Theme.of(context).colorScheme.error, size: 40),
+      ),
       child: TimingMeasurementItem(timingMeasurement: measurement),
     );
   }

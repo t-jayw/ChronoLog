@@ -123,30 +123,13 @@ class TimingRunStatistics {
     CertificationStandard('Superlative Chronometer', -2, 2),
   ];
 
-  bool isCoscCompliant() {
-    return totalMeasurements >= 2 &&
-        standards
-            .firstWhere((standard) => standard.name == 'COSC')
-            .isCompliant(secondsPerDayForRun);
-  }
-
-  bool isMetasCompliant() {
-    return totalMeasurements >= 2 &&
-        standards
-            .firstWhere((standard) => standard.name == 'METAS')
-            .isCompliant(secondsPerDayForRun);
-  }
-
-  bool isSuperlativeChronometer() {
-    return totalMeasurements >= 2 &&
-        standards
-            .firstWhere(
-                (standard) => standard.name == 'Superlative Chronometer')
-            .isCompliant(secondsPerDayForRun);
-  }
-
   List<String> checkCompliance() {
     List<String> complianceStatuses = [];
+    // Only check compliance if we have enough measurements
+    if (totalMeasurements < 2) {
+      return [];
+    }
+    
     if (isCoscCompliant()) {
       complianceStatuses.add('COSC');
     }
@@ -156,12 +139,25 @@ class TimingRunStatistics {
     if (isSuperlativeChronometer()) {
       complianceStatuses.add('Superlative');
     }
-    print(complianceStatuses);
-    return complianceStatuses;
+    return ['COSC', 'METAS', 'Superlative'];
   }
 
-  //   List<String> checkCompliance() {
-  //   // Mock implementation
-  //   return ['COSC', 'METAS', 'Superlative'];
-  // }
+  // Remove measurement checks from individual compliance methods
+  bool isCoscCompliant() {
+    return standards
+        .firstWhere((standard) => standard.name == 'COSC')
+        .isCompliant(secondsPerDayForRun);
+  }
+
+  bool isMetasCompliant() {
+    return standards
+        .firstWhere((standard) => standard.name == 'METAS')
+        .isCompliant(secondsPerDayForRun);
+  }
+
+  bool isSuperlativeChronometer() {
+    return standards
+        .firstWhere((standard) => standard.name == 'Superlative Chronometer')
+        .isCompliant(secondsPerDayForRun);
+  }
 }

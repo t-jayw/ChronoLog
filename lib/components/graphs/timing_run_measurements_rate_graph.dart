@@ -16,23 +16,16 @@ class TimingRunMeasurementsRateGraph extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-    return Column(
-      children: [
-        //SizedBox(height: 4),
-        Container(
-          height: 250,
-          child: Card(
-            child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 4.0, 12.0, 4.0),
-                child: Flex(direction: Axis.horizontal, children: [
-                  RateCustomLineChart(
-                    runId: runId,
-                  )
-                ])),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 4.0, 12.0, 4.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: RateCustomLineChart(
+            runId: runId,
           ),
         ),
-      ],
+      ),
     );
   }
 }

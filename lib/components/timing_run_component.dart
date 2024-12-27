@@ -64,7 +64,10 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                       "total duration: ${timingRunStats.formattedTotalDuration() ?? '-'}",
                       style: TextStyle(
                         fontSize: 10,
-                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onBackground
+                            .withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -74,12 +77,15 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                 Icon(
                   CupertinoIcons.chevron_right,
                   size: 20,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onBackground
+                      .withOpacity(0.3),
                 ),
             ],
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
             child: Divider(
               height: 1,
               thickness: 0.5,
@@ -100,6 +106,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                             timingRunStats.formattedLatestOffset(),
                             style: TextStyle(
                               fontSize: 13,
+                              fontWeight: FontWeight.w700,
                               color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
@@ -121,6 +128,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                             timingRunStats.formattedSecondsPerDayForRun(),
                             style: TextStyle(
                               fontSize: 13,
+                              fontWeight: FontWeight.w700,
                               color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
@@ -140,9 +148,11 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              timingRunStats.formattedTimeSinceLastMeasurement(),
+                              timingRunStats
+                                  .formattedTimeSinceLastMeasurement(),
                               style: TextStyle(
                                 fontSize: 13,
+                                fontWeight: FontWeight.w700,
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
                             ),
@@ -150,7 +160,8 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                               'since last',
                               style: TextStyle(
                                 fontSize: 8,
-                                color: Theme.of(context).colorScheme.onBackground,
+                                color:
+                                    Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
                           ],
@@ -233,135 +244,85 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
               //   ),
             ],
           ),
-          if (timingMeasurements.length >= 2)
-            widget.isMostRecent ?? false
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: timingRunStats.checkCompliance().map((standard) =>
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2.0),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Theme.of(context).colorScheme.secondary,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  standard,
-                                  style: TextStyle(
-                                    fontSize: 8,
-                                    color: Theme.of(context).colorScheme.tertiary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ).toList(),
-                        ),
-                        Spacer(),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: CupertinoButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () async {
-                              SharedPreferences prefs = await SharedPreferences.getInstance();
-                              bool? isPremiumActivated = prefs.getBool('in_app_premiumActive');
-
-                              if (isPremiumActivated != true && timingMeasurements.length > 400) {
-                                showPremiumNeededDialog(context,
-                                    "Free version limited to 5 measurements per Timing Run");
-                              } else {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  builder: (BuildContext context) {
-                                    return DraggableScrollableSheet(
-                                      expand: false,
-                                      builder: (_, controller) => SingleChildScrollView(
-                                        controller: controller,
-                                        child: MeasurementSelectorModal(
-                                          timingRunId: widget.timingRun.id,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.plus,
-                                  size: 12,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Take Measurement',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.tertiary,
-                                    letterSpacing: -0.3,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+          if (widget.isMostRecent ?? false)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildComplianceBadges()),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        ...timingRunStats.checkCompliance().map((standard) => 
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  width: 1,
+                    child: CupertinoButton(
+                      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
+                      minSize: 0,
+                      onPressed: () async {
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        bool? isPremiumActivated =
+                            prefs.getBool('in_app_premiumActive');
+
+                        if (isPremiumActivated != true &&
+                            timingMeasurements.length > 400) {
+                          showPremiumNeededDialog(context,
+                              "Free version limited to 5 measurements per Timing Run");
+                        } else {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (BuildContext context) {
+                              return DraggableScrollableSheet(
+                                expand: false,
+                                builder: (_, controller) =>
+                                    SingleChildScrollView(
+                                  controller: controller,
+                                  child: MeasurementSelectorModal(
+                                    timingRunId: widget.timingRun.id,
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                standard,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            CupertinoIcons.plus,
+                            size: 12,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            'Take Measurement',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w300,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              letterSpacing: -0.2,
                             ),
                           ),
-                        ).toList(),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
+                ],
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: _buildComplianceBadges(),
+            ),
         ],
       ),
     );
@@ -395,6 +356,50 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
               child: contentWidget,
             )
           : contentWidget,
+    );
+  }
+
+  Widget _buildComplianceBadges() {
+    final timingMeasurements =
+        ref.watch(timingMeasurementsListProvider(widget.timingRun.id));
+    final timingRunStats = TimingRunStatistics(timingMeasurements);
+
+    final complianceStandards = timingRunStats.checkCompliance();
+
+    // Return empty container if no compliance standards
+    if (complianceStandards.isEmpty) {
+      return Container();
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: complianceStandards
+          .map(
+            (standard) => Padding(
+              padding: const EdgeInsets.only(right: 4.0),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                decoration: BoxDecoration(
+                  color:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.secondary,
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  standard,
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: Theme.of(context).colorScheme.onBackground,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 }

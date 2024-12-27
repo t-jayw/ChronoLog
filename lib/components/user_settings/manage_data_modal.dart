@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -63,14 +64,11 @@ void _showPremiumNeededDialog(BuildContext context, String primaryText) {
 class ManageDataModal extends ConsumerWidget {
   ManageDataModal({Key? key}) : super(key: key);
 
-  final String versionNumber = "1.3.0";
-  // replace with actual value
-
   final DatabaseHelper _db = DatabaseHelper();
 
   Future<bool> _isPremiumActivated() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('in_app_premiumActive') == true;
+    return prefs.getBool('premiumActive') == true;
   }
 
   Future<String> _saveFile(String fileName, String content) async {
@@ -83,8 +81,6 @@ class ManageDataModal extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final timepieceProvider = ref.read(timepieceListProvider.notifier);
-
     return FutureBuilder<bool>(
       future: _isPremiumActivated(),
       builder: (context, snapshot) {
@@ -94,237 +90,169 @@ class ManageDataModal extends ConsumerWidget {
 
         bool isPremium = snapshot.data ?? false;
 
-        return Stack(
-          children: [
-            SingleChildScrollView(
-              child: Center(
-                child: Container(
+        return Container(
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemBackground.resolveFrom(context),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Drag indicator
+                Container(
+                  width: 36,
+                  height: 5,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Theme.of(context)
-                        .dialogBackgroundColor, // Set the background color here
+                    color: CupertinoColors.separator.resolveFrom(context),
+                    borderRadius: BorderRadius.circular(2.5),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      //TimeDisplay(),
-                      SizedBox(height: 20),
-
-                      Text(
-                        'Manage Data',
-                        style: TextStyle(
-                            fontSize: 30,
-                            color: Theme.of(context).colorScheme.tertiary),
-                      ),
-                      SizedBox(height: 20),
-
-                      // Expanded(child: PurchaseOptions()),
-                      Stack(
-                        children: [
-                          ListGroup(
-                            items: [
-                              // Add more items as needed
-                              ManageDataItem(
-                                title: 'Export Data to CSV',
-                                bodyText:
-                                    'Export CSV formatted data of all measurements', // Example usage
-                                iconData: Icons.email,
-                                onTap: () async {
-                                  String csvData = await _db.exportDataToCsv();
-
-                                  print(csvData);
-                                  String fileName = "exported_data.csv";
-
-                                  final path = await _saveFile(fileName,
-                                      csvData); // We need to save CSV data to a temporary file first
-                                  final xfile = XFile(path);
-                                  final result = await Share.shareXFiles(
-                                    [xfile],
-                                  );
-
-                                  if (result.status ==
-                                      ShareResultStatus.success) {
-                                    print('CSV shared successfully!');
-                                  } else if (result.status ==
-                                      ShareResultStatus.dismissed) {
-                                    print('User dismissed the share sheet.');
-                                  }
-                                },
-                              ),
-                              ManageDataItem(
-                                title: 'Backup Data',
-                                bodyText:
-                                    'Backup the state of your database to a file and restore on a new device.',
-                                iconData: Icons.download,
-                                onTap: () async {
-                                  print('calling backup db');
-                                  await _db.backupDatabase();
-                                },
-                              ),
-                              ManageDataItem(
-                                title: 'Restore (Caution!)',
-                                bodyText:
-                                    'Choose a previously saved file to restore from. ⚠️Overwrites everything⚠️',
-                                iconData: Icons.upload,
-                                onTap: () async {
-                                  print('restoring backup db');
-                                  bool success = await _db.restoreDatabase();
-
-                                  if (success) {
-                                    timepieceProvider.initTimepieces();
-                                    showGenericAlert(
-                                        context: context,
-                                        title: 'Restore Successful',
-                                        contentLines: [
-                                          'Your database has been backed up successfully.',
-                                        ]);
-                                  } else {
-                                    showGenericAlert(
-                                      context: context,
-                                      title: 'Restore Unsuccessful',
-                                      contentLines: [
-                                        'The app was unable to restore the database from your selected file.'
-                                      ],
-                                    );
-                                  }
-                                },
-                                isLastItem: true,
-                              ),
-                            ],
-                          ),
-                          if (!isPremium)
-                            Positioned.fill(
-                              child: Material(
-                                color: Colors.grey.withOpacity(
-                                    0.7), // semi-transparent overlay
-                                child: InkWell(
-                                  onTap: () {
-                                    _showPremiumNeededDialog(
-                                        context, 'Premium Required');
-                                  },
-                                  child: Center(
-                                    child: Text(
-                                      "",
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 20),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                        ],
-                      ),
-                      SizedBox(height: 20),
-
-                      // Expanded(
-                      //     child: Column(
-                      //   children: [],
-                      // )),
-
-                      PrimaryButton(
-                        child: Text(
-                          "Close",
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary),
-                        ),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      SizedBox(height: 20),
-                    ],
+                  margin: EdgeInsets.only(bottom: 16),
+                ),
+                
+                Text(
+                  'Manage Data',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: CupertinoColors.label.resolveFrom(context),
                   ),
                 ),
-              ),
+                
+                Divider(
+                  color: CupertinoColors.separator.resolveFrom(context),
+                  height: 32,
+                ),
+
+                Stack(
+                  children: [
+                    Column(
+                      children: [
+                        _buildDataItem(
+                          context,
+                          title: 'Export Data to CSV',
+                          subtitle: 'Export CSV formatted data of all measurements',
+                          icon: CupertinoIcons.arrow_down_doc,
+                          onTap: () async {
+                            String csvData = await _db.exportDataToCsv();
+                            String fileName = "exported_data.csv";
+                            final path = await _saveFile(fileName, csvData);
+                            final xfile = XFile(path);
+                            await Share.shareXFiles([xfile]);
+                          },
+                        ),
+                        _buildDataItem(
+                          context,
+                          title: 'Backup Data',
+                          subtitle: 'Backup database state to restore on a new device',
+                          icon: CupertinoIcons.cloud_download,
+                          onTap: () async {
+                            await _db.backupDatabase();
+                          },
+                        ),
+                        _buildDataItem(
+                          context,
+                          title: 'Restore (Caution!)',
+                          subtitle: '⚠️ Choose backup file to restore. Overwrites everything',
+                          icon: CupertinoIcons.cloud_upload,
+                          onTap: () async {
+                            bool success = await _db.restoreDatabase();
+                            if (success) {
+                              ref.read(timepieceListProvider.notifier).initTimepieces();
+                              showGenericAlert(
+                                context: context,
+                                title: 'Restore Successful',
+                                contentLines: ['Your database has been restored successfully.'],
+                              );
+                            } else {
+                              showGenericAlert(
+                                context: context,
+                                title: 'Restore Failed',
+                                contentLines: ['Unable to restore from selected file.'],
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    if (!isPremium)
+                      Positioned.fill(
+                        child: GestureDetector(
+                          onTap: () => _showPremiumNeededDialog(context, 'Premium Required'),
+                          child: Container(
+                            color: CupertinoColors.systemBackground.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+
+                SizedBox(height: 20),
+                
+                CupertinoButton(
+                  child: Text(
+                    'Close',
+                    style: TextStyle(
+                      color: CupertinoColors.label.resolveFrom(context),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
   }
-}
 
-class ListGroup extends StatelessWidget {
-  final List<ManageDataItem> items;
-
-  ListGroup({required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+  Widget _buildDataItem(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return CupertinoButton(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      onPressed: onTap,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8.0),
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).colorScheme.onPrimary,
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: Column(
-          children: items,
-        ),
-      ),
-    );
-  }
-}
-
-class ManageDataItem extends StatelessWidget {
-  final String title;
-  final String? bodyText;
-  final IconData iconData;
-  final bool isLastItem;
-  final VoidCallback onTap;
-
-  ManageDataItem({
-    required this.title,
-    this.bodyText,
-    required this.iconData,
-    required this.onTap,
-    this.isLastItem = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        decoration: BoxDecoration(
-          border: isLastItem
-              ? Border()
-              : Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).colorScheme.inverseSurface,
-                    width: 0.5,
-                  ),
-                ),
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Icon(iconData, size: 24.0), // The icon is the first element
-            SizedBox(width: 16.0),
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // aligns text to the left
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 14, // Increased font size
                       color: Theme.of(context).colorScheme.tertiary,
-                      fontWeight: FontWeight.bold, // Made it bold for emphasis
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if (bodyText != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Text(
-                        bodyText!,
-                        style:
-                            TextStyle(fontSize: 12), // slightly increased size
-                      ),
+                  SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
+                      fontSize: 12,
                     ),
+                  ),
                 ],
               ),
             ),

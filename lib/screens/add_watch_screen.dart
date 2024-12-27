@@ -390,40 +390,68 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
                             Expanded(
                               child: CupertinoButton(
                                 padding: EdgeInsets.symmetric(vertical: 8),
-                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .tertiary
+                                    .withOpacity(0.8),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(CupertinoIcons.camera,
-                                        size: 20, color: Theme.of(context).colorScheme.tertiary),
+                                    Icon(
+                                      CupertinoIcons.camera,
+                                      size: 20,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
                                     SizedBox(width: 8),
-                                    Text('Camera',
-                                        style: TextStyle(
-                                            color: Theme.of(context).colorScheme.tertiary,
-                                            fontSize: 14)),
+                                    Text(
+                                      'Camera',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                   ],
                                 ),
-                                onPressed: () => _pickAndCropImage(ImageSource.camera),
+                                onPressed: () =>
+                                    _pickAndCropImage(ImageSource.camera),
                               ),
                             ),
                             SizedBox(width: 8),
                             Expanded(
                               child: CupertinoButton(
                                 padding: EdgeInsets.symmetric(vertical: 8),
-                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .tertiary
+                                    .withOpacity(0.8),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(CupertinoIcons.photo,
-                                        size: 20, color: Theme.of(context).colorScheme.tertiary),
+                                    Icon(
+                                      CupertinoIcons.photo,
+                                      size: 20,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
                                     SizedBox(width: 8),
-                                    Text('Gallery',
-                                        style: TextStyle(
-                                            color: Theme.of(context).colorScheme.tertiary,
-                                            fontSize: 14)),
+                                    Text(
+                                      'Gallery',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                   ],
                                 ),
-                                onPressed: () => _pickAndCropImage(ImageSource.gallery),
+                                onPressed: () =>
+                                    _pickAndCropImage(ImageSource.gallery),
                               ),
                             ),
                           ],

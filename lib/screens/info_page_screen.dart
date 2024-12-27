@@ -299,7 +299,7 @@ class InfoPage extends ConsumerWidget {
                   },
                 );
               },
-              isLastItem: true,
+              isLastItem: false,
             ),
 
             ListItem(

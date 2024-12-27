@@ -20,36 +20,16 @@ class TimingRunMeasurementsOffsetGraph extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        //SizedBox(height: 0),
-        Container(
-          height: 250,
-          // decoration: const BoxDecoration(
-          //   gradient: LinearGradient(
-          //       begin: Alignment.topLeft,
-          //       end: Alignment.bottomRight,
-          //       colors: [
-          //         Color.fromARGB(255, 1, 1, 1),
-          //         Color.fromARGB(255, 219, 229, 229)
-          //       ]),
-          // ),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4.0, 12.0, 4.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OffsetCustomLineChart(
-                      runId: runId,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 4.0, 12.0, 4.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: OffsetCustomLineChart(
+            runId: runId,
           ),
         ),
-      ],
+      ),
     );
   }
 }

@@ -13,8 +13,6 @@ class MeasurementSelectorModal extends ConsumerWidget {
   MeasurementSelectorModal({Key? key, required this.timingRunId})
       : super(key: key);
 
-      
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
@@ -52,19 +50,20 @@ class MeasurementSelectorModal extends ConsumerWidget {
             SizedBox(height: 20),
             CupertinoButton(
               padding: EdgeInsets.symmetric(vertical: 8),
-              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(CupertinoIcons.hand_point_right, 
-                    size: 20, 
-                    color: Theme.of(context).colorScheme.tertiary),
+                  Icon(
+                    CupertinoIcons.hand_point_right,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
                   SizedBox(width: 8),
                   Text('Tap',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.tertiary, 
-                        fontSize: 14
-                      )),
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontSize: 14)),
                 ],
               ),
               onPressed: () async {
@@ -89,19 +88,19 @@ class MeasurementSelectorModal extends ConsumerWidget {
             SizedBox(height: 20),
             CupertinoButton(
               padding: EdgeInsets.symmetric(vertical: 8),
-              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(CupertinoIcons.camera, 
-                    size: 20, 
-                    color: Theme.of(context).colorScheme.tertiary),
+                  Icon(CupertinoIcons.camera,
+                      size: 20,                         color: Theme.of(context).colorScheme.onPrimary, 
+),
                   SizedBox(width: 8),
                   Text('Photo',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.tertiary, 
-                        fontSize: 14
-                      )),
+                                                  color: Theme.of(context).colorScheme.onPrimary, 
+
+                          fontSize: 14)),
                 ],
               ),
               onPressed: () async {
@@ -110,7 +109,8 @@ class MeasurementSelectorModal extends ConsumerWidget {
                     properties: {'method': 'photo'});
                 Navigator.of(context).pop();
                 await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => AddMeasurementPhoto(timingRunId: timingRunId)));
+                    builder: (_) =>
+                        AddMeasurementPhoto(timingRunId: timingRunId)));
               },
             ),
             SizedBox(height: 10),
