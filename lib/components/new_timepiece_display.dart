@@ -195,7 +195,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                               fontSize: 15,
                                               color: Theme.of(context)
                                                   .colorScheme
-                                                  .secondary,
+                                                  .tertiary,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -223,7 +223,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                               fontSize: 15,
                                               color: Theme.of(context)
                                                   .colorScheme
-                                                  .secondary,
+                                                  .tertiary,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -293,7 +293,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color:
-                                        Theme.of(context).colorScheme.tertiary,
+                                        Theme.of(context).colorScheme.secondary,
                                     width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(6),
