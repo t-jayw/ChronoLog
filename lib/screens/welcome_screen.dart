@@ -79,27 +79,41 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           if (!isLastPage) 
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const TabsScreen()),
-                  );
-                },
-                child: Text('Skip', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.tertiary)),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1), // Low opacity background color
+                  border: Border.all(color: Theme.of(context).colorScheme.tertiary), // Outline color
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TabsScreen()),
+                    );
+                  },
+                  child: Text('Skip', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.tertiary)),
+                ),
               ),
             ),
           if (isLastPage) 
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const TabsScreen()),
-                  );
-                },
-                child: Text('Continue', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.tertiary)),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1), // Low opacity background color
+                  border: Border.all(color: Theme.of(context).colorScheme.tertiary), // Outline color
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TabsScreen()),
+                    );
+                  },
+                  child: Text('Continue', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.tertiary)),
+                ),
               ),
             ),
           SizedBox(height: 50),

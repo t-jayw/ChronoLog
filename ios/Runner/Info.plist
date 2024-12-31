@@ -39,8 +39,6 @@
     <string>To select and upload images for your profile</string>
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true />
-    <key>NSUserTrackingUsageDescription</key>
-    <string>This will allow Chronolog to show the most relevant ads to users of the free version.</string>
     <key>UILaunchStoryboardName</key>
     <string>LaunchScreen</string>
     <key>UIMainStoryboardFile</key>

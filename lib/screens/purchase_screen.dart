@@ -505,7 +505,15 @@ ${_packages.map((p) => '''• ${p.identifier}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Upgrade')),
+      appBar: AppBar(
+        title: Text('Upgrade'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
       body: _loadingPackages ? _buildLoadingIndicator() : _buildPackageList(),
     );
   }
