@@ -138,7 +138,9 @@ class TimingRunsContainer extends ConsumerWidget {
             },
           ),
         ),
-        FooterBannerAdWidget(),
+        Center(
+          child: FooterBannerAdWidget(),
+        ),
       ],
     );
   }

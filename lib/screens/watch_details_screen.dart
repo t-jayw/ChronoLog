@@ -12,7 +12,7 @@ import '../components/timing_runs_container.dart';
 import '../components/watch_details_stats.dart';
 import '../models/timepiece.dart';
 import '../providers/timepiece_list_provider.dart';
-import '../screens/tabs.dart';
+
 
 class WatchDetails extends ConsumerWidget {
   final Timepiece timepiece;

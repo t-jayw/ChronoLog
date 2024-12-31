@@ -72,7 +72,7 @@ class TimingRunStatistics {
 
   Duration _calculateTimeSinceLastMeasurement() {
     if (measurements.isEmpty) return Duration.zero;
-    return DateTime.now().difference(measurements.last.system_time);
+    return DateTime.now().difference(measurements.first.system_time);
   }
 
   String _formatFirstMeasurementDateTime() {
