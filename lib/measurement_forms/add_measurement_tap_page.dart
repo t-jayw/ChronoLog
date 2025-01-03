@@ -59,7 +59,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
       
       print("Selected time in picker: ${selectedTime!.toIso8601String()}");
       print("Button press time: ${measurementTime.toIso8601String()}");
-      print("Difference in ms: ${measurementTime.difference(selectedTime!).inMilliseconds}");
+      print("Difference in ms: ${selectedTime!.difference(measurementTime).inMilliseconds}");
       
       previewMeasurement = TimingMeasurement(
         id: Ulid().toString(),
@@ -68,7 +68,7 @@ class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
         user_input_time: selectedTime!, // Using the picker time directly
         image: null,
         tag: tag,
-        difference_ms: measurementTime.difference(selectedTime!).inMilliseconds,
+        difference_ms: selectedTime!.difference(measurementTime).inMilliseconds,
       );
     });
   }
