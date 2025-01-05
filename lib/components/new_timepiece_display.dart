@@ -308,7 +308,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                         prefs.getBool('premiumActive');
 
                                     if (isPremiumActivated != true &&
-                                        timingMeasurements.length > 400) {
+                                        timingMeasurements.length > 5) {
                                       showPremiumNeededDialog(context,
                                           "Free version limited to 5 measurements per Timing Run");
                                     } else {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../screens/purchase_screen.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 
 void showPremiumNeededDialog(BuildContext context, text) {
   showDialog(
