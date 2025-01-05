@@ -177,23 +177,52 @@ class CustomLineChart extends StatelessWidget {
           maxY: maxY,
           lineTouchData: LineTouchData(
             enabled: true,
+            handleBuiltInTouches: true,
             touchTooltipData: LineTouchTooltipData(
-              tooltipBgColor: Theme.of(context).colorScheme.primary,
-              tooltipRoundedRadius: 12.0,
-              tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              tooltipBgColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.7),
+              tooltipRoundedRadius: 4.0,
+              tooltipPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              showOnTopOfTheChartBoxArea: true,
+              fitInsideHorizontally: true,
+              fitInsideVertically: true,
               getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                return touchedSpots.map((spot) {
+                return touchedSpots.map((LineBarSpot touchedSpot) {
+                  // Only show tooltips for the main data line (index 0)
+                  if (touchedSpot.barIndex != 0) return null;
+                  
+                  final tag = plotSpots[touchedSpot.spotIndex].tag;
+                  if (tag == null) return null;
+
                   return LineTooltipItem(
-                    '${plotSpots[spot.spotIndex].tag}',
+                    tag,
                     TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).colorScheme.inversePrimary,
                     ),
                   );
                 }).toList();
               },
             ),
+            getTouchedSpotIndicator: (LineChartBarData barData, List<int> indicators) {
+              return indicators.map(
+                (int index) {
+                  // Only show indicator if the spot has a non-'No Tag' tag
+                  final tag = plotSpots[index].tag;
+                  if (tag == null) return null;
+
+                  return TouchedSpotIndicatorData(
+                    FlLine(
+                      color: Colors.grey,
+                      strokeWidth: .5,
+                      dashArray: [2, 4],
+                    ),
+                    FlDotData(show: true),
+                  );
+                },
+              ).toList();
+            },
+            getTouchLineEnd: (_, __) => double.infinity,
           ),
           lineBarsData: [
             LineChartBarData(
@@ -230,7 +259,8 @@ class CustomLineChart extends StatelessWidget {
                 barWidth: 2,
                 dotData: FlDotData(show: false),
                 isStrokeCapRound: true,
-                dashArray: [5, 5], // Optional: Makes this line dashed
+                dashArray: [5, 5],
+                showingIndicators: [],
               ),
             if (this.chartType == 'rate')
               LineChartBarData(
@@ -351,7 +381,7 @@ List<TaggedFlSpot> createDataPoints(List<TimingMeasurement> measurements) {
     final systemTime =
         measurement.system_time.millisecondsSinceEpoch.toDouble();
     final offset = measurement.difference_ms!.toDouble() / 1000;
-    final tag = measurement.tag ?? 'No Tag';
+    final tag = measurement.tag ?? null;
 
     return TaggedFlSpot(systemTime, offset, tag);
   }).toList();

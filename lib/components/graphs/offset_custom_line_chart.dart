@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TaggedFlSpot extends FlSpot {
-  final String tag;
+  final String? tag;
 
   TaggedFlSpot(
     double x,

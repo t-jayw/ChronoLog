@@ -90,16 +90,12 @@ class _ConfigurablePrecisionTimePickerState
     );
 
     _selectedMinute = currentTime.minute;
-    _selectedSecond = widget.mode == TimePickerMode.tap
-        ? (currentTime.second ~/ 5) * 5
-        : currentTime.second;
+    _selectedSecond = currentTime.second;
     _selectedTenthOfSecond = currentTime.millisecond ~/ 100;
 
-    // Initialize the seconds picker controller based on the mode
+    // Initialize the seconds picker controller without mode-based adjustment
     _secondPickerController = FixedExtentScrollController(
-      initialItem: widget.mode == TimePickerMode.tap
-          ? (_selectedSecond ~/ 5)
-          : _selectedSecond,
+      initialItem: _selectedSecond,
     );
 
     setState(() {
@@ -170,31 +166,19 @@ class _ConfigurablePrecisionTimePickerState
 
   // Helper method to handle second change logic
   void _handleSecondChange(int newSeconds) {
-    bool incrementMinute = false;
-    bool decrementMinute = false;
-
-    // Detecting edge cases for rollover
-    if (_selectedSecond >= 55 && newSeconds == 0) {
-      incrementMinute = true;
-    } else if (_selectedSecond == 0 && newSeconds >= 55) {
-      decrementMinute = true;
-    }
-
     setState(() {
+      bool incrementMinute = _selectedSecond > newSeconds && 
+          (_selectedSecond - newSeconds) > 30; // Rolling forward
+      bool decrementMinute = newSeconds > _selectedSecond && 
+          (newSeconds - _selectedSecond) > 30; // Rolling backward
+
       _selectedSecond = newSeconds;
 
       if (incrementMinute) {
-        print('Increment minute');
         _incrementMinute();
       } else if (decrementMinute) {
-        print('Decrement minute');
         _decrementMinute();
       }
-
-      // Update the seconds picker controller to reflect the new second
-      _secondPickerController.jumpToItem(widget.mode == TimePickerMode.tap
-          ? (_selectedSecond ~/ 5)
-          : _selectedSecond);
 
       _updateTime();
     });

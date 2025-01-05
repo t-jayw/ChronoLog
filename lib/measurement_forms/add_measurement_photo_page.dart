@@ -254,30 +254,50 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                             ),
                           ),
 
-                          // Photo buttons (without preview)
+                          // Photo buttons and preview
                           Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
-                            child: CupertinoButton(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              color: Theme.of(context).colorScheme.tertiary,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(CupertinoIcons.camera_fill,
-                                      size: 20,
-                                      color: Theme.of(context).colorScheme.onPrimary),
-                                  SizedBox(width: 8),
-                                  Text('Take Photo',
-                                      style: TextStyle(
+                            child: Column(
+                              children: [
+                                if (_croppedFile != null) ...[
+                                  Container(
+                                    width: 200,
+                                    height: 200,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: FileImage(File(_croppedFile!.path)),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16),
+                                ],
+                                CupertinoButton(
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(CupertinoIcons.camera_fill,
+                                          size: 20,
+                                          color: Theme.of(context).colorScheme.onPrimary),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        _croppedFile != null ? 'Re-take Photo' : 'Take Photo',
+                                        style: TextStyle(
                                           color: Theme.of(context).colorScheme.onPrimary,
                                           fontSize: 14,
-                                          fontWeight: FontWeight.w600)),
-                                ],
-                              ),
-                              onPressed: () => _pickImage(ImageSource.camera),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onPressed: () => _pickImage(ImageSource.camera),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(height: 12),
 
                           // Time Picker and Tag Selector with updated styling
                           Text(
