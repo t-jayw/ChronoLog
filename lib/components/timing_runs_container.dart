@@ -63,7 +63,7 @@ class TimingRunsContainer extends ConsumerWidget {
                 minSize: 0,
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
-                  bool? isPremiumActivated = prefs.getBool('premiumActive');
+                  bool? isPremiumActivated = prefs.getBool('premiumActive') ?? false;
                   int numTimingRuns = timingRuns.length;
 
                   // Add PostHog tracking for debugging
@@ -76,7 +76,7 @@ class TimingRunsContainer extends ConsumerWidget {
                   );
 
                   // Check if premium is explicitly false or null (not activated)
-                  if ((isPremiumActivated == false || isPremiumActivated == null) && numTimingRuns >= 2) {
+                  if (!isPremiumActivated && numTimingRuns >= 2) {
                     showPremiumNeededDialog(
                         context,
                         "Free version limited to 2 Timing Runs per timepiece",

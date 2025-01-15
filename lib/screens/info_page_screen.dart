@@ -359,7 +359,7 @@ class InfoPage extends ConsumerWidget {
                   Text(
                     'Made with ',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 10,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
@@ -370,7 +370,7 @@ class InfoPage extends ConsumerWidget {
                     child: Text(
                       '⛰️',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -378,7 +378,7 @@ class InfoPage extends ConsumerWidget {
                   Text(
                     ' in Boulder, CO',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 10,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
