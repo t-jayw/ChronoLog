@@ -1,274 +1,231 @@
-import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../models/timing_measurement.dart';
 import '../../providers/timing_measurements_list_provider.dart';
 import '../forms/edit_timing_measurement_form.dart';
+import '../formatted_time_display.dart';
 
 class TimingMeasurementItem extends ConsumerWidget {
-  const TimingMeasurementItem({Key? key, required this.timingMeasurement})
-      : super(key: key);
+  const TimingMeasurementItem({
+    Key? key, 
+    required this.timingMeasurement,
+    this.enableNavigation = true,
+    this.previousMeasurement,
+  }) : super(key: key);
 
   final TimingMeasurement timingMeasurement;
+  final bool enableNavigation;
+  final TimingMeasurement? previousMeasurement;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final timingMeasurementsProvider =
-        ref.read(timingMeasurementsListProvider(timingMeasurement.run_id));
+    
+    String? differenceSeconds;
+    String? rateOfChange;
 
-    final sortedMeasurements = timingMeasurementsProvider.toList()
-      ..sort((a, b) => b.system_time.compareTo(a.system_time));
+    TimingMeasurement? prevMeasurement = previousMeasurement;
+    if (prevMeasurement == null && enableNavigation) {
+      final timingMeasurementsProvider =
+          ref.read(timingMeasurementsListProvider(timingMeasurement.run_id));
 
-    final index = sortedMeasurements.indexOf(timingMeasurement);
-    final contentList = <Widget>[];
-    String tag = timingMeasurement.tag != null ? timingMeasurement.tag! : '';
+      final sortedMeasurements = timingMeasurementsProvider.toList()
+        ..sort((a, b) => b.system_time.compareTo(a.system_time));
+      final index = sortedMeasurements.indexOf(timingMeasurement);
+      
+      if (index < sortedMeasurements.length - 1) {
+        prevMeasurement = sortedMeasurements[index + 1];
+      }
+    }
 
-    if (index < sortedMeasurements.length - 1) {
-      final previousMeasurement = sortedMeasurements[index + 1];
+    if (prevMeasurement != null) {
       final difference = (timingMeasurement.difference_ms! -
-              previousMeasurement.difference_ms!) /
+              prevMeasurement.difference_ms!) /
           1000;
-      final differenceSeconds = difference.toStringAsFixed(1);
+      differenceSeconds = difference.toStringAsFixed(1);
 
       final timeSincePrevious = timingMeasurement.system_time
-          .difference(previousMeasurement.system_time)
+          .difference(prevMeasurement.system_time)
           .inSeconds;
-
-      final rateOfChange = (difference / (timeSincePrevious / (24 * 60 * 60)))
+      rateOfChange = (difference / (timeSincePrevious / (24 * 60 * 60)))
           .toStringAsFixed(1);
-
-      contentList.addAll([
-        _buildMetricColumn(
-            'Offset',
-            '${(timingMeasurement.difference_ms! / 1000).toStringAsFixed(1)} s',
-            colorScheme.onSurface,
-            colorScheme.tertiary),
-        VerticalDivider(
-          color: Colors.black,
-          width: 10,
-          thickness: 1,
-        ),
-        _buildMetricColumn('Change', differenceSeconds + ' s',
-            colorScheme.onSurface, colorScheme.tertiary),
-        VerticalDivider(),
-        _buildMetricColumn('Rate', rateOfChange + ' s/d', colorScheme.onSurface,
-            colorScheme.tertiary),
-      ]);
-    } else {
-      contentList.addAll([
-        _buildMetricColumn(
-            'Offset',
-            '${(timingMeasurement.difference_ms! / 1000).toStringAsFixed(1)} s',
-            colorScheme.onSurface,
-            colorScheme.tertiary),
-        _buildMetricColumn(
-            'Change', '--' + ' s', colorScheme.tertiary, colorScheme.onSurface),
-        _buildMetricColumn(
-            'Rate', '--' + 's/d', colorScheme.onSurface, colorScheme.tertiary),
-      ]);
     }
 
-    if (tag.isNotEmpty) {
-      contentList.add(_buildTag(tag, context));
-    }
-
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) =>
-                EditTimingMeasurementForm(timingMeasurement: timingMeasurement),
-          ),
-        );
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 1.0, horizontal: 2.0),
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          elevation: 4.0,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
-            ),
-            padding: EdgeInsets.all(2.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Text(
-                //   // Title
-                //   'Measurement',
-                //   style: TextStyle(
-                //     fontSize: 10.0,
-                //     fontWeight: FontWeight.bold,
-                //   ),
-                // ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    Widget content = Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Measurement: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(timingMeasurement.system_time)}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 10.0,
+                    Row(
+                      children: [
+                        Text(
+                          '• ',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onBackground.withOpacity(0.7),
+                          ),
+                        ),
+                        Text(
+                          'System time: ',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onBackground.withOpacity(0.7),
+                          ),
+                        ),
+                        FormattedTimeDisplay(
+                          dateTime: timingMeasurement.system_time,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onBackground.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (timingMeasurement.tag?.isNotEmpty ?? false)
+                      Padding(
+                        padding: EdgeInsets.only(top: 4.0),
+                        child: _buildTag(timingMeasurement.tag!, context),
                       ),
-                    ),
-                    Icon(
-                      Icons.edit,
-                      size: 16,
-                    ),
                   ],
                 ),
-                Divider(color: Colors.black), // Divider
-
-                Row(
-                  children: contentList,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                ),
-
-                SizedBox(height: 1.0),
-                // Text(
-                //   '${DateFormat('yyyy-MM-dd HH:mm:ss').format(timingMeasurement.system_time)}',
-                //   style: TextStyle(
-                //     color: Colors.black,
-                //     fontSize: 10.0,
-                //     fontWeight: FontWeight.bold,
-                //   ),
-                // ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCardText(String label, String value, ColorScheme colorScheme) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 4.0),
-      child: RichText(
-        text: TextSpan(
-          children: <TextSpan>[
-            TextSpan(
-              text: label,
-              style: TextStyle(
-                color: colorScheme.inverseSurface,
-                fontSize: 14.0,
-                fontWeight: FontWeight.bold,
               ),
-            ),
-            TextSpan(
-              text: ' ' + value,
-              style: TextStyle(
-                color: colorScheme.tertiary,
-                fontSize: 14.0,
+              if (enableNavigation)
+                Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 16,
+                  color: colorScheme.onBackground.withOpacity(0.3),
+                ),
+            ],
+          ),
+          
+          Divider(height: 4, thickness: 1),
+          
+          Row(
+            children: [
+              Expanded(
+                child: _buildMeasurementColumn(
+                  value: (timingMeasurement.difference_ms! / 1000).toStringAsFixed(1),
+                  label: 'offset (sec)',
+                  valueColor: colorScheme.secondary,
+                  context: context,
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCardInlineText(String changeLabel, String changeValue,
-      String rateLabel, String rateValue, String tag, ColorScheme colorScheme) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          RichText(
-            text: TextSpan(
-              children: <TextSpan>[
-                TextSpan(
-                  text: changeLabel,
-                  style: TextStyle(
-                    color: colorScheme.inverseSurface,
-                    fontSize: 12.0,
+              if (prevMeasurement != null) ...[
+                SizedBox(width: 12),
+                Expanded(
+                  child: _buildMeasurementColumn(
+                    value: differenceSeconds!,
+                    label: 'change (sec)',
+                    valueColor: colorScheme.secondary,
+                    context: context,
                   ),
                 ),
-                TextSpan(
-                  text: ' ' + changeValue,
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 12.0,
+                SizedBox(width: 12),
+                Expanded(
+                  child: _buildMeasurementColumn(
+                    value: rateOfChange!,
+                    label: 'sec/day',
+                    valueColor: colorScheme.tertiary,
+                    context: context,
                   ),
                 ),
               ],
-            ),
+            ],
           ),
-          RichText(
-            text: TextSpan(
-              children: <TextSpan>[
-                TextSpan(
-                  text: rateLabel,
-                  style: TextStyle(
-                    color: colorScheme.inverseSurface,
-                    fontSize: 12.0,
-                  ),
-                ),
-                TextSpan(
-                  text: ' ' + rateValue,
-                  style: TextStyle(
-                    color: colorScheme.tertiary,
-                    fontSize: 14.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          tag.isNotEmpty
-              ? Text(
-                  tag,
-                  style: TextStyle(
-                    fontSize: 12.0,
-                    color: colorScheme.tertiary,
-                  ),
-                )
-              : Container(),
         ],
       ),
     );
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: enableNavigation
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (_) => EditTimingMeasurementForm(
+                    timingMeasurement: timingMeasurement,
+                  ),
+                ),
+              ),
+              child: content,
+            )
+          : content,
+    );
   }
 
-  Widget _buildMetricColumn(
-      String label, String value, Color metricColor, Color labelColor) {
+  Widget _buildTag(String tag, BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.0),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(3),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.tertiary.withOpacity(0.2),
+            width: 0.5,
+          ),
+        ),
+        child: Text(
+          tag,
+          style: TextStyle(
+            fontSize: 10,
+            color: Theme.of(context).colorScheme.tertiary,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.2,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMeasurementColumn({
+    required String value,
+    required String label,
+    required Color valueColor,
+    required BuildContext context,
+  }) {
     return Column(
-      children: <Widget>[
-        AutoSizeText(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
           value,
-          style: TextStyle(// Larger font size
-            color: metricColor, // Tertiary color
-            fontSize: 10.0,
+          style: TextStyle(
+            fontSize: 15,
+            color: valueColor,
+            fontWeight: FontWeight.w500,
           ),
         ),
         Text(
           label,
           style: TextStyle(
-            fontSize: 10.0, // Smaller font size
-            color: labelColor, // onSurface color
+            fontSize: 9,
+            color: Theme.of(context).colorScheme.onBackground,
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildTag(String tag, BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.tertiary,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        tag,
-        style: TextStyle(
-            fontSize: 10, color: Theme.of(context).colorScheme.onPrimary),
-      ),
     );
   }
 }

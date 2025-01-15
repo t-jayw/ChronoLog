@@ -4,7 +4,6 @@ import 'package:chronolog/models/timing_measurement.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
-import 'package:intl/intl.dart';
 
 class CustomLineChart extends StatelessWidget {
   final List<TimingMeasurement> measurements;
@@ -70,6 +69,20 @@ class CustomLineChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (measurements.isEmpty) {
+      // Handle empty measurements case first
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            "No measurements available.\nPlease add measurements.",
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          ),
+        ),
+      );
+    }
+
     List<TaggedFlSpot> offsetSpots = createOffsetDataPoints(measurements);
     List<TaggedFlSpot> rateSpots = createRateDataPoints(measurements);
 
@@ -154,7 +167,8 @@ class CustomLineChart extends StatelessWidget {
     List<TaggedFlSpot> plotSpots =
         chartType == 'rate' ? rateSpots : offsetSpots;
 
-    return Expanded(
+    return SizedBox(
+      height: 200,
       child: LineChart(
         LineChartData(
           minX: minX,
@@ -162,87 +176,80 @@ class CustomLineChart extends StatelessWidget {
           minY: minY,
           maxY: maxY,
           lineTouchData: LineTouchData(
-              enabled: true,
-              touchCallback:
-                  (FlTouchEvent event, LineTouchResponse? touchResponse) {
-                // TODO : Utilize touch event here to perform any operation
-              },
-              touchTooltipData: LineTouchTooltipData(
-                tooltipBgColor: Theme.of(context).colorScheme.tertiary,
-                tooltipRoundedRadius: 3.0,
-                showOnTopOfTheChartBoxArea: true,
-                fitInsideHorizontally: true,
-                fitInsideVertically: true,
-                tooltipMargin: 1,
-                tooltipPadding: const EdgeInsets.fromLTRB(1.0, 0.0, 1.0, 0.0),
-                tooltipBorder: BorderSide(color: Colors.black),
-                getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                  return touchedSpots.map((LineBarSpot touchedSpot) {
-                    final TextStyle textStyle = TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+            enabled: true,
+            handleBuiltInTouches: true,
+            touchTooltipData: LineTouchTooltipData(
+              tooltipBgColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.7),
+              tooltipRoundedRadius: 4.0,
+              tooltipPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              showOnTopOfTheChartBoxArea: true,
+              fitInsideHorizontally: true,
+              fitInsideVertically: true,
+              getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                return touchedSpots.map((LineBarSpot touchedSpot) {
+                  // Only show tooltips for the main data line (index 0)
+                  if (touchedSpot.barIndex != 0) return null;
+                  
+                  final tag = plotSpots[touchedSpot.spotIndex].tag;
+                  if (tag == null) return null;
+
+                  return LineTooltipItem(
+                    tag,
+                    TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w400,
                       color: Theme.of(context).colorScheme.inversePrimary,
-                    );
-
-                    if (touchedSpot.barIndex == 0) {
-                      return LineTooltipItem(
-                        '${plotSpots[touchedSpot.spotIndex].tag}',
-                        textStyle,
-                      );
-                    } else {}
-
-                    // If the current touched spot isn't the highest or doesn't belong to actual data line, don't display any tooltip
-                  }).toList();
-                },
-              ),
-              getTouchedSpotIndicator:
-                  (LineChartBarData barData, List<int> indicators) {
-                return indicators.map(
-                  (int index) {
-                    final line = FlLine(
-                        color: Colors.grey, strokeWidth: .5, dashArray: [2, 4]);
-                    return TouchedSpotIndicatorData(
-                      line,
-                      FlDotData(show: true),
-                    );
-                  },
-                ).toList();
+                    ),
+                  );
+                }).toList();
               },
-              getTouchLineEnd: (_, __) => double.infinity),
+            ),
+            getTouchedSpotIndicator: (LineChartBarData barData, List<int> indicators) {
+              return indicators.map(
+                (int index) {
+                  // Only show indicator if the spot has a non-'No Tag' tag
+                  final tag = plotSpots[index].tag;
+                  if (tag == null) return null;
+
+                  return TouchedSpotIndicatorData(
+                    FlLine(
+                      color: Colors.grey,
+                      strokeWidth: .5,
+                      dashArray: [2, 4],
+                    ),
+                    FlDotData(show: true),
+                  );
+                },
+              ).toList();
+            },
+            getTouchLineEnd: (_, __) => double.infinity,
+          ),
           lineBarsData: [
             LineChartBarData(
               spots: plotSpots,
               isCurved: false,
-              color: Colors.orangeAccent,
-              gradient: const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.center,
-                colors: <Color>[
-                  //Color(0xff1f005c),
-                  //Color(0xff5b0060),
-                  Color(0xff870160),
-                  Color(0xffac255e),
-                  Color(0xffca485c),
-                  Color(0xffe16b5c),
-                  Color(0xfff39060),
-                  Color(0xffffb56b),
-                ], // Gradient from https://learnui.design/tools/gradient-generator.html
-                tileMode: TileMode.mirror,
-              ),
-              barWidth: 1.5,
+              color: Theme.of(context).colorScheme.tertiary,
+              barWidth: 2,
               dotData: FlDotData(
                 show: true,
-                getDotPainter: (spot, percent, barData, index) {
-                  return FlDotCirclePainter(
-                    radius:
-                        1, // Adjust the radius to increase or decrease the size of the dot
-                    color: Colors.orangeAccent,
-                    strokeWidth: 2,
-                    strokeColor: Theme.of(context).colorScheme.tertiary,
-                  );
-                },
+                getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                  radius: 3.5,
+                  color: Theme.of(context).colorScheme.tertiary,
+                  strokeWidth: 1,
+                  strokeColor: Theme.of(context).colorScheme.primary,
+                ),
               ),
-              belowBarData: BarAreaData(show: false),
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.15),
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.0),
+                  ],
+                ),
+              ),
             ),
             if (this.chartType == 'offset')
               LineChartBarData(
@@ -252,7 +259,8 @@ class CustomLineChart extends StatelessWidget {
                 barWidth: 2,
                 dotData: FlDotData(show: false),
                 isStrokeCapRound: true,
-                dashArray: [5, 5], // Optional: Makes this line dashed
+                dashArray: [5, 5],
+                showingIndicators: [],
               ),
             if (this.chartType == 'rate')
               LineChartBarData(
@@ -265,55 +273,101 @@ class CustomLineChart extends StatelessWidget {
               ),
           ],
           gridData: FlGridData(
+            show: true,
             drawVerticalLine: true,
-            verticalInterval: intervalX,
-            drawHorizontalLine: true,
             horizontalInterval: intervalY,
+            verticalInterval: intervalX,
+            getDrawingVerticalLine: (value) => FlLine(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              strokeWidth: 0.5,
+            ),
+            getDrawingHorizontalLine: (value) => FlLine(
+              color: Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+              strokeWidth: 0.5,
+            ),
           ),
           titlesData: FlTitlesData(
             show: true,
             leftTitles: AxisTitles(
+              axisNameWidget: Text(
+                chartType == 'rate' ? 'Rate (s/day)' : 'Offset (s)',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                ),
+              ),
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 25,
+                reservedSize: 40,
                 getTitlesWidget: (value, meta) {
                   if (value == minY || value == maxY) return const SizedBox.shrink();
-                  return Text(
-                    '${value.toStringAsFixed(0)}s',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onBackground,
-                      fontSize: 8,
+                  return SizedBox(
+                    width: 35,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Text(
+                        '${value.toStringAsFixed(1)}s',
+                        style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      ),
                     ),
                   );
                 },
-                interval: intervalY, // Match grid interval
+                interval: intervalY,
               ),
             ),
             bottomTitles: AxisTitles(
+              axisNameWidget: Text(
+                'Time',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                ),
+              ),
               sideTitles: SideTitles(
-                reservedSize: 15,
+                reservedSize: 22,
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                  if (value == minX || value == maxX)
-                    return const SizedBox.shrink();
-                  return Text(
-                    formatTimeInterval(value - minX),
-                    style: TextStyle(
-                      fontSize: 8,
-                      color: Theme.of(context).colorScheme.onBackground,
+                  if (value == minX || value == maxX) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      formatTimeInterval(value - minX),
+                      style: TextStyle(
+                        fontSize: 8,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+                      ),
                     ),
                   );
                 },
-                interval: intervalX, // Match grid interval
+                interval: intervalX,
               ),
             ),
             topTitles: AxisTitles(
               axisNameSize: 25,
               axisNameWidget: titleText != null
-                  ? Text(titleText!, style: TextStyle(fontSize: 12))
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        titleText!,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
+                      ),
+                    )
                   : Container(),
             ),
-            rightTitles: AxisTitles(),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false)
+            ),
           ),
           borderData: FlBorderData(show: false),
         ),
@@ -327,7 +381,7 @@ List<TaggedFlSpot> createDataPoints(List<TimingMeasurement> measurements) {
     final systemTime =
         measurement.system_time.millisecondsSinceEpoch.toDouble();
     final offset = measurement.difference_ms!.toDouble() / 1000;
-    final tag = measurement.tag ?? 'No Tag';
+    final tag = measurement.tag ?? null;
 
     return TaggedFlSpot(systemTime, offset, tag);
   }).toList();

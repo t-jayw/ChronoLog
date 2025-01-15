@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.5.3
+version: 1.6.4
 
 environment:
   sdk: '>=3.0.1 <4.0.0'
@@ -39,37 +39,35 @@ dependencies:
   flutter_riverpod: ^2.3.6
   transparent_image: ^2.0.1
   intl: ^0.18.1
-  flutter_kronos: ^0.1.0+1
+  # flutter_kronos: ^0.1.0+1
   sqflite: ^2.2.8+4
   collection: ^1.17.1
   ulid: ^2.0.0
   image_picker: ^0.8.7+5
-  flutter_analog_clock: ^1.0.3
+  # flutter_analog_clock: ^1.0.3
   image_cropper: ^4.0.1
   http: ^0.13.6
   http_parser: ^4.0.2
   image: ^4.0.17
   exif: ^3.1.4
-  html: ^0.15.3
-  flutter_charts: ^0.5.1
+  # html: ^0.15.3
+  # flutter_charts: ^0.5.1
   fl_chart: ^0.62.0
   smooth_page_indicator: ^1.1.0
   shared_preferences: ^2.2.0
   url_launcher: ^6.1.12
   csv: ^5.0.2
   auto_size_text: ^3.0.0
-  in_app_purchase: ^3.1.8
   purchases_flutter: ^5.6.0
   share_plus: ^7.1.0
   file_picker: ^5.3.3
-  restart_app: ^1.2.1
   posthog_flutter: ^3.1.0
-  google_mobile_ads: ^4.0.0
   flutter_image_compress: ^2.2.0
   supabase_flutter: ^2.5.0
   flutter_dotenv: ^5.1.0
-  widgets_to_image: ^0.0.2
-
+  carousel_slider: ^5.0.0
+  dependency_validator: ^4.1.2
+  flutter_svg: ^2.0.9
 
 dev_dependencies:
   flutter_test:
@@ -95,10 +93,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/placeholder.png
+    - assets/images/wathclogo-40@2x.png
     - assets/fonts/SFProText-Regular.ttf
     - assets/fonts/NewYork-Regular.ttf
-    - assets/images/wathclogo-40@2x.png
+    - assets/images/watch_placeholder.svg
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

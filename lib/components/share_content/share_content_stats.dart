@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:chronolog/components/graphs/offset_custom_line_chart.dart';
-import 'package:chronolog/data_helpers.dart/timepiece_aggregate_stats.dart';
 import 'package:chronolog/data_helpers.dart/timing_run_parser.dart';
 import 'package:chronolog/models/timepiece.dart';
 import 'package:chronolog/models/timing_measurement.dart';
@@ -9,7 +6,6 @@ import 'package:chronolog/models/timing_run.dart';
 import 'package:chronolog/providers/timing_measurements_list_provider.dart';
 import 'package:chronolog/providers/timing_run_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ShareModalStats extends ConsumerWidget {
@@ -19,91 +15,34 @@ class ShareModalStats extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final timingRuns = ref.watch(timingRunProvider(timepiece.id));
-
     TimingRun? mostRecentRun = timingRuns.first;
 
-    List<TimingMeasurement> mostRecentRunMeasurements =
-        ref.watch(timingMeasurementsListProvider(mostRecentRun.id));
 
-    return MostRecentRunShareStats(
-        timingRun: timingRuns.first,
-        timingRunMeasurements: mostRecentRunMeasurements);
-  }
-}
-
-class MostRecentRunShareStats extends StatelessWidget {
-  final TimingRun timingRun;
-  final List<TimingMeasurement> timingRunMeasurements;
-
-  const MostRecentRunShareStats({
-    Key? key,
-    required this.timingRun,
-    required this.timingRunMeasurements,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    TimingRunStatistics timingRunStats =
-        TimingRunStatistics(timingRunMeasurements);
-
-    List<Widget> certificationWidgets = [SizedBox(height: 2)];
-
-    List<String> complianceStatuses = timingRunStats.checkCompliance();
-    for (var status in complianceStatuses) {
-      certificationWidgets.add(
-        Row(
-          children: [
-            SizedBox(width: 4),
-            Icon(
-              Icons.check,
-              color: Colors.green,
-              size: 10,
-            ),
-            SizedBox(width: 4),
-            Text(status, style: TextStyle(fontSize: 10)),
-          ],
-        ),
-      );
-    }
-
+    
     return Padding(
-      padding: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Row(
-                children: [
-                  Text(timingRunStats.formattedSecondsPerDayForRun(),
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Theme.of(context).colorScheme.tertiary,
-                          fontWeight: FontWeight.bold)),
-                  SizedBox(width: 4),
-                  Text('sec/day',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onBackground)),
-                ],
-              ),
-              Spacer(),
-              if (certificationWidgets.length > 1)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: certificationWidgets,
-                ),
-            ],
-          ),
+          // Top row with stats
+          
+          
+          
+          // Compliance row
+          
+          
+          
+          // Graph
           Expanded(
-            child: Row(
-              children: [
-                // Stats Column
-
-                SizedBox(width: 8),
-                OffsetCustomLineChart(runId: timingRun.id),
-                SizedBox(width: 12),
-              ],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: OffsetCustomLineChart(runId: mostRecentRun.id),
+              ),
             ),
           ),
         ],

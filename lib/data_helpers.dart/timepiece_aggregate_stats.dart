@@ -40,7 +40,10 @@ class TimepieceAggregateStats {
   }
 
   // Formatted getters for UI display
-  String get formattedTotalDuration => formatDuration(totalDuration);
+  String get formattedTotalDuration {
+    final (amount, unit) = formatDuration(totalDuration);
+    return '$amount $unit';
+  }
   String get formattedAverageSecondsPerDay => "${averageSecondsPerDay.toStringAsFixed(1)} sec/day";
   String get formattedTotalMeasurements => "$totalMeasurements measurements";
   String get formattedTotalMilliSecondsChange => "${(totalMilliSecondsChange / 1000).toStringAsFixed(1)} sec";

@@ -1,6 +1,6 @@
 import 'package:chronolog/components/custom_tool_tip.dart';
-import 'package:chronolog/components/primary_button.dart';
 import 'package:chronolog/components/share_content/share_modal_content.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chronolog/models/timepiece.dart';
 
@@ -43,48 +43,72 @@ class ShareModalFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Share Preview'),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        title: Text(
+          'Share Preview',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onBackground,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.close),
+          CupertinoButton(
+            padding: EdgeInsets.all(4),
+            child: Icon(
+              CupertinoIcons.xmark,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
       ),
-
-      //repaintBoundaryKey: repaintBoundaryKey
       body: Container(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              CustomToolTip(
-                  child: Text(
-                    "Sharing the active Timing Run",
-                    style: TextStyle(
-                        fontSize: 10.0), // you can style your text here
-                  ),
-                  mainAxisAlignment: MainAxisAlignment.center),
-              SizedBox(height: 8),
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: ShareModalContent(
-                      timepiece: timepiece,
-                      repaintBoundaryKey: repaintBoundaryKey),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            CustomToolTip(
+              child: Text(
+                "Active Timing Run",
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
                 ),
               ),
-              SizedBox(height: 16),
-              PrimaryButton(
-                child: Text('Share',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.inversePrimary)),
-                onPressed: shareContent,
+              mainAxisAlignment: MainAxisAlignment.center,
+            ),
+            SizedBox(height: 4),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: ShareModalContent(
+                  timepiece: timepiece,
+                  repaintBoundaryKey: repaintBoundaryKey,
+                ),
               ),
-              SizedBox(height: 16),
-            ],
-          ),
+            ),
+            SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              child: CupertinoButton(
+                padding: EdgeInsets.symmetric(vertical: 4),
+                color: Theme.of(context).colorScheme.tertiary,
+                borderRadius: BorderRadius.circular(12),
+                onPressed: shareContent,
+                child: Text(
+                  'Share',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 18),
+          ],
         ),
       ),
     );

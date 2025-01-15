@@ -1,6 +1,5 @@
 import 'package:chronolog/components/custom_tool_tip.dart';
 import 'package:chronolog/components/premium/premium_needed_dialog.dart';
-import 'package:chronolog/components/primary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,7 +27,7 @@ class TimingRunsContainer extends ConsumerWidget {
     final startTime = DateTime.now();
     final timingRun = TimingRun(
       id: timingRunId,
-      watch_id: timepiece.id,
+      watchId: timepiece.id,
       startDate: startTime,
     );
     ref.read(timingRunProvider(timepiece.id).notifier).addTimingRun(timingRun);
@@ -39,29 +38,32 @@ class TimingRunsContainer extends ConsumerWidget {
     final timingRuns = ref.watch(timingRunProvider(timepiece.id));
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: CustomToolTip(
-              child: Text(
-                "Start a new timing run after setting your watch",
-                style:
-                    TextStyle(fontSize: 10.0), // you can style your text here
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: CustomToolTip(
+                  child: Text(
+                    "Start a new timing run when you set the watch",
+                    style: TextStyle(
+                      fontSize: 10.0,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
+                    ),
+                  ),
+                  mainAxisAlignment: MainAxisAlignment.start,
+                ),
               ),
-              mainAxisAlignment: MainAxisAlignment.center),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: SizedBox(
-            child: SecondaryButton(
-                text: 'Start Timing Run',
+              CupertinoButton(
+                padding: EdgeInsets.all(4),
+                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                minSize: 0,
                 onPressed: () async {
-                  // _addTimingRun(ref);
-                  // turning on paywall
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  bool? isPremiumActivated = prefs.getBool('premiumActive');
                   int numTimingRuns = timingRuns.length;
 
                   if (isPremiumActivated != true && numTimingRuns == 2) {
@@ -76,7 +78,14 @@ class TimingRunsContainer extends ConsumerWidget {
                   } else {
                     _addTimingRun(ref);
                   }
-                }),
+                },
+                child: Icon(
+                  CupertinoIcons.plus,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -129,7 +138,9 @@ class TimingRunsContainer extends ConsumerWidget {
             },
           ),
         ),
-        FooterBannerAdWidget(),
+        Center(
+          child: FooterBannerAdWidget(),
+        ),
       ],
     );
   }

@@ -1,9 +1,7 @@
+import 'package:chronolog/components/premium/premium_needed_dialog.dart';
 import 'package:chronolog/screens/tabs.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
-import '../components/info_item_list.dart';
-import '../components/primary_button.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override
@@ -25,8 +23,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ), 
       _createPage(
         Icons.timer_sharp,
-        'Add measurements to timing runs',
-        "ChronoLog will calculate statistics to help you track your watches' performance over time.",
+        'Add measurements to Timing Runs',
+        "Timing Runs are a series of measurements that ChronoLog uses to calculate statistics.",
         context
       ), 
       _createPage(
@@ -34,7 +32,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         'See trends over time',
         "Measurements should have at least 6 hours between them for best results.",
         context
-      )
+      ),
+      _createPremiumPage(context),
     ];
 
     return Scaffold(
@@ -68,7 +67,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               controller: _controller,
               count: pages.length,
               effect: JumpingDotEffect(activeDotColor: Theme.of(context).colorScheme.tertiary),
-
               onDotClicked: (index) {
                 _controller.animateToPage(
                   index,
@@ -78,27 +76,47 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               },
             ),
           ),
-          if (isLastPage) 
+          if (!isLastPage) 
             Padding(
-              padding: const EdgeInsets.fromLTRB(18,10,18,20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: PrimaryButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const TabsScreen()),
-                        );
-                      },
-                      child: Text('Continue', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-                    ),
-                  ),
-
-                ],
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1), // Low opacity background color
+                  border: Border.all(color: Theme.of(context).colorScheme.tertiary), // Outline color
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TabsScreen()),
+                    );
+                  },
+                  child: Text('Skip', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.tertiary)),
+                ),
               ),
             ),
-                          SizedBox(height: 50),
+          if (isLastPage) 
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1), // Low opacity background color
+                  border: Border.all(color: Theme.of(context).colorScheme.tertiary), // Outline color
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TabsScreen()),
+                    );
+                  },
+                  child: Text('Continue', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.tertiary)),
+                ),
+              ),
+            ),
+          SizedBox(height: 50),
 
         ],
       ),
@@ -125,6 +143,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _createPremiumPage(BuildContext context) {
+    return PremiumNeededDialog(
+      primaryText: "Unlock all features with ChronoLog Premium!",
     );
   }
 }

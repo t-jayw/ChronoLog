@@ -14,7 +14,7 @@ void ShowReviewDialog(BuildContext context) {
       content: Padding(
         padding: EdgeInsets.only(top: 8.0),
         child: Text(
-            'If you are enjoy this app, a review on the app store would mean a lot to me!'),
+            'Enjoying this app? Please leave a review on the app store!'),
       ),
       actions: <Widget>[
         CupertinoDialogAction(

@@ -1,47 +1,83 @@
-import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:exif/exif.dart';
+import 'package:chronolog/components/measurement/configurable_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:ulid/ulid.dart';
-
-import '../components/measurement/configurable_picker.dart';
 import '../components/measurement/tag_selector.dart';
+import '../components/measurement/timing_measurement_item.dart';
+
 import '../models/timing_measurement.dart';
 import '../providers/timing_measurements_list_provider.dart';
 
-class AddMeasurementPhoto extends StatefulWidget {
-  const AddMeasurementPhoto({super.key, required this.timingRunId});
+class AddMeasurementButtonPage extends StatefulWidget {
+  const AddMeasurementButtonPage({Key? key, required this.timingRunId})
+      : super(key: key);
 
   final String timingRunId;
 
   @override
-  _AddMeasurementPhotoState createState() => _AddMeasurementPhotoState();
+  _AddMeasurementButtonPageState createState() =>
+      _AddMeasurementButtonPageState();
 }
 
-class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
+class _AddMeasurementButtonPageState extends State<AddMeasurementButtonPage> {
   final _formKey = GlobalKey<FormState>();
-  XFile? imageFile;
-  CroppedFile? _croppedFile;
-  DateTime selectedTime = DateTime.now();
-  DateTime imageTakenTime = DateTime.now();
+
+  DateTime? selectedTime = DateTime.now();
+  DateTime? buttonPressTime;
+
   String tag = '';
+
   bool _instructionsExpanded = false;
   bool _tagsExpanded = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Removed the call to show instructions dialog and auto camera pick.
-    // The instructions will now be shown in a collapsible card, similar to the first file's style.
+  TimingMeasurement? previewMeasurement;
+
+  void _updateTime(DateTime newTime) {
+    setState(() {
+      selectedTime = newTime;
+      print("Time updated in picker: ${newTime.toIso8601String()}");
+    });
+  }
+
+  void _updateTag(String newTag) {
+    setState(() {
+      tag = newTag;
+      _createPreviewMeasurement();
+    });
+  }
+
+  void _createPreviewMeasurement() {
+    setState(() {
+      // Get the time when the button is pressed (actual measurement time)
+      final measurementTime = DateTime.now();
+      
+      if (selectedTime == null) {
+        print("Error: No time selected in picker");
+        return;
+      }
+      
+      print("Selected time in picker: ${selectedTime!.toIso8601String()}");
+      print("Button press time: ${measurementTime.toIso8601String()}");
+      print("Difference in ms: ${selectedTime!.difference(measurementTime).inMilliseconds}");
+      
+      previewMeasurement = TimingMeasurement(
+        id: Ulid().toString(),
+        run_id: widget.timingRunId,
+        system_time: measurementTime,
+        user_input_time: selectedTime!, // Using the picker time directly
+        image: null,
+        tag: tag,
+        difference_ms: selectedTime!.difference(measurementTime).inMilliseconds,
+      );
+    });
   }
 
   Future<void> _showSuccessDialog(BuildContext context) async {
-    if (!mounted) return; 
+    setState(() {
+      previewMeasurement = null;
+    });
+    
     await showDialog(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
@@ -61,9 +97,7 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
             ),
             onPressed: () {
               Navigator.pop(ctx); // Close the dialog
-              if (mounted) {
-                Navigator.pop(context); // Pop the current screen
-              }
+              Navigator.pop(context); // Pop the current screen
             },
           ),
         ],
@@ -71,8 +105,8 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
     );
   }
 
-  Future<void> _showErrorDialog(String errorMessage) async {
-    if (!mounted) return; 
+  Future<void> _showErrorDialog(
+      BuildContext context, String errorMessage) async {
     await showDialog(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
@@ -90,79 +124,11 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
               "OK",
               style: TextStyle(color: Colors.blue),
             ),
-            onPressed: () {
-              Navigator.pop(ctx); 
-            },
+            onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],
       ),
     );
-  }
-
-  void _updateTime(DateTime newTime) {
-    setState(() {
-      selectedTime = newTime;
-    });
-  }
-
-  void _updateTag(String newTag) {
-    setState(() {
-      tag = newTag;
-    });
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: source);
-      imageFile = pickedFile;
-
-      if (imageFile != null) {
-        // Process EXIF data
-        final fileBytes = File(imageFile!.path).readAsBytesSync();
-        final data = await readExifFromBytes(fileBytes);
-
-        if (data.containsKey('EXIF DateTimeOriginal')) {
-          var dateTimeStr = data['EXIF DateTimeOriginal']!.printable;
-          String formattedDateTime = dateTimeStr
-              .replaceRange(4, 5, "-")
-              .replaceRange(7, 8, "-")
-              .replaceRange(10, 11, "T");
-          imageTakenTime = DateTime.parse(formattedDateTime);
-        } else {
-          imageTakenTime = DateTime.now();
-        }
-        await _cropImage();
-      }
-    } catch (error) {
-      await _showErrorDialog("Failed to pick image: $error");
-    }
-  }
-
-  Future<void> _cropImage() async {
-    try {
-      if (imageFile != null) {
-        final croppedFile = await ImageCropper().cropImage(
-          sourcePath: imageFile!.path,
-          compressFormat: ImageCompressFormat.jpg,
-          compressQuality: 100,
-          aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-          cropStyle: CropStyle.circle,
-        );
-        if (croppedFile != null) {
-          setState(() {
-            _croppedFile = croppedFile;
-          });
-        }
-      }
-    } catch (error) {
-      await _showErrorDialog("Failed to crop image: $error");
-    }
-  }
-
-  Future<Uint8List> _readFileToBytes(String filePath) async {
-    final File file = File(filePath);
-    return await file.readAsBytes();
   }
 
   @override
@@ -180,6 +146,12 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
         child: Consumer(builder: (context, ref, _) {
           final timingMeasurementListProvider =
               ref.watch(timingMeasurementsListProvider(widget.timingRunId).notifier);
+          
+          // Get the existing measurements
+          final measurements = ref.watch(timingMeasurementsListProvider(widget.timingRunId));
+          
+          // Get the most recent measurement (measurements are already sorted in descending order)
+          final previousMeasurement = measurements.isNotEmpty ? measurements[0] : null;
 
           return Padding(
             padding: const EdgeInsets.all(8),
@@ -193,7 +165,7 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Instructions Card moved to top
+                          // Instructions Card
                           Container(
                             decoration: BoxDecoration(
                               color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
@@ -214,7 +186,7 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.info_circle,
-                                          color: CupertinoColors.label.resolveFrom(context),
+                                        color: CupertinoColors.label.resolveFrom(context),
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),
@@ -238,10 +210,10 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                                   if (_instructionsExpanded) ...[
                                     SizedBox(height: 12),
                                     Text(
-                                      '1. Take a photo of your watch face\n'
-                                      '2. Enter the exact time shown on the watch\n'
-                                      '3. The app will compare this with the photo timestamp\n'
-                                      '4. Optional: Add a tag to categorize your measurement',
+                                      '1. Use the time selector to set a time slightly ahead of your watch\n'
+                                      '2. Wait until your watch shows the time you selected\n'
+                                      '3. When your watch matches the selected time, tap "Take Measurement"\n'
+                                      '4. Preview and edit the measurement before tapping "Save Measurement"',
                                       style: TextStyle(
                                         color: CupertinoColors.label.resolveFrom(context),
                                         fontSize: 14,
@@ -254,54 +226,9 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                             ),
                           ),
 
-                          // Photo buttons and preview
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            child: Column(
-                              children: [
-                                if (_croppedFile != null) ...[
-                                  Container(
-                                    width: 200,
-                                    height: 200,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: FileImage(File(_croppedFile!.path)),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 16),
-                                ],
-                                CupertinoButton(
-                                  padding: EdgeInsets.symmetric(vertical: 16),
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(CupertinoIcons.camera_fill,
-                                          size: 20,
-                                          color: Theme.of(context).colorScheme.onPrimary),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        _croppedFile != null ? 'Re-take Photo' : 'Take Photo',
-                                        style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onPrimary,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  onPressed: () => _pickImage(ImageSource.camera),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Time Picker and Tag Selector with updated styling
+                          // Time Picker
                           Text(
-                            'Enter time shown in photo',
+                            'Choose a Time Ahead of Your Watch',
                             style: TextStyle(
                               color: CupertinoColors.secondaryLabel.resolveFrom(context),
                               fontSize: 12,
@@ -310,12 +237,12 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                           SizedBox(height: 6),
                           ConfigurablePrecisionTimePicker(
                             onTimeChanged: _updateTime,
-                            initialTime: DateTime.now(),
-                            mode: TimePickerMode.image,
+                            initialTime: previewMeasurement?.user_input_time ?? DateTime.now(),
+                            mode: TimePickerMode.tap,
                           ),
                           SizedBox(height: 12),
-                          
-                          // Tag selector with expandable style
+
+                          // Tag selector
                           Container(
                             decoration: BoxDecoration(
                               color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
@@ -336,7 +263,7 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                                     children: [
                                       Icon(
                                         CupertinoIcons.tag,
-                                        color: CupertinoColors.systemGrey,
+                                        color: CupertinoColors.label.resolveFrom(context),
                                         size: 20,
                                       ),
                                       SizedBox(width: 8),
@@ -368,53 +295,82 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                               ),
                             ),
                           ),
+
+                          // New "Take Measurement" button
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: CupertinoButton(
+                              color: Theme.of(context).colorScheme.secondary,
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: Text('Take Measurement'),
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  _showErrorDialog(context, 'Please complete the form before capturing.');
+                                  return;
+                                }
+                                _createPreviewMeasurement();
+                              },
+                            ),
+                          ),
+
+                          // Display the preview if available
+                          if (previewMeasurement != null) ...[
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Preview',
+                                    style: TextStyle(
+                                      color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  TimingMeasurementItem(
+                                    timingMeasurement: previewMeasurement!,
+                                    enableNavigation: false,
+                                    previousMeasurement: previousMeasurement,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          // Existing "Add Measurement" button
+                          Row(
+                            children: [
+                              if (previewMeasurement != null)
+                                Expanded(
+                                  child: CupertinoButton(
+                                    color: Theme.of(context).colorScheme.tertiary,
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text('Save Measurement'),
+                                    onPressed: () async {
+                                      final measurementToSave = previewMeasurement!;
+                                      setState(() {
+                                        previewMeasurement = null;
+                                      });
+                                      
+                                      try {
+                                        await timingMeasurementListProvider.addTimingMeasurement(measurementToSave);
+                                        if (mounted) {
+                                          await _showSuccessDialog(context);
+                                        }
+                                      } catch (error) {
+                                        if (mounted) {
+                                          await _showErrorDialog(context, error.toString());
+                                        }
+                                      }
+                                    },
+                                  ),
+                                ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
                   ),
-                ),
-                // Add Measurement button at bottom
-                CupertinoButton(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    'Add Measurement',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  onPressed: () async {
-                    try {
-                      final ulid = Ulid();
-                      final id = ulid.toString();
-
-                      Uint8List? imageBytes;
-                      if (_croppedFile != null) {
-                        imageBytes = await _readFileToBytes(_croppedFile!.path);
-                      }
-
-                      final measurement = TimingMeasurement(
-                        id: id,
-                        run_id: widget.timingRunId,
-                        system_time: imageTakenTime,
-                        user_input_time: selectedTime,
-                        image: imageBytes,
-                        tag: tag,
-                        difference_ms:
-                            selectedTime.difference(imageTakenTime).inMilliseconds,
-                      );
-
-                      // Save the measurement
-                      await timingMeasurementListProvider.addTimingMeasurement(measurement);
-
-                      // Show success dialog
-                      await _showSuccessDialog(context);
-                    } catch (error) {
-                      await _showErrorDialog(error.toString());
-                    }
-                  },
                 ),
               ],
             ),

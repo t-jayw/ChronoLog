@@ -55,20 +55,18 @@ class WatchboxScreen extends ConsumerWidget {
 
           return Column(
             children: [
-              //Divider(height: 2,),
               SizedBox(
                 child: CustomToolTip(
                   mainAxisAlignment: MainAxisAlignment.center,
                   child: Text(
                     "Hold and drag to reorder",
-                    style: TextStyle(
-                        fontSize: 10.0), // you can style your text here
+                    style: TextStyle(fontSize: 10.0),
                   ),
                 ),
               ),
-              //Divider(height: 2,),
               Expanded(
                 child: ReorderableListView.builder(
+                  padding: EdgeInsets.zero,
                   itemCount: orderedTimepieces.length,
                   itemBuilder: (context, index) {
                     final timepiece = orderedTimepieces[index];
@@ -97,9 +95,12 @@ class WatchboxScreen extends ConsumerWidget {
                       },
                       background: Container(
                         alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 20.0),
-                        color: Theme.of(context).colorScheme.error,
-                        child: const Icon(Icons.delete, size: 40),
+                        padding: const EdgeInsets.only(right: 4.0),
+                        child: Icon(
+                          Icons.delete,
+                          color: Theme.of(context).colorScheme.error,
+                          size: 40
+                        ),
                       ),
                       child: NewTimepieceDisplay(timepiece: timepiece),
                     );

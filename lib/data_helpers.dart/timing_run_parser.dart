@@ -14,9 +14,6 @@ class CertificationStandard {
   }
 }
 
-
-
-
 class TimingRunStatistics {
   final List<TimingMeasurement> measurements;
   late final double secondsPerDayForRun;
@@ -97,9 +94,11 @@ class TimingRunStatistics {
         : secondsPerDayForRun.toStringAsFixed(1);
   }
 
-  String formattedTotalDuration() => formatDuration(totalDuration);
+  String formattedTotalDuration() => formatDurationDays(totalDuration);
+
   String formattedTimeSinceLastMeasurement() =>
-      formatDuration(timeSinceLastMeasurement);
+      formatDurationDays(timeSinceLastMeasurement);
+
   String formattedLatestOffset() =>
       "${latestOffsetSeconds.toStringAsFixed(1)} s"; // Format the latest offset
 
@@ -114,7 +113,7 @@ class TimingRunStatistics {
   double calculateRatePerDay() {
     if (measurements.isEmpty) return 0.0;
     // Assuming you have a way to calculate this value
-    return measurements.first.difference_ms! / 1000.0;  // Simplified example
+    return measurements.first.difference_ms! / 1000.0; // Simplified example
   }
 
 // Certification Standards
@@ -124,20 +123,13 @@ class TimingRunStatistics {
     CertificationStandard('Superlative Chronometer', -2, 2),
   ];
 
-  bool isCoscCompliant() {
-    return totalMeasurements >= 2 && standards.firstWhere((standard) => standard.name == 'COSC').isCompliant(secondsPerDayForRun);
-  }
-
-  bool isMetasCompliant() {
-    return totalMeasurements >= 2 && standards.firstWhere((standard) => standard.name == 'METAS').isCompliant(secondsPerDayForRun);
-  }
-
-  bool isSuperlativeChronometer() {
-    return totalMeasurements >= 2 && standards.firstWhere((standard) => standard.name == 'Superlative Chronometer').isCompliant(secondsPerDayForRun);
-  }
-
   List<String> checkCompliance() {
     List<String> complianceStatuses = [];
+    // Only check compliance if we have enough measurements
+    if (totalMeasurements < 2) {
+      return [];
+    }
+    
     if (isCoscCompliant()) {
       complianceStatuses.add('COSC');
     }
@@ -147,8 +139,25 @@ class TimingRunStatistics {
     if (isSuperlativeChronometer()) {
       complianceStatuses.add('Superlative');
     }
-    print(complianceStatuses);
     return complianceStatuses;
   }
-}
 
+  // Remove measurement checks from individual compliance methods
+  bool isCoscCompliant() {
+    return standards
+        .firstWhere((standard) => standard.name == 'COSC')
+        .isCompliant(secondsPerDayForRun);
+  }
+
+  bool isMetasCompliant() {
+    return standards
+        .firstWhere((standard) => standard.name == 'METAS')
+        .isCompliant(secondsPerDayForRun);
+  }
+
+  bool isSuperlativeChronometer() {
+    return standards
+        .firstWhere((standard) => standard.name == 'Superlative Chronometer')
+        .isCompliant(secondsPerDayForRun);
+  }
+}

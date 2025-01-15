@@ -191,7 +191,7 @@ Future<List<Timepiece>> getTimepieces() async {
     return List.generate(maps.length, (i) {
       return TimingRun(
         id: maps[i]['id'],
-        watch_id: maps[i]['watch_id'],
+        watchId: maps[i]['watch_id'],
         startDate: DateTime.fromMillisecondsSinceEpoch(maps[i]['startDate']),
       );
     });
@@ -326,7 +326,7 @@ Future<List<Timepiece>> getTimepieces() async {
             timepiece.caliber,  
             timepiece.crystalType,  
             run.id,
-            run.watch_id,
+            run.watchId,
             run.startDate.toString(),
             measurement.id,
             measurement.run_id,

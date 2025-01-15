@@ -1,22 +1,22 @@
 class TimingRun {
   const TimingRun({
     required this.id,
-    required this.watch_id,
+    required this.watchId,
     required this.startDate,
   });
 
   final String id;
-  final String watch_id;
+  final String watchId;
   final DateTime startDate;
   
   TimingRun copyWith({
     String? id,
-    String? watch_id,
+    String? watchId,
     DateTime? startDate,
   }) {
     return TimingRun(
       id: id ?? this.id,
-      watch_id: watch_id ?? this.watch_id,
+      watchId: watchId ?? this.watchId,
       startDate: startDate ?? this.startDate,
     );
   }
@@ -24,7 +24,7 @@ class TimingRun {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'watch_id': watch_id,
+      'watch_id': watchId,
       'startDate': startDate.millisecondsSinceEpoch,
     };
   }

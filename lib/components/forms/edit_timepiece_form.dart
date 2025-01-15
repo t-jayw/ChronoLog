@@ -1,15 +1,173 @@
 import 'dart:io';
 
+import 'package:chronolog/components/forms/form_components.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../models/timepiece.dart';
 import '../../providers/timepiece_list_provider.dart';
-import 'form_components.dart';
+
+
+class CustomEditableField extends StatefulWidget {
+  final String label;
+  final String placeholder;
+  final void Function(String) onChanged;
+  final String initialValue;
+  final TextInputType keyboardType;
+  final bool obscureText;
+
+  const CustomEditableField({
+    Key? key,
+    required this.label,
+    required this.placeholder,
+    required this.onChanged,
+    this.initialValue = '',
+    this.keyboardType = TextInputType.text,
+    this.obscureText = false,
+  }) : super(key: key);
+
+  @override
+  _CustomEditableFieldState createState() => _CustomEditableFieldState();
+}
+
+class _CustomEditableFieldState extends State<CustomEditableField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Similar styling to the first snippet:
+    // Small label text, condensed spacing, larger text field font
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          widget.label,
+          style: TextStyle(
+            color: CupertinoColors.secondaryLabel.resolveFrom(context),
+            fontSize: 12,
+            decoration: TextDecoration.none,
+          ),
+        ),
+        SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: CupertinoTextField(
+            controller: _controller,
+            placeholder: widget.placeholder,
+            onChanged: widget.onChanged,
+            keyboardType: widget.keyboardType,
+            obscureText: widget.obscureText,
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            decoration: null,
+            style: TextStyle(
+              color: CupertinoColors.label.resolveFrom(context),
+              fontSize: 18,
+            ),
+            placeholderStyle: TextStyle(
+              color: CupertinoColors.placeholderText.resolveFrom(context),
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class CustomEditableTextArea extends StatefulWidget {
+  final String label;
+  final String placeholder;
+  final void Function(String) onChanged;
+  final String initialValue;
+
+  const CustomEditableTextArea({
+    Key? key,
+    required this.label,
+    required this.placeholder,
+    required this.onChanged,
+    this.initialValue = '',
+  }) : super(key: key);
+
+  @override
+  _CustomEditableTextAreaState createState() => _CustomEditableTextAreaState();
+}
+
+class _CustomEditableTextAreaState extends State<CustomEditableTextArea> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          widget.label,
+          style: TextStyle(
+            color: CupertinoColors.secondaryLabel.resolveFrom(context),
+            fontSize: 12,
+            decoration: TextDecoration.none,
+          ),
+        ),
+        SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: CupertinoTextField(
+            controller: _controller,
+            placeholder: widget.placeholder,
+            onChanged: widget.onChanged,
+            minLines: 4,
+            maxLines: 8,
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            decoration: null,
+            style: TextStyle(
+              color: CupertinoColors.label.resolveFrom(context),
+              fontSize: 16,
+            ),
+            placeholderStyle: TextStyle(
+              color: CupertinoColors.placeholderText.resolveFrom(context),
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class EditTimepieceForm extends StatefulWidget {
   final Timepiece timepiece;
@@ -32,7 +190,6 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
   String referenceNumber = '';
   String caliber = '';
   String crystalType = '';
-
   CroppedFile? _croppedFile;
 
   @override
@@ -41,12 +198,11 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
     model = widget.timepiece.model;
     serial = widget.timepiece.serial;
     purchaseDate = widget.timepiece.purchaseDate;
-    notes = widget.timepiece.notes != null ? widget.timepiece.notes! : '';
+    notes = widget.timepiece.notes ?? '';
     purchasePrice = widget.timepiece.purchasePrice ?? '';
     referenceNumber = widget.timepiece.referenceNumber ?? '';
     caliber = widget.timepiece.caliber ?? '';
     crystalType = widget.timepiece.crystalType ?? '';
-
     super.initState();
   }
 
@@ -68,10 +224,82 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
   }
 
   String _formatDate(DateTime date) {
-    // var locale = await DeviceLocale.getCurrentLocale();
-    // var format = locale.startsWith('en_US') ? 'MM/dd/yyyy' : 'dd/MM/yyyy';
     var format = 'MM/dd/yyyy';
     return DateFormat(format).format(date);
+  }
+
+  Future<void> _showDatePicker() async {
+    DateTime initialDate = purchaseDate ?? DateTime.now();
+    await showCupertinoModalPopup(
+      context: context,
+      builder: (context) => Container(
+        height: 180,
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        child: Column(
+          children: [
+            Expanded(
+              child: CupertinoDatePicker(
+                initialDateTime: initialDate,
+                mode: CupertinoDatePickerMode.date,
+                onDateTimeChanged: (DateTime date) {
+                  setState(() {
+                    purchaseDate = date;
+                  });
+                },
+              ),
+            ),
+            CupertinoButton(
+              child: Text('Done', style: TextStyle(fontSize: 12)),
+              onPressed: () => Navigator.pop(context),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _saveChanges(WidgetRef ref) {
+    // Validate logic similar to the AddWatchScreen:
+    // If brand or model is empty, show an alert
+    if (brand.isEmpty || model.isEmpty) {
+      showCupertinoDialog(
+        context: context,
+        builder: (ctx) => CupertinoAlertDialog(
+          title: Text('Missing Fields'),
+          content: Text('Please fill in both brand and model fields.'),
+          actions: [
+            CupertinoDialogAction(
+              child: Text('OK'),
+              onPressed: () => Navigator.of(ctx).pop(),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // Create updated timepiece
+    final timepiece = Timepiece(
+      id: widget.timepiece.id,
+      brand: brand,
+      model: model,
+      serial: serial,
+      purchaseDate: purchaseDate ?? DateTime.now(),
+      purchasePrice: purchasePrice,
+      referenceNumber: referenceNumber,
+      caliber: caliber,
+      crystalType: crystalType,
+      notes: notes,
+      imageUrl: imageUrl,
+      image: _croppedFile != null
+          ? File(_croppedFile!.path).readAsBytesSync()
+          : widget.timepiece.image,
+    );
+
+    final _timepieceListProvider = ref.watch(timepieceListProvider.notifier);
+    _timepieceListProvider.updateTimepiece(timepiece);
+
+    Navigator.of(context).pop();
   }
 
   @override
@@ -79,219 +307,227 @@ class _EditTimepieceFormState extends State<EditTimepieceForm> {
     return Consumer(builder: (context, ref, _) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Edit Watch',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-        ),
-        body: Scrollbar(
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: _croppedFile != null
-                            ? Image.file(
-                                File(_croppedFile!.path),
-                                height: 200,
-                              )
-                            : (widget.timepiece.image != null
-                                ? Image.memory(
-                                    widget.timepiece.image!,
-                                    height: 180,
-                                  )
-                                : Image.asset(
-                                    'assets/images/placeholder.png',
-                                    height: 180,
-                                  )),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Camera Button
-                          FloatingActionButton(
-                            heroTag: "btn1",
-                            onPressed: () =>
-                                _pickAndCropImage(ImageSource.camera),
-                            child: Icon(Icons.camera_alt,
-                                color: Theme.of(context).colorScheme.onPrimary),
-                            backgroundColor:
-                                Theme.of(context).colorScheme.tertiary,
-                            mini:
-                                true, // Use 'mini' for a smaller button if you prefer
-                          ),
-                          // Photo Roll Button
-                          FloatingActionButton(
-                            heroTag: "btn2",
-                            onPressed: () =>
-                                _pickAndCropImage(ImageSource.gallery),
-                            child: Icon(Icons.photo_library,
-                                color: Theme.of(context).colorScheme.onPrimary),
-                            backgroundColor:
-                                Theme.of(context).colorScheme.tertiary,
-                            mini: true, // Similarly, use 'mini' for consistency
-                          ),
-                        ],
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Brand',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary)),
-                        initialValue: brand,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a brand';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          brand = value ?? '';
-                        },
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).colorScheme.inverseSurface),
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Model',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary)),
-                        initialValue: model,
-                        onSaved: (value) {
-                          model = value ?? '';
-                        },
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).colorScheme.inverseSurface),
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Serial',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary)),
-                        initialValue: serial,
-                        onSaved: (value) {
-                          serial = value ?? '';
-                        },
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).colorScheme.inverseSurface),
-                      ),
-                      DatePickerButton(
-                        labelText: 'Purchase Date',
-                        initialDate: purchaseDate,
-                        controller: TextEditingController(
-                          text: purchaseDate != null
-                              ? _formatDate(purchaseDate!)
-                              : '',
-                        ),
-                        onDateChanged: (date) {
-                          setState(() {
-                            purchaseDate = date;
-                          });
-                        },
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Purchase Price',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary)),
-                        initialValue: purchasePrice,
-                        onSaved: (value) => purchasePrice = value ?? '',
-                        // Add any validators if needed
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Reference Number',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary)),
-                        initialValue: referenceNumber,
-                        onSaved: (value) => referenceNumber = value ?? '',
-                        // Add any validators if needed
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Caliber',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary)),
-                        initialValue: caliber,
-                        onSaved: (value) => caliber = value ?? '',
-                        // Add any validators if needed
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Crystal Type',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary)),
-                        initialValue: crystalType,
-                        onSaved: (value) => crystalType = value ?? '',
-                        // Add any validators if needed
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Notes',
-                            labelStyle: TextStyle(
-                                color: Theme.of(context).colorScheme.tertiary)),
-                        initialValue: notes,
-                        onSaved: (value) {
-                          notes = value ?? '';
-                        },
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).colorScheme.inverseSurface),
-                      ),
-                      const SizedBox(height: 58),
-                    ],
-                  ),
-                ),
-              ),
+          title: Text(
+            "Edit Watch",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
-        floatingActionButton: Consumer(builder: (context, ref, _) {
-          final _timepieceListProvider =
-              ref.watch(timepieceListProvider.notifier);
-          return FloatingActionButton.extended(
-            label: Text('Save Changes',
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.onPrimary)),
-            backgroundColor: Theme.of(context)
-                .colorScheme
-                .tertiary, // Set the background color here
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-
-                final timepiece = Timepiece(
-                  id: widget.timepiece.id,
-                  brand: brand,
-                  model: model,
-                  serial: serial,
-                  purchaseDate: purchaseDate ?? DateTime.now(),
-                  purchasePrice: purchasePrice,
-                  referenceNumber: referenceNumber,
-                  caliber: caliber,
-                  crystalType: crystalType,
-                  notes: notes,
-                  imageUrl: imageUrl,
-                  image: _croppedFile != null
-                      ? File(_croppedFile!.path).readAsBytesSync()
-                      : widget.timepiece.image,
-                );
-
-                _timepieceListProvider.updateTimepiece(timepiece);
-
-                Navigator.of(context).pop();
-              }
-            },
-          );
-        }),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: _croppedFile != null
+                              ? Image.file(
+                                  File(_croppedFile!.path),
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                )
+                              : (widget.timepiece.image != null
+                                  ? Image.memory(
+                                      widget.timepiece.image!,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : SvgPicture.asset(
+                                      'assets/images/watch_placeholder.svg',
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                      colorFilter: ColorFilter.mode(
+                                          Theme.of(context).colorScheme.onSurface,
+                                          BlendMode.srcIn,
+                                      ),
+                                    )),
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CupertinoButton(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .tertiary
+                                    .withOpacity(0.8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.camera,
+                                      size: 20,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Camera',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onPressed: () =>
+                                    _pickAndCropImage(ImageSource.camera),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: CupertinoButton(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .tertiary
+                                    .withOpacity(0.8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      CupertinoIcons.photo,
+                                      size: 20,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Gallery',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                onPressed: () =>
+                                    _pickAndCropImage(ImageSource.gallery),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12),
+                        CustomEditableField(
+                          label: 'Brand*',
+                          placeholder: '',
+                          initialValue: brand,
+                          onChanged: (val) => brand = val,
+                        ),
+                        SizedBox(height: 12),
+                        CustomEditableField(
+                          label: 'Model*',
+                          placeholder: '',
+                          initialValue: model,
+                          onChanged: (val) => model = val,
+                        ),
+                        SizedBox(height: 12),
+                        CustomEditableField(
+                          label: 'Serial',
+                          placeholder: '',
+                          initialValue: serial,
+                          onChanged: (val) => serial = val,
+                        ),
+                        SizedBox(height: 12),
+                        Text('Purchase Date',
+                            style: TextStyle(
+                              color: CupertinoColors.secondaryLabel
+                                  .resolveFrom(context),
+                              fontSize: 12,
+                              decoration: TextDecoration.none,
+                            )),
+                        SizedBox(height: 4),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.tertiarySystemFill
+                                .resolveFrom(context),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: CupertinoButton(
+                            onPressed: _showDatePicker,
+                            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                            child: Text(
+                              purchaseDate != null ? _formatDate(purchaseDate!) : '',
+                              style: TextStyle(
+                                color: CupertinoColors.label.resolveFrom(context),
+                                fontSize: 13,
+                              ),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        CustomEditableField(
+                          label: 'Price',
+                          placeholder: '',
+                          initialValue: purchasePrice,
+                          onChanged: (val) => purchasePrice = val,
+                          keyboardType: TextInputType.number,
+                        ),
+                        SizedBox(height: 12),
+                        CustomEditableField(
+                          label: 'Ref #',
+                          placeholder: '',
+                          initialValue: referenceNumber,
+                          onChanged: (val) => referenceNumber = val,
+                        ),
+                        SizedBox(height: 12),
+                        CustomEditableField(
+                          label: 'Caliber',
+                          placeholder: '',
+                          initialValue: caliber,
+                          onChanged: (val) => caliber = val,
+                        ),
+                        SizedBox(height: 12),
+                        CustomEditableField(
+                          label: 'Crystal',
+                          placeholder: '',
+                          initialValue: crystalType,
+                          onChanged: (val) => crystalType = val,
+                        ),
+                        SizedBox(height: 12),
+                        CustomEditableTextArea(
+                          label: 'Notes',
+                          placeholder: 'Enter notes about your timepiece...',
+                          initialValue: notes,
+                          onChanged: (val) => notes = val,
+                        ),
+                        SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                ),
+                CupertinoButton(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    'Save Changes',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary, 
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onPressed: () => _saveChanges(ref),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     });
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../models/timepiece.dart';
 import '../../providers/timepiece_list_provider.dart';
@@ -111,9 +112,13 @@ class _AddImageFormState extends State<AddImageForm> {
                         _editedTimepiece.image!,
                         fit: BoxFit.contain,
                       )
-                    : Image.asset(
-                        'assets/images/placeholder.png',
+                    : SvgPicture.asset(
+                        'assets/images/watch_placeholder.svg',
                         fit: BoxFit.contain,
+                        colorFilter: ColorFilter.mode(
+                          Theme.of(context).colorScheme.onSurface,
+                          BlendMode.srcIn,
+                        ),
                       ),
           ),
           Padding(

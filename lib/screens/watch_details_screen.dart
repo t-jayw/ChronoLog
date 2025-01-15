@@ -1,21 +1,22 @@
 import 'dart:typed_data';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chronolog/components/share_content/share_modal_frame.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../components/forms/edit_timepiece_form.dart';
-import '../components/generic_alert.dart';
 import '../components/timing_runs_container.dart';
 import '../components/watch_details_stats.dart';
 import '../models/timepiece.dart';
 import '../providers/timepiece_list_provider.dart';
 
+
 class WatchDetails extends ConsumerWidget {
   final Timepiece timepiece;
-  bool firstAdded; // hack to show a dialog on first added watch
+  final bool firstAdded; // Make this final
 
   WatchDetails({
     Key? key,
@@ -31,29 +32,26 @@ class WatchDetails extends ConsumerWidget {
         timepieces.firstWhere((tp) => tp.id == timepiece.id);
 
     if (firstAdded) {
-      // Note: We're using `firstAdded` field directly here.
       WidgetsBinding.instance!.addPostFrameCallback((_) {
         _showFirstAddedDialog(context);
       });
-      // this is to only show the first added dialog once
-      firstAdded = false;
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Watch Details",
-            style: TextStyle(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface)), // Use the updated name from the provider
+        title: Text(
+          'Watch Details',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) =>
-                      EditTimepieceForm(timepiece: updatedTimepiece),
+                  builder: (_) => EditTimepieceForm(timepiece: updatedTimepiece),
                 ),
               );
             },
@@ -86,42 +84,57 @@ class WatchDetails extends ConsumerWidget {
                               ? Image.memory(
                                   updatedTimepiece.image!,
                                   fit: BoxFit.cover,
-                                  height: 160,
+                                  height: 150,
                                 )
-                              : Image.asset(
-                                  'assets/images/placeholder.png',
+                              : SvgPicture.asset(
+                                  'assets/images/watch_placeholder.svg',
                                   fit: BoxFit.cover,
-                                  height: 160,
+                                  height: 150,
+                                  colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.onSurface,
+                                      BlendMode.srcIn,
+                                  ),
                                 ),
                         ),
                         Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: IconButton(
-                            icon: Icon(Icons.zoom_in),
-                            color: Colors.white,
-                            onPressed: () {
-                              _openFullSizeImage(
-                                  context, updatedTimepiece.image);
+                          right: 4,
+                          bottom: 4,
+                          child: GestureDetector(
+                            onTap: () {
+                              _openFullSizeImage(context, updatedTimepiece.image);
                             },
+                            child: Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Icon(
+                                Icons.zoom_in,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
                           ),
                         ),
 
-                        // Icon at the bottom left
                         Positioned(
-                          left: 0,
-                          bottom: 0,
-                          child: IconButton(
-                            icon: Icon(Icons.upload),
-                            color: Colors.white,
-                            onPressed: () =>
-                                showShareModal(context, updatedTimepiece),
-                            // onPressed: () => Navigator.of(context).push(
-                            //   MaterialPageRoute(
-                            //     builder: (context) => ShareModalFrame(
-                            //         timepiece: updatedTimepiece),
-                            //   ),
-                            // ),
+                          left: 4,
+                          bottom: 4,
+                          child: GestureDetector(
+                            onTap: () => showShareModal(context, updatedTimepiece),
+                            child: Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.tertiary.withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Icon(
+                                Icons.upload,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
                           ),
                         ),
                       ]),
@@ -136,34 +149,34 @@ class WatchDetails extends ConsumerWidget {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  AutoSizeText(
-                                    updatedTimepiece.model,
-                                    maxLines: 2,
-                                    softWrap: true,
-                                    overflow: TextOverflow.fade,
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onBackground,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 1),
                                   Expanded(
-                                    child: AutoSizeText(
-                                      updatedTimepiece.brand,
-                                      maxLines: 1,
-                                      softWrap: true,
-                                      overflow: TextOverflow.ellipsis,
-                                      minFontSize: 12,
-                                      style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary,
-                                      ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            updatedTimepiece.model,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onBackground,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          updatedTimepiece.brand,
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onBackground
+                                                .withOpacity(0.6),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -196,15 +209,89 @@ class WatchDetails extends ConsumerWidget {
   }
 
   void _showFirstAddedDialog(BuildContext context) {
-    showGenericAlert(
+    showDialog(
       context: context,
-      title: "You've added your first watch!",
-      contentLines: [
-        'Now add your first measurement',
-        "",
-        'More time between measurements will yield more accurate results.'
-      ],
-      cancelButtonText: 'OK',
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  CupertinoIcons.checkmark_circle,
+                  size: 28,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              SizedBox(height: 12),
+              Text(
+                "You've added your first watch!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onBackground,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              SizedBox(height: 6),
+              Text(
+                'Now add your first measurement',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'More time between measurements will yield more accurate results.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                  letterSpacing: -0.2,
+                ),
+              ),
+              SizedBox(height: 16),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      width: 1.5,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.tertiary,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -214,33 +301,30 @@ class WatchDetails extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: GestureDetector(
-            onTap: () =>
-                Navigator.of(context).pop(), // Optional: tap anywhere to close
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Image.memory(
+        return Dialog.fullscreen(
+          backgroundColor: Colors.black,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              InteractiveViewer(
+                child: Image.memory(
                   imageBytes,
                   fit: BoxFit.contain,
                 ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: CircleAvatar(
-                      radius: 14, // Size of close button
-                      backgroundColor: Colors.black
-                          .withOpacity(0.6), // Semi-transparent background
-                      child: Icon(Icons.close, size: 18, color: Colors.white),
-                    ),
+              ),
+              Positioned(
+                right: 8,
+                top: 8,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: Icon(
+                    Icons.close,
+                    color: Theme.of(context).colorScheme.tertiary,
+                    size: 24,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -251,14 +335,13 @@ class WatchDetails extends ConsumerWidget {
 void showShareModal(BuildContext context, Timepiece timepiece) {
   showModalBottomSheet(
     context: context,
-    isScrollControlled: true, // Allows the modal to take up full screen height
+    isScrollControlled: true,
     builder: (BuildContext context) {
-      // Calculate three-quarters of the screen height
-//      final height = MediaQuery.of(context).size.height * 0.66;
-      final height = 525.0;
+      // Calculate 90% of the screen height
+      final height = MediaQuery.of(context).size.height * 0.9;
 
       return Container(
-        height: height, // Use the calculated height here
+        height: height,
         child: ShareModalFrame(timepiece: timepiece),
       );
     },
