@@ -63,7 +63,7 @@ class TimingRunsContainer extends ConsumerWidget {
                 minSize: 0,
                 onPressed: () async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
-                  bool? isPremiumActivated = prefs.getBool('isPremiumActive');
+                  bool? isPremiumActivated = prefs.getBool('premiumActive');
                   int numTimingRuns = timingRuns.length;
 
                   if (isPremiumActivated != true && numTimingRuns == 2) {
