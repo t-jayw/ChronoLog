@@ -1,14 +1,9 @@
 import 'dart:async';
 
-import 'package:chronolog/database_helpers.dart';
-import 'package:chronolog/models/timepiece.dart';
-import 'package:chronolog/models/timing_measurement.dart';
-import 'package:chronolog/models/timing_run.dart';
 import 'package:chronolog/providers/theme_provider.dart';
 import 'package:chronolog/providers/time_mode_provider.dart';
 
 import 'package:chronolog/screens/welcome_screen.dart';
-import 'package:chronolog/supabase_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -164,15 +159,14 @@ void main() async {
 
 class App extends ConsumerWidget {
   final int openCount;
-  bool isDialogShown = false;
   final ThemeModeOption themeModeOption;
 
   App({Key? key, required this.openCount, required this.themeModeOption})
-      : super(key: key); // Modify this line
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Use themeModeOption to determine the theme mode
+    var isDialogShown = false;
 
     final themeModeOption = ref.watch(themeModeProvider);
 

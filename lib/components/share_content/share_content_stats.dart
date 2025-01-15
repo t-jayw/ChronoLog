@@ -1,9 +1,6 @@
 import 'package:chronolog/components/graphs/offset_custom_line_chart.dart';
-import 'package:chronolog/data_helpers.dart/timing_run_parser.dart';
 import 'package:chronolog/models/timepiece.dart';
-import 'package:chronolog/models/timing_measurement.dart';
 import 'package:chronolog/models/timing_run.dart';
-import 'package:chronolog/providers/timing_measurements_list_provider.dart';
 import 'package:chronolog/providers/timing_run_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

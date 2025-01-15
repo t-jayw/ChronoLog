@@ -1,5 +1,4 @@
 import 'package:posthog_flutter/posthog_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -27,7 +26,6 @@ class PosthogManager {
   }
 
   Future<Map<String, dynamic>> _prepareData(dynamic item) async {
-    final prefs = await SharedPreferences.getInstance();
     Map<String, dynamic> originalData = item.toMap();
 
     // Converting keys to lowercase

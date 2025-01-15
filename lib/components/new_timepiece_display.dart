@@ -189,8 +189,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                         children: [
                                           Text(
                                             timingRunStats
-                                                    .formattedLatestOffset() ??
-                                                '-',
+                                                    .formattedLatestOffset(),
                                             style: TextStyle(
                                               fontSize: 15,
                                               color: Theme.of(context)
@@ -247,8 +246,7 @@ class NewTimepieceDisplay extends ConsumerWidget {
                                         children: [
                                           Text(
                                             timingRunStats
-                                                    .formattedTimeSinceLastMeasurement() ??
-                                                '-',
+                                                    .formattedTimeSinceLastMeasurement(),
                                             style: TextStyle(
                                               fontSize: 15,
                                               color: Theme.of(context)

@@ -71,7 +71,7 @@ class _TimingRunComponentState extends ConsumerState<TimingRunComponent> {
                       ],
                     ),
                     Text(
-                      "total duration: ${timingRunStats.formattedTotalDuration() ?? '-'}",
+                      "total duration: ${timingRunStats.formattedTotalDuration()}",
                       style: TextStyle(
                         fontSize: 11,
                         color: Theme.of(context)

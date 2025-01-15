@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronolog/screens/info_page_screen.dart';
 import 'package:chronolog/screens/watchbox_screen.dart';
-import '../providers/timepiece_list_provider.dart';
 import '../screens/add_watch_screen.dart';
 
 class TabsScreen extends ConsumerStatefulWidget {
@@ -56,7 +55,6 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final timepieces = ref.watch(timepieceListProvider);
 
     return Scaffold(
       appBar: AppBar(

@@ -93,16 +93,6 @@ class _EditTimingMeasurementFormState extends State<EditTimingMeasurementForm> {
       ),
       body: SafeArea(
         child: Consumer(builder: (context, ref, _) {
-          TimingMeasurement? previousMeasurement;
-          final measurements = ref.read(timingMeasurementsListProvider(_editedTimingMeasurement.run_id));
-          final sortedMeasurements = measurements.toList()
-            ..sort((a, b) => b.system_time.compareTo(a.system_time));
-          final currentIndex = sortedMeasurements.indexOf(_editedTimingMeasurement);
-          
-          if (currentIndex < sortedMeasurements.length - 1) {
-            previousMeasurement = sortedMeasurements[currentIndex + 1];
-          }
-
           return Padding(
             padding: const EdgeInsets.all(8),
             child: Column(

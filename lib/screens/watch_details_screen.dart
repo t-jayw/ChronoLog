@@ -18,7 +18,7 @@ class WatchDetails extends ConsumerWidget {
   final Timepiece timepiece;
   final bool firstAdded; // Make this final
 
-  WatchDetails({
+  const WatchDetails({
     Key? key,
     required this.timepiece,
     this.firstAdded = false,
@@ -32,7 +32,7 @@ class WatchDetails extends ConsumerWidget {
         timepieces.firstWhere((tp) => tp.id == timepiece.id);
 
     if (firstAdded) {
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         _showFirstAddedDialog(context);
       });
     }
@@ -195,7 +195,7 @@ class WatchDetails extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 0),
-            Divider(
+            const Divider(
               height: 4,
               thickness: 1,
             ),
@@ -264,7 +264,7 @@ class WatchDetails extends ConsumerWidget {
                   letterSpacing: -0.2,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => Navigator.of(context).pop(),
