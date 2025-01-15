@@ -66,15 +66,22 @@ class TimingRunsContainer extends ConsumerWidget {
                   bool? isPremiumActivated = prefs.getBool('premiumActive');
                   int numTimingRuns = timingRuns.length;
 
-                  if (isPremiumActivated != true && numTimingRuns == 2) {
-                    Posthog().capture(
-                      eventName: 'paywall',
-                      properties: {
-                        'reason': 'num_timing_runs_paywall',
-                      },
+                  // Add PostHog tracking for debugging
+                  Posthog().capture(
+                    eventName: 'timing_run_attempt',
+                    properties: {
+                      'isPremiumActivated': isPremiumActivated,
+                      'numTimingRuns': numTimingRuns,
+                    },
+                  );
+
+                  // Check if premium is explicitly false or null (not activated)
+                  if ((isPremiumActivated == false || isPremiumActivated == null) && numTimingRuns >= 2) {
+                    showPremiumNeededDialog(
+                        context,
+                        "Free version limited to 2 Timing Runs per timepiece",
+                        "num_timing_runs_paywall"
                     );
-                    showPremiumNeededDialog(context,
-                        "Free version limited to 2 Timing Runs per timepiece");
                   } else {
                     _addTimingRun(ref);
                   }

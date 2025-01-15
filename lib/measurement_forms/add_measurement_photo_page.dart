@@ -398,6 +398,12 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                     ),
                   ),
                   onPressed: () async {
+                    // Add validation check
+                    if (_croppedFile == null) {
+                      await _showErrorDialog('Please take a photo before adding the measurement.');
+                      return;
+                    }
+
                     try {
                       final ulid = Ulid();
                       final id = ulid.toString();
