@@ -68,25 +68,23 @@ class _ConfigurablePrecisionTimePickerState
 
     if (!_is24HourFormat) {
       if (_selectedHour == 0) {
-        _selectedHour = 12; // Midnight
+        _selectedHour = 12; // Midnight (12 AM)
         _isPM = false;
+      } else if (_selectedHour == 12) {
+        // Noon (12 PM)
+        _isPM = true;
       } else if (_selectedHour > 12) {
         _selectedHour -= 12; // Afternoon/Evening
         _isPM = true;
-      } else if (_selectedHour == 12) {
-        // Noon
-        _isPM = true;
       } else {
-        // Morning
+        // Morning (1-11 AM)
         _isPM = false;
       }
     }
 
-    // Adjust initial item for hour picker controller based on 24-hour or 12-hour format
+    // Update the hour picker controller initialization
     _hourPickerController = FixedExtentScrollController(
-      initialItem: _is24HourFormat
-          ? _selectedHour
-          : (_selectedHour % 12) - 1 + (_isPM ? 12 : 0),
+      initialItem: _is24HourFormat ? _selectedHour : (_selectedHour == 12 ? 11 : _selectedHour - 1),
     );
 
     _selectedMinute = currentTime.minute;
@@ -104,8 +102,17 @@ class _ConfigurablePrecisionTimePickerState
   }
 
   void _updateTime() {
-    int adjustedHour =
-        _is24HourFormat || !_isPM ? _selectedHour : (_selectedHour % 12) + 12;
+    int adjustedHour;
+    if (_is24HourFormat) {
+      adjustedHour = _selectedHour;
+    } else {
+      if (_isPM) {
+        adjustedHour = _selectedHour == 12 ? 12 : _selectedHour + 12;
+      } else {
+        adjustedHour = _selectedHour == 12 ? 0 : _selectedHour;
+      }
+    }
+
     DateTime updatedTime = DateTime(
       DateTime.now().year,
       DateTime.now().month,

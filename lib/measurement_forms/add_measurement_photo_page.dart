@@ -269,6 +269,18 @@ class _AddMeasurementPhotoState extends State<AddMeasurementPhoto> {
                                         image: FileImage(File(_croppedFile!.path)),
                                         fit: BoxFit.cover,
                                       ),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Theme.of(context).colorScheme.secondary,
+                                          Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                                        ],
+                                      ),
+                                      border: Border.all(
+                                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
+                                        width: 10,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(height: 16),
