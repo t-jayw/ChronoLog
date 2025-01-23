@@ -268,6 +268,18 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
       showLoadingDialog('Processing Purchase...');
       
       final purchaseResult = await Purchases.purchasePackage(package);
+      
+      // Track all successful purchases immediately after the purchase completes
+      Posthog().capture(
+        eventName: 'successful_purchase',
+        properties: {
+          'product_id': package.storeProduct.identifier,
+          'price': package.storeProduct.price,
+          'package_type': package.packageType.toString(),
+          'active_entitlements': purchaseResult.entitlements.active.keys.toList(),
+        },
+      );
+
       final bool isPremium = purchaseResult.entitlements.active.isNotEmpty;
       
       if (isPremium) {
@@ -276,14 +288,6 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         await prefs.setString('premium_purchaseDate', DateTime.now().toIso8601String());
 
         setState(() => _entitlementStatus = {'premium': true});
-        
-        Posthog().capture(
-          eventName: 'successful_purchase',
-          properties: {
-            'product_id': package.storeProduct.identifier,
-            'price': package.storeProduct.price,
-          },
-        );
 
         Navigator.of(context).pop(); // Dismiss loading before showing success
         _showPurchaseSuccessDialog();

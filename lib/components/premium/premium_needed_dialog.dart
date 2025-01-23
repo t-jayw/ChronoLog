@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import '../../screens/purchase_screen.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
 
-void showPremiumNeededDialog(BuildContext context, text) {
+void showPremiumNeededDialog(BuildContext context, String text, String reason) {
+  // Add Posthog tracking
+  Posthog().capture(
+    eventName: 'paywall',
+    properties: {
+      'reason': reason,
+      'text': text,
+    },
+  );
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -16,10 +25,12 @@ void showPremiumNeededDialog(BuildContext context, text) {
 
 class PremiumNeededDialog extends StatelessWidget {
   final String primaryText;
+  final String reason;
 
   const PremiumNeededDialog({
     Key? key,
     required this.primaryText,
+    this.reason = 'default_paywall',
   }) : super(key: key);
 
   List<Widget> buildFeatureList() {

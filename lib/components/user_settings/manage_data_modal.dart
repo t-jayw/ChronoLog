@@ -49,17 +49,6 @@ void sendMailWithFeedback() async {
   }
 }
 
-void _showPremiumNeededDialog(BuildContext context, String primaryText) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return PremiumNeededDialog(
-        primaryText: primaryText,
-      );
-    },
-  );
-}
-
 class ManageDataModal extends ConsumerWidget {
   ManageDataModal({Key? key}) : super(key: key);
 
@@ -223,7 +212,11 @@ class ManageDataModal extends ConsumerWidget {
                   if (!isPremium)
                     Positioned.fill(
                       child: GestureDetector(
-                        onTap: () => _showPremiumNeededDialog(context, 'Premium Required'),
+                        onTap: () => showPremiumNeededDialog(
+                          context,
+                          'Premium Required',
+                          'manage_data_paywall'
+                        ),
                         child: Container(
                           color: CupertinoColors.systemBackground.withOpacity(0.7),
                         ),

@@ -303,7 +303,7 @@ class _AddWatchScreenState extends State<AddWatchScreen> {
 
     final _timepieceListProvider = ref.watch(timepieceListProvider.notifier);
 
-    bool isFirstAddedWatch = _timepieceListProvider.state.isEmpty;
+    bool isFirstAddedWatch = ref.read(timepieceListProvider).isEmpty;
 
     _timepieceListProvider.addTimepiece(timepiece);
     _addTimingRun(id, ref);

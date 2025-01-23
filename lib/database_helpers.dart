@@ -199,7 +199,7 @@ Future<List<Timepiece>> getTimepieces() async {
 
   Future<TimingRun> insertTimingRun(TimingRun timingRun) async {
     final db = await database;
-    final id = await db.insert(
+    await db.insert(
       'timing_runs',
       timingRun.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -245,7 +245,7 @@ Future<List<Timepiece>> getTimepieces() async {
   Future<TimingMeasurement> insertTimingMeasurement(
       TimingMeasurement timingMeasurement) async {
     final db = await database;
-    final id = await db.insert(
+    await db.insert(
       'timing_measurements',
       timingMeasurement.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,

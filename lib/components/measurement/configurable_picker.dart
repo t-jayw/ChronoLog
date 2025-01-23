@@ -35,6 +35,8 @@ class _ConfigurablePrecisionTimePickerState
   late FixedExtentScrollController _hourPickerController;
   late FixedExtentScrollController _secondPickerController;
 
+  DateTime? _currentDateTime;
+
   @override
   void initState() {
     super.initState();
@@ -68,25 +70,23 @@ class _ConfigurablePrecisionTimePickerState
 
     if (!_is24HourFormat) {
       if (_selectedHour == 0) {
-        _selectedHour = 12; // Midnight
+        _selectedHour = 12; // Midnight (12 AM)
         _isPM = false;
+      } else if (_selectedHour == 12) {
+        // Noon (12 PM)
+        _isPM = true;
       } else if (_selectedHour > 12) {
         _selectedHour -= 12; // Afternoon/Evening
         _isPM = true;
-      } else if (_selectedHour == 12) {
-        // Noon
-        _isPM = true;
       } else {
-        // Morning
+        // Morning (1-11 AM)
         _isPM = false;
       }
     }
 
-    // Adjust initial item for hour picker controller based on 24-hour or 12-hour format
+    // Update the hour picker controller initialization
     _hourPickerController = FixedExtentScrollController(
-      initialItem: _is24HourFormat
-          ? _selectedHour
-          : (_selectedHour % 12) - 1 + (_isPM ? 12 : 0),
+      initialItem: _is24HourFormat ? _selectedHour : (_selectedHour == 12 ? 11 : _selectedHour - 1),
     );
 
     _selectedMinute = currentTime.minute;
@@ -104,64 +104,100 @@ class _ConfigurablePrecisionTimePickerState
   }
 
   void _updateTime() {
-    int adjustedHour =
-        _is24HourFormat || !_isPM ? _selectedHour : (_selectedHour % 12) + 12;
+    int adjustedHour;
+    if (_is24HourFormat) {
+      adjustedHour = _selectedHour;
+    } else {
+      if (_isPM) {
+        adjustedHour = _selectedHour == 12 ? 12 : _selectedHour + 12;
+      } else {
+        adjustedHour = _selectedHour == 12 ? 0 : _selectedHour;
+      }
+    }
+
+    // Get current date components
+    final now = DateTime.now();
+    
+    // First create the datetime without any date adjustment
     DateTime updatedTime = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
+      now.year,
+      now.month,
+      now.day,
       adjustedHour,
       _selectedMinute,
       widget.mode == TimePickerMode.tap ? _selectedSecond : _selectedSecond,
       widget.mode == TimePickerMode.image ? _selectedTenthOfSecond * 100 : 0,
     );
 
+    // Convert both times to their local time representations for comparison
+    final nowLocal = now.toLocal();
+    final updatedLocal = updatedTime.toLocal();
+
+    // If the updated time is earlier than current time, move to next day
+    if (updatedLocal.isBefore(nowLocal)) {
+      updatedTime = updatedTime.add(const Duration(days: 1));
+    }
+    // If we're setting a time more than 12 hours ahead, assume we meant the previous day
+    else if (updatedLocal.difference(nowLocal).inHours > 12) {
+      updatedTime = updatedTime.subtract(const Duration(days: 1));
+    }
+
+    // Store the current time for display
+    setState(() {
+      _currentDateTime = updatedTime;
+    });
+
     widget.onTimeChanged(updatedTime);
   }
 
   void _incrementHour() {
-    if (_is24HourFormat) {
-      _selectedHour = (_selectedHour + 1) % 24;
-    } else {
-      _selectedHour = (_selectedHour % 12) + 1;
-      if (_selectedHour == 12) {
-        // Check if we need to toggle AM/PM after rolling over
-        _isPM = !_isPM;
+    setState(() {
+      if (_is24HourFormat) {
+        _selectedHour = (_selectedHour + 1) % 24;
+      } else {
+        if (_selectedHour == 11) {
+          _selectedHour = 12;
+          _isPM = !_isPM; // Toggle AM/PM when going from 11 to 12
+        } else if (_selectedHour == 12) {
+          _selectedHour = 1;
+        } else {
+          _selectedHour = _selectedHour + 1;
+        }
       }
-    }
 
-    // Update the hour picker's index to reflect the change
-    _hourPickerController.jumpToItem(_is24HourFormat
-        ? _selectedHour
-        : (_selectedHour % 12) - 1 + (_isPM ? 12 : 0));
-    setState(() {});
+      _updateTime();  // Make sure we update the time after changing the hour
+
+      // Update the hour picker's index
+      int pickerIndex = _is24HourFormat 
+          ? _selectedHour 
+          : (_selectedHour == 12 ? 11 : _selectedHour - 1);
+      _hourPickerController.jumpToItem(pickerIndex);
+    });
   }
 
   void _decrementHour() {
-    if (_is24HourFormat) {
-      _selectedHour = (_selectedHour - 1) < 0 ? 23 : _selectedHour - 1;
-      _hourPickerController.jumpToItem(_selectedHour);
-    } else {
-      // Handling AM/PM toggle
-      if (_selectedHour == 1 || _selectedHour == 0) {
-        // Corrected condition to check for 1 instead of 0 for 12-hour format
-        _isPM = !_isPM;
-        _selectedHour = _selectedHour == 0
-            ? 11
-            : 12; // If it's 12 AM, roll back to 11 PM and vice versa
+    setState(() {
+      if (_is24HourFormat) {
+        _selectedHour = (_selectedHour - 1) < 0 ? 23 : _selectedHour - 1;
       } else {
-        _selectedHour = (_selectedHour - 1) % 12;
-        _selectedHour = _selectedHour == 0
-            ? 12
-            : _selectedHour; // Ensure we don't end up with 0 in a 12-hour format
+        if (_selectedHour == 12) {
+          _selectedHour = 11;
+          _isPM = !_isPM; // Toggle AM/PM when going from 12 to 11
+        } else if (_selectedHour == 1) {
+          _selectedHour = 12;
+        } else {
+          _selectedHour = _selectedHour - 1;
+        }
       }
-      // Adjust the index for 12-hour format picker, where `1` is represented by index `0`
-      int pickerIndex = _selectedHour == 12 ? 11 : _selectedHour - 1;
-      _hourPickerController.jumpToItem(pickerIndex);
-    }
 
-    // Force UI update
-    setState(() {});
+      _updateTime();  // Make sure we update the time after changing the hour
+
+      // Update the hour picker's index
+      int pickerIndex = _is24HourFormat 
+          ? _selectedHour 
+          : (_selectedHour == 12 ? 11 : _selectedHour - 1);
+      _hourPickerController.jumpToItem(pickerIndex);
+    });
   }
 
   // Helper method to handle second change logic
@@ -224,10 +260,24 @@ class _ConfigurablePrecisionTimePickerState
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return CircularProgressIndicator(); // Or some placeholder
+      return CircularProgressIndicator();
     }
     return Column(
       children: [
+        // Add UTC time display in debug mode
+        if (const bool.fromEnvironment('dart.vm.product') == false)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(
+              _currentDateTime != null 
+                ? 'UTC: ${_currentDateTime!.toUtc().toString()}'
+                : 'UTC: Not set',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.tertiary,
+                fontSize: 12,
+              ),
+            ),
+          ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -241,7 +291,22 @@ class _ConfigurablePrecisionTimePickerState
                   _is24HourFormat ? 0 : 1,
                   (int value) {
                     setState(() {
-                      _selectedHour = value + (_is24HourFormat ? 0 : 1);
+                      int newHour = value + (_is24HourFormat ? 0 : 1);
+                      
+                      if (!_is24HourFormat) {
+                        // Check if we're crossing the 11/12 boundary
+                        if (_selectedHour == 11 && newHour == 12) {
+                          _isPM = !_isPM;
+                        } else if (_selectedHour == 12 && newHour == 1) {
+                          // Don't toggle AM/PM when going from 12 to 1
+                        } else if (_selectedHour == 1 && newHour == 12) {
+                          // Don't toggle AM/PM when going from 1 to 12
+                        } else if (_selectedHour == 12 && newHour == 11) {
+                          _isPM = !_isPM;
+                        }
+                      }
+                      
+                      _selectedHour = newHour;
                       _updateTime();
                     });
                   },

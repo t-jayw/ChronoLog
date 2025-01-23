@@ -147,8 +147,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _createPremiumPage(BuildContext context) {
-    return PremiumNeededDialog(
+    return const PremiumNeededDialog(
       primaryText: "Unlock all features with ChronoLog Premium!",
+      reason: "welcome_screen_paywall",
     );
   }
 }

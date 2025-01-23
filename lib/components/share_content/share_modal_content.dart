@@ -18,14 +18,6 @@ class ShareModalContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ImageProvider imageProvider;
-    if (timepiece.image != null && timepiece.image!.isNotEmpty) {
-      imageProvider = MemoryImage(timepiece.image!);
-    } else {
-      // Remove this since we'll use SvgPicture directly instead of ImageProvider
-      // imageProvider = AssetImage('assets/images/placeholder.png');
-    }
-
     final timingRuns = ref.watch(timingRunProvider(timepiece.id));
     final mostRecentRun = timingRuns.isNotEmpty ? timingRuns.first : null;
 

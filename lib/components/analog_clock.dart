@@ -360,8 +360,6 @@ class ClockPainter extends CustomPainter {
 
     // Calculate hour hand position first
     final hourAngle = (dateTime.hour % 12 + dateTime.minute / 60) * 30 * pi / 180 - pi / 2;
-    final hourHandX = center.dx + radius * 0.5 * cos(hourAngle);
-    final hourHandY = center.dy + radius * 0.5 * sin(hourAngle);
 
     // Hour Hand (Sword-shaped with blunter tip)
     final hourHandPath = Path();
@@ -405,14 +403,12 @@ class ClockPainter extends CustomPainter {
 
     // Calculate minute hand position first
     final minuteAngle = (dateTime.minute + dateTime.second / 60) * 6 * pi / 180 - pi / 2;
-    final minuteHandX = center.dx + radius * 0.7 * cos(minuteAngle);
-    final minuteHandY = center.dy + radius * 0.7 * sin(minuteAngle);
 
     // Minute Hand (Thinner sword shape with blunter tip)
     final minuteHandPath = Path();
     final minuteHandLength = radius * 0.7;
-    final minuteHandWidth = 12.0;
-    final minuteHandTipWidth = 4.0;  // New: width at the tip
+    const minuteHandWidth = 12.0;
+    const minuteHandTipWidth = 4.0;  // New: width at the tip
 
     minuteHandPath.moveTo(
       center.dx + cos(minuteAngle - pi/2) * (minuteHandWidth/2),
@@ -451,8 +447,6 @@ class ClockPainter extends CustomPainter {
     // Calculate second hand position first
     final secondFraction = dateTime.millisecond / 1000 + dateTime.second;
     final secondAngle = secondFraction * 6 * pi / 180 - pi / 2;
-    final secondHandX = center.dx + radius * 0.9 * cos(secondAngle);
-    final secondHandY = center.dy + radius * 0.9 * sin(secondAngle);
 
     // Second Hand (with blunter tip)
     final secondHandPath = Path();

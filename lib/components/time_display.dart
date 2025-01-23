@@ -70,11 +70,17 @@ class _TimeDisplayContentState extends State<_TimeDisplayContent> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          widget.formatter.format(currentTime),
-          style: const TextStyle(
-            fontSize: 26,
-            fontWeight: FontWeight.w300,
+        Container(
+          width: 200,
+          alignment: Alignment.center,
+          child: Text(
+            widget.formatter.format(currentTime).padLeft(11),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w300,
+              fontFamily: 'monospace',
+            ),
           ),
         ),
         const SizedBox(height: 2),

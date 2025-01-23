@@ -1,14 +1,10 @@
 import 'dart:async';
 
 import 'package:chronolog/database_helpers.dart';
-import 'package:chronolog/models/timepiece.dart';
-import 'package:chronolog/models/timing_measurement.dart';
-import 'package:chronolog/models/timing_run.dart';
 import 'package:chronolog/providers/theme_provider.dart';
 import 'package:chronolog/providers/time_mode_provider.dart';
 
 import 'package:chronolog/screens/welcome_screen.dart';
-import 'package:chronolog/supabase_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -116,16 +112,83 @@ final darkTheme = ThemeData(
   ),
 );
 
+class AnalyticsManager {
+  static final AnalyticsManager _instance = AnalyticsManager._internal();
+  factory AnalyticsManager() => _instance;
+  AnalyticsManager._internal();
+
+  Future<void> identifyUser(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final customerInfo = await Purchases.getCustomerInfo();
+    final isPremium = prefs.getBool('premiumActive') ?? false;
+    final firstOpenDate = prefs.getString('firstOpenDate');
+    final openCount = prefs.getInt('openCount') ?? 0;
+
+    // Get database stats
+    final db = DatabaseHelper();
+    final timepieces = await db.getTimepieces();
+    final timepieceCount = timepieces.length;
+    
+    int totalMeasurements = 0;
+    int totalRuns = 0;
+    
+    for (var timepiece in timepieces) {
+      final runs = await db.getTimingRunsByWatchId(timepiece.id);
+      totalRuns += runs.length;
+      
+      for (var run in runs) {
+        final measurements = await db.getTimingMeasurementsByRunId(run.id);
+        totalMeasurements += measurements.length;
+      }
+    }
+
+    // Set user properties in PostHog
+    Posthog().identify(
+      userId: userId,
+      properties: {
+        'is_premium': isPremium,
+        'first_open_date': firstOpenDate,
+        'total_opens': openCount,
+        'timepiece_count': timepieceCount,
+        'total_timing_runs': totalRuns,
+        'total_measurements': totalMeasurements,
+        'revenue_cat_id': customerInfo.originalAppUserId,
+        'has_active_subscription': customerInfo.entitlements.active.isNotEmpty,
+      },
+    );
+  }
+
+  Future<void> trackAppOpen() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isPremium = prefs.getBool('premiumActive') ?? false;
+    
+    Posthog().capture(
+      eventName: 'app_opened',
+      properties: {
+        'is_premium': isPremium,
+        'open_count': prefs.getInt('openCount') ?? 0,
+      },
+    );
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize RevenueCat before any other purchases code
+  final prefs = await SharedPreferences.getInstance();
+  
+  // Set first open date if not set
+  if (prefs.getString('firstOpenDate') == null) {
+    await prefs.setString('firstOpenDate', DateTime.now().toIso8601String());
+  }
+  
+  // Initialize RevenueCat
   await Purchases.setDebugLogsEnabled(true);
   await Purchases.configure(
     PurchasesConfiguration("appl_tfJxfTZTRJfDQzENfwSdrpoTEpZ")
   );
 
-  final prefs = await SharedPreferences.getInstance();
+  // Track app open count
   int openCount = prefs.getInt('openCount') ?? 0;
   openCount++;
   await prefs.setInt('openCount', openCount);
@@ -134,7 +197,11 @@ void main() async {
 
   String userId = prefs.getString('userId') ?? Ulid().toString();
   await prefs.setString('userId', userId);
-  Posthog().identify(userId: userId);
+  
+  // Initialize analytics
+  final analytics = AnalyticsManager();
+  await analytics.identifyUser(userId);
+  await analytics.trackAppOpen();
 
   final themeModeIndex = prefs.getInt('themeModeOption') ?? 0;
   final timeModeIndex = prefs.getInt('timeModeOption') ?? 0;
@@ -164,15 +231,14 @@ void main() async {
 
 class App extends ConsumerWidget {
   final int openCount;
-  bool isDialogShown = false;
   final ThemeModeOption themeModeOption;
 
   App({Key? key, required this.openCount, required this.themeModeOption})
-      : super(key: key); // Modify this line
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Use themeModeOption to determine the theme mode
+    var isDialogShown = false;
 
     final themeModeOption = ref.watch(themeModeProvider);
 

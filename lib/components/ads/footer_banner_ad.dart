@@ -29,7 +29,7 @@ class _FooterBannerAdWidgetState extends State<FooterBannerAdWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _isPremiumUser = prefs.getBool('premiumActive') == true;
     int openCount = prefs.getInt('openCount') ?? 0;
-    _shouldShowAd = openCount >= 0;
+    _shouldShowAd = openCount >= 3;
     setState(() {});
   }
 

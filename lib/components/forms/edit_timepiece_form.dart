@@ -178,7 +178,6 @@ class EditTimepieceForm extends StatefulWidget {
 }
 
 class _EditTimepieceFormState extends State<EditTimepieceForm> {
-  final _formKey = GlobalKey<FormState>();
   String brand = '';
   String model = '';
   String serial = '';
