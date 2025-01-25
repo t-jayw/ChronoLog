@@ -66,7 +66,7 @@ void sendMailWithFeedback() async {
 class InfoPage extends ConsumerWidget {
   InfoPage({Key? key}) : super(key: key);
 
-  final String versionNumber = "1.6.7";
+  final String versionNumber = "1.7.0";
   // replace with actual value
 
   final DatabaseHelper _db = DatabaseHelper();
