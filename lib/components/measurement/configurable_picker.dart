@@ -1,19 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
+import 'package:intl/intl.dart';
 
 enum TimePickerMode { image, tap }
 
 class ConfigurablePrecisionTimePicker extends StatefulWidget {
   final ValueChanged<DateTime> onTimeChanged;
-  final DateTime initialTime;
+  final DateTime? initialTime;
   final TimePickerMode mode;
+  final Duration initialOffset;
 
   const ConfigurablePrecisionTimePicker({
     Key? key,
     required this.onTimeChanged,
-    required this.initialTime,
-    this.mode = TimePickerMode.tap, // Default mode
+    this.initialTime,
+    this.mode = TimePickerMode.tap,
+    this.initialOffset = const Duration(seconds: 5),
   }) : super(key: key);
 
   @override
@@ -35,21 +39,37 @@ class _ConfigurablePrecisionTimePickerState
   late FixedExtentScrollController _hourPickerController;
   late FixedExtentScrollController _secondPickerController;
 
-  DateTime? _currentDateTime;
+  late DateTime _deviceCurrentTime;
+  late DateTime _selectedInDial;
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
+    print("InitState - Initial time: ${widget.initialTime}");
+    print("InitState - Current time: ${DateTime.now()}");
+    _deviceCurrentTime = DateTime.now();
+    _selectedInDial = widget.initialTime ?? _deviceCurrentTime.add(widget.initialOffset);
+    print("InitState - Selected dial time: $_selectedInDial");
+    
+    // Update device time every second
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _deviceCurrentTime = DateTime.now();
+      });
+    });
+    
     _loadTimeModePreference();
 
     _minutePickerController =
-        FixedExtentScrollController(initialItem: widget.initialTime.minute);
+        FixedExtentScrollController(initialItem: widget.initialTime?.minute ?? 0);
     _hourPickerController =
-        FixedExtentScrollController(initialItem: widget.initialTime.hour);
+        FixedExtentScrollController(initialItem: widget.initialTime?.hour ?? 0);
   }
 
   @override
   void dispose() {
+    _timer.cancel();
     // Dispose of all controllers when the widget is removed
     _minutePickerController.dispose();
     _hourPickerController.dispose();
@@ -65,33 +85,37 @@ class _ConfigurablePrecisionTimePickerState
   }
 
   void _initializePickerValues() {
-    DateTime currentTime = widget.initialTime;
-    _selectedHour = currentTime.hour;
+    print("Initializing picker values:");
+    print("Initial DateTime: ${_selectedInDial}");
+    _selectedHour = _selectedInDial.hour;
+    print("Initial hour (24h): $_selectedHour");
 
     if (!_is24HourFormat) {
       if (_selectedHour == 0) {
-        _selectedHour = 12; // Midnight (12 AM)
+        _selectedHour = 12;
         _isPM = false;
-      } else if (_selectedHour == 12) {
-        // Noon (12 PM)
-        _isPM = true;
       } else if (_selectedHour > 12) {
-        _selectedHour -= 12; // Afternoon/Evening
+        _selectedHour -= 12;
+        _isPM = true;
+      } else if (_selectedHour == 12) {
         _isPM = true;
       } else {
-        // Morning (1-11 AM)
         _isPM = false;
       }
     }
+    print("Adjusted hour: $_selectedHour, isPM: $_isPM");
 
-    // Update the hour picker controller initialization
+    // Fix: Correct initialItem calculation for hour picker
+    int hourInitialItem = _is24HourFormat ? _selectedHour : (_selectedHour - 1);
+    print("Hour picker initial item: $hourInitialItem");
+    
     _hourPickerController = FixedExtentScrollController(
-      initialItem: _is24HourFormat ? _selectedHour : (_selectedHour == 12 ? 11 : _selectedHour - 1),
+      initialItem: hourInitialItem,
     );
 
-    _selectedMinute = currentTime.minute;
-    _selectedSecond = currentTime.second;
-    _selectedTenthOfSecond = currentTime.millisecond ~/ 100;
+    _selectedMinute = _selectedInDial.minute;
+    _selectedSecond = _selectedInDial.second;
+    _selectedTenthOfSecond = _selectedInDial.millisecond ~/ 100;
 
     // Initialize the seconds picker controller without mode-based adjustment
     _secondPickerController = FixedExtentScrollController(
@@ -104,100 +128,67 @@ class _ConfigurablePrecisionTimePickerState
   }
 
   void _updateTime() {
+    // Calculate the adjusted hour based on 12/24 hour format
     int adjustedHour;
     if (_is24HourFormat) {
       adjustedHour = _selectedHour;
     } else {
-      if (_isPM) {
-        adjustedHour = _selectedHour == 12 ? 12 : _selectedHour + 12;
+      if (_selectedHour == 12) {
+        adjustedHour = _isPM ? 12 : 0;
       } else {
-        adjustedHour = _selectedHour == 12 ? 0 : _selectedHour;
+        adjustedHour = _isPM ? _selectedHour + 12 : _selectedHour;
       }
     }
-
-    // Get current date components
-    final now = DateTime.now();
     
-    // First create the datetime without any date adjustment
-    DateTime updatedTime = DateTime(
-      now.year,
-      now.month,
-      now.day,
+    // Create new DateTime while preserving the existing date
+    _selectedInDial = DateTime(
+      _selectedInDial.year,  // Keep existing date components
+      _selectedInDial.month,
+      _selectedInDial.day,
       adjustedHour,
       _selectedMinute,
-      widget.mode == TimePickerMode.tap ? _selectedSecond : _selectedSecond,
-      widget.mode == TimePickerMode.image ? _selectedTenthOfSecond * 100 : 0,
+      _selectedSecond,
+      0,
     );
 
-    // Convert both times to their local time representations for comparison
-    final nowLocal = now.toLocal();
-    final updatedLocal = updatedTime.toLocal();
-
-    // If the updated time is earlier than current time, move to next day
-    if (updatedLocal.isBefore(nowLocal)) {
-      updatedTime = updatedTime.add(const Duration(days: 1));
-    }
-    // If we're setting a time more than 12 hours ahead, assume we meant the previous day
-    else if (updatedLocal.difference(nowLocal).inHours > 12) {
-      updatedTime = updatedTime.subtract(const Duration(days: 1));
-    }
-
-    // Store the current time for display
-    setState(() {
-      _currentDateTime = updatedTime;
-    });
-
-    widget.onTimeChanged(updatedTime);
+    widget.onTimeChanged(_selectedInDial);
   }
 
   void _incrementHour() {
-    setState(() {
-      if (_is24HourFormat) {
-        _selectedHour = (_selectedHour + 1) % 24;
-      } else {
-        if (_selectedHour == 11) {
-          _selectedHour = 12;
-          _isPM = !_isPM; // Toggle AM/PM when going from 11 to 12
-        } else if (_selectedHour == 12) {
-          _selectedHour = 1;
-        } else {
-          _selectedHour = _selectedHour + 1;
-        }
+    if (_is24HourFormat) {
+      _selectedHour = (_selectedHour + 1) % 24;
+    } else {
+      _selectedHour = (_selectedHour % 12) + 1;
+      // Toggle AM/PM when crossing 11->12 or 12->1
+      if (_selectedHour == 12) {
+        _isPM = !_isPM;
       }
+    }
 
-      _updateTime();  // Make sure we update the time after changing the hour
-
-      // Update the hour picker's index
-      int pickerIndex = _is24HourFormat 
-          ? _selectedHour 
-          : (_selectedHour == 12 ? 11 : _selectedHour - 1);
-      _hourPickerController.jumpToItem(pickerIndex);
-    });
+    _hourPickerController.jumpToItem(_selectedHour - (_is24HourFormat ? 0 : 1));
+    _updateTime();
+    setState(() {});
   }
 
   void _decrementHour() {
-    setState(() {
-      if (_is24HourFormat) {
-        _selectedHour = (_selectedHour - 1) < 0 ? 23 : _selectedHour - 1;
+    if (_is24HourFormat) {
+      _selectedHour = (_selectedHour - 1) < 0 ? 23 : _selectedHour - 1;
+      _hourPickerController.jumpToItem(_selectedHour);
+    } else {
+      if (_selectedHour == 12) {
+        _selectedHour = 11;
+        _isPM = !_isPM;
+      } else if (_selectedHour == 1) {
+        _selectedHour = 12;
+        _isPM = !_isPM;
       } else {
-        if (_selectedHour == 12) {
-          _selectedHour = 11;
-          _isPM = !_isPM; // Toggle AM/PM when going from 12 to 11
-        } else if (_selectedHour == 1) {
-          _selectedHour = 12;
-        } else {
-          _selectedHour = _selectedHour - 1;
-        }
+        _selectedHour = (_selectedHour - 1) == 0 ? 12 : _selectedHour - 1;
       }
+      _hourPickerController.jumpToItem(_selectedHour - 1);
+    }
 
-      _updateTime();  // Make sure we update the time after changing the hour
-
-      // Update the hour picker's index
-      int pickerIndex = _is24HourFormat 
-          ? _selectedHour 
-          : (_selectedHour == 12 ? 11 : _selectedHour - 1);
-      _hourPickerController.jumpToItem(pickerIndex);
-    });
+    _updateTime();
+    setState(() {});
   }
 
   // Helper method to handle second change logic
@@ -216,6 +207,23 @@ class _ConfigurablePrecisionTimePickerState
         _decrementMinute();
       }
 
+      _updateTime();
+    });
+  }
+
+  void _handleHourChange(int value) {
+    setState(() {
+      if (_is24HourFormat) {
+        _selectedHour = value;
+      } else {
+        _selectedHour = value + 1;
+        // Toggle AM/PM when crossing 11->12 or 12->1
+        if (_selectedHour == 12 && _isPM) {
+          _isPM = false;
+        } else if (_selectedHour == 12 && !_isPM) {
+          _isPM = true;
+        }
+      }
       _updateTime();
     });
   }
@@ -257,6 +265,31 @@ class _ConfigurablePrecisionTimePickerState
     );
   }
 
+  Widget _buildDebugPanel() {
+    Duration difference = _selectedInDial.difference(_deviceCurrentTime);
+    
+    return Container(
+      padding: EdgeInsets.all(8),
+      margin: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.tertiary),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Device Time: ${_deviceCurrentTime.toString()}'),
+          Text('Selected Time: ${_selectedInDial.toString()}'),
+          Text('Difference: ${difference.inSeconds} seconds'),
+          ElevatedButton(
+            onPressed: _toggleTimeFormat,
+            child: Text(_is24HourFormat ? 'Switch to 12h' : 'Switch to 24h'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -264,20 +297,7 @@ class _ConfigurablePrecisionTimePickerState
     }
     return Column(
       children: [
-        // Add UTC time display in debug mode
-        if (const bool.fromEnvironment('dart.vm.product') == false)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              _currentDateTime != null 
-                ? 'UTC: ${_currentDateTime!.toUtc().toString()}'
-                : 'UTC: Not set',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 12,
-              ),
-            ),
-          ),
+        _buildDebugPanel(),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -289,28 +309,9 @@ class _ConfigurablePrecisionTimePickerState
                   _selectedHour,
                   _is24HourFormat ? 24 : 12,
                   _is24HourFormat ? 0 : 1,
-                  (int value) {
-                    setState(() {
-                      int newHour = value + (_is24HourFormat ? 0 : 1);
-                      
-                      if (!_is24HourFormat) {
-                        // Check if we're crossing the 11/12 boundary
-                        if (_selectedHour == 11 && newHour == 12) {
-                          _isPM = !_isPM;
-                        } else if (_selectedHour == 12 && newHour == 1) {
-                          // Don't toggle AM/PM when going from 12 to 1
-                        } else if (_selectedHour == 1 && newHour == 12) {
-                          // Don't toggle AM/PM when going from 1 to 12
-                        } else if (_selectedHour == 12 && newHour == 11) {
-                          _isPM = !_isPM;
-                        }
-                      }
-                      
-                      _selectedHour = newHour;
-                      _updateTime();
-                    });
-                  },
+                  _handleHourChange,
                   scrollController: _hourPickerController,
+                  loopingAllowed: true,
                 ),
               ],
             ),
@@ -368,42 +369,20 @@ class _ConfigurablePrecisionTimePickerState
             // Seconds Picker
             if (widget.mode == TimePickerMode.tap ||
                 widget.mode == TimePickerMode.image)
-              // Configure picker differently based on mode
-              if (widget.mode == TimePickerMode.tap)
-                Column(
-                  children: [
-                    Text('S', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.tertiary)),
-                    _buildPicker(
-                      widget.mode == TimePickerMode.tap
-                          ? _selectedSecond ~/ 5
-                          : _selectedSecond,
-                      widget.mode == TimePickerMode.tap ? 12 : 60,
-                      0,
-                      (int value) {
-                        _handleSecondChange(widget.mode == TimePickerMode.tap
-                            ? value * 5
-                            : value);
-                      },
-                      step: widget.mode == TimePickerMode.tap ? 5 : 1,
-                      scrollController: _secondPickerController,
-                    ),
-                  ],
-                )
-              else
-                Column(
-                  children: [
-                    Text('S', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.tertiary)),
-                    _buildPicker(
-                      _selectedSecond,
-                      60,
-                      0,
-                      (int value) {
-                        _handleSecondChange(value);
-                      },
-                      scrollController: _secondPickerController,
-                    ),
-                  ],
-                ),
+              Column(
+                children: [
+                  Text('S', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.tertiary)),
+                  _buildPicker(
+                    _selectedSecond,
+                    60,
+                    0,
+                    (int value) {
+                      _handleSecondChange(value);
+                    },
+                    scrollController: _secondPickerController,
+                  ),
+                ],
+              ),
             // Tenth of Second Picker (for Image Mode)
             if (widget.mode == TimePickerMode.image)
               Column(
@@ -434,136 +413,78 @@ class _ConfigurablePrecisionTimePickerState
                   ),
                 ],
               ),
-            // -5 Seconds Button with Icon and "5s" label
-            Column(
-              children: [
-                OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedSecond =
-                          (_selectedSecond - 5) < 0 ? 55 : _selectedSecond - 5; // Subtract 5 seconds
-                      if (_selectedSecond == 55) {
-                        _decrementMinute(); // Handle rollover
-                      }
-
-                      // Update the seconds picker controller
-                      _secondPickerController.jumpToItem(
-                          widget.mode == TimePickerMode.tap
-                              ? (_selectedSecond ~/ 5)
-                              : _selectedSecond);
-
-                      _updateTime(); // Update the overall time
-                    });
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.tertiary, // Outline color
-                    ),
-                    backgroundColor: Colors.transparent, // Transparent background
-                    minimumSize: Size(40, 40), // Smaller size
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.remove,
-                        size: 16,
+            // Add AM/PM indicator after the last picker
+            if (!_is24HourFormat)
+              Padding(
+                padding: EdgeInsets.only(left: 8),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('', style: TextStyle(fontSize: 10)),  // Empty space to align with pickers
+                    Text(
+                      _isPM ? 'PM' : 'AM',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
-                      SizedBox(width: 4),
-                      Text(
-                        '5s',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10), // Spacing between button and toggle
-                // AM/PM Toggle (if not 24-hour format)
-                if (!_is24HourFormat)
-                  Transform.scale(
-                    scale: 0.8,
-                    child: ToggleButtons(
-                      color: Theme.of(context).colorScheme.onBackground,
-                      selectedColor: Theme.of(context).colorScheme.onPrimary,
-                      fillColor: Theme.of(context).colorScheme.tertiary,
-                      borderColor: Theme.of(context).colorScheme.onBackground,
-                      borderRadius: BorderRadius.circular(10),
-                      onPressed: (int index) {
-                        setState(() {
-                          _isPM = index == 1;
-                          _updateTime();
-                        });
-                      },
-                      isSelected: [_isPM == false, _isPM == true],
-                      children: [
-                        Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text('AM')),
-                        Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text('PM')),
-                      ],
                     ),
-                  ),
-                SizedBox(height: 10), // Spacing between toggle and button
-                // +5 Seconds Button with Icon and "5s" label
-                OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedSecond =
-                          (_selectedSecond + 5) % 60; // Add 5 seconds
-                      if (_selectedSecond < 5) {
-                        _incrementMinute(); // Handle rollover
-                      }
-
-                      // Update the seconds picker controller
-                      _secondPickerController.jumpToItem(
-                          widget.mode == TimePickerMode.tap
-                              ? (_selectedSecond ~/ 5)
-                              : _selectedSecond);
-
-                      _updateTime(); // Update the overall time
-                    });
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.tertiary, // Outline color
-                    ),
-                    backgroundColor: Colors.transparent, // Transparent background
-                    minimumSize: Size(40, 40), // Smaller size
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.add,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        '5s',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
           ],
         ),
-        // Removed the original buttons Row
+        // Compact date display
+        Container(
+          margin: EdgeInsets.only(top: 8),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: CupertinoColors.tertiarySystemFill.resolveFrom(context),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedInDial = _selectedInDial.subtract(Duration(days: 1));
+                    _updateTime();
+                  });
+                },
+                child: Icon(
+                  CupertinoIcons.chevron_left,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  DateFormat('MMM d, y').format(_selectedInDial),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedInDial = _selectedInDial.add(Duration(days: 1));
+                    _updateTime();
+                  });
+                },
+                child: Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -579,5 +500,14 @@ class _ConfigurablePrecisionTimePickerState
     _selectedMinute = (_selectedMinute - 1) < 0 ? 59 : _selectedMinute - 1;
     _minutePickerController.jumpToItem(_selectedMinute);
     _updateTime(); // Ensure time is updated
+  }
+
+  void _toggleTimeFormat() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _is24HourFormat = !_is24HourFormat;
+      prefs.setInt('timeModeOption', _is24HourFormat ? 1 : 0);
+      _initializePickerValues();
+    });
   }
 }
