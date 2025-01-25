@@ -52,14 +52,14 @@ class _ConfigurablePrecisionTimePickerState
     _deviceCurrentTime = DateTime.now();
     _selectedInDial = widget.initialTime ?? _deviceCurrentTime.add(widget.initialOffset);
     print("InitState - Selected dial time: $_selectedInDial");
-    
+
     // Update device time every second
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         _deviceCurrentTime = DateTime.now();
       });
     });
-    
+
     _loadTimeModePreference();
 
     _minutePickerController =
@@ -71,7 +71,6 @@ class _ConfigurablePrecisionTimePickerState
   @override
   void dispose() {
     _timer.cancel();
-    // Dispose of all controllers when the widget is removed
     _minutePickerController.dispose();
     _hourPickerController.dispose();
     _secondPickerController.dispose();
@@ -108,10 +107,9 @@ class _ConfigurablePrecisionTimePickerState
     }
     print("Adjusted hour: $_selectedHour, isPM: $_isPM");
 
-    // Fix: Correct initialItem calculation for hour picker
     int hourInitialItem = _is24HourFormat ? _selectedHour : (_selectedHour - 1);
     print("Hour picker initial item: $hourInitialItem");
-    
+
     _hourPickerController = FixedExtentScrollController(
       initialItem: hourInitialItem,
     );
@@ -142,12 +140,13 @@ class _ConfigurablePrecisionTimePickerState
         adjustedHour = _isPM ? _selectedHour + 12 : _selectedHour;
       }
     }
-    
-    // Create new DateTime while preserving the existing date
+
+    // Keep the date from _selectedInDial
+    DateTime currentDate = _selectedInDial;
     _selectedInDial = DateTime(
-      _selectedInDial.year,  // Keep existing date components
-      _selectedInDial.month,
-      _selectedInDial.day,
+      currentDate.year,
+      currentDate.month,
+      currentDate.day,
       adjustedHour,
       _selectedMinute,
       _selectedSecond,
@@ -157,49 +156,17 @@ class _ConfigurablePrecisionTimePickerState
     widget.onTimeChanged(_selectedInDial);
   }
 
-  void _incrementHour() {
-    if (_is24HourFormat) {
-      _selectedHour = (_selectedHour + 1) % 24;
-    } else {
-      _selectedHour = (_selectedHour % 12) + 1;
-      // Toggle AM/PM when crossing 11->12 or 12->1
-      if (_selectedHour == 12) {
-        _isPM = !_isPM;
-      }
-    }
+  // ------------------------------------------------------------------
+  //  ROLLOVER HANDLERS
+  // ------------------------------------------------------------------
 
-    _hourPickerController.jumpToItem(_selectedHour - (_is24HourFormat ? 0 : 1));
-    _updateTime();
-    setState(() {});
-  }
-
-  void _decrementHour() {
-    if (_is24HourFormat) {
-      _selectedHour = (_selectedHour - 1) < 0 ? 23 : _selectedHour - 1;
-      _hourPickerController.jumpToItem(_selectedHour);
-    } else {
-      if (_selectedHour == 12) {
-        _selectedHour = 11;
-        _isPM = !_isPM;
-      } else if (_selectedHour == 1) {
-        _selectedHour = 12;
-        _isPM = !_isPM;
-      } else {
-        _selectedHour = (_selectedHour - 1) == 0 ? 12 : _selectedHour - 1;
-      }
-      _hourPickerController.jumpToItem(_selectedHour - 1);
-    }
-
-    _updateTime();
-    setState(() {});
-  }
-
-  // Helper method to handle second change logic
+  /// Handle second changes and detect rollover into next minute.
   void _handleSecondChange(int newSeconds) {
     setState(() {
-      bool incrementMinute = _selectedSecond > newSeconds && 
+      // If the old second was e.g. 59 and the new second is near 0, that’s a forward rollover
+      bool incrementMinute = _selectedSecond > newSeconds &&
           (_selectedSecond - newSeconds) > 30; // Rolling forward
-      bool decrementMinute = newSeconds > _selectedSecond && 
+      bool decrementMinute = newSeconds > _selectedSecond &&
           (newSeconds - _selectedSecond) > 30; // Rolling backward
 
       _selectedSecond = newSeconds;
@@ -214,111 +181,201 @@ class _ConfigurablePrecisionTimePickerState
     });
   }
 
-  void _handleHourChange(int value) {
+  /// Handle minute changes and detect rollover into next/previous hour.
+  /// (Similar logic to _handleSecondChange, but for minutes.)
+  ///
+  /// NEW OR MODIFIED
+  void _handleMinuteChange(int newMinute) {
     setState(() {
-      if (_is24HourFormat) {
-        _selectedHour = value;
-      } else {
-        _selectedHour = value + 1;
-        // Toggle AM/PM when crossing 11->12 or 12->1
-        if (_selectedHour == 12 && _isPM) {
-          _isPM = false;
-        } else if (_selectedHour == 12 && !_isPM) {
-          _isPM = true;
-        }
+      // If old was 59 and new is near 0, forward rollover
+      bool incrementHour = (_selectedMinute == 59 && newMinute == 0);
+      // If old was 0 and new is near 59, backward rollover
+      bool decrementHour = (_selectedMinute == 0 && newMinute == 59);
+
+      _selectedMinute = newMinute;
+
+      if (incrementHour) {
+        _incrementHour();
+      } else if (decrementHour) {
+        _decrementHour();
       }
+
       _updateTime();
     });
   }
 
-  Widget _buildPicker(
-    int selectedValue,
-    int numberOfItems,
-    int offset,
-    ValueChanged<int> onSelectedItemChanged, {
-    int step = 1,
-    FixedExtentScrollController? scrollController,
-    bool loopingAllowed = true,
-    bool isSubsecond = false,
-  }) {
-    return SizedBox(
-      height: 150,
-      width: 50,
-      child: CupertinoPicker(
-        diameterRatio: 1.1,
-        itemExtent: 60,
-        looping: loopingAllowed,
-        selectionOverlay: const CupertinoPickerDefaultSelectionOverlay(),
-        onSelectedItemChanged: onSelectedItemChanged,
-        scrollController: scrollController ??
-            FixedExtentScrollController(initialItem: selectedValue - offset),
-        children: List<Widget>.generate(
-            numberOfItems,
-            (index) => Center(
-                  child: Text(
-                    isSubsecond 
-                        ? '${(index * step) + offset}'
-                        : '${(index * step) + offset}'.padLeft(2, '0'),
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Theme.of(context).colorScheme.onBackground)
-                  ),
-                )),
-      ),
-    );
+  /// Handle hour changes and detect rollover into next/previous day.
+  ///
+  /// * For 24-hour format, rolling 23→0 increments day, and 0→23 decrements day.
+  /// * For 12-hour format, you’ll likely want to toggle AM/PM on crossing
+  ///   boundaries, and handle midnight/day rollover if crossing from 11:59 PM
+  ///   to 12:00 AM, etc.  (Below is a simplified example.)
+  ///
+  /// NEW OR MODIFIED
+  void _handleHourChange(int newHourIndex) {
+    setState(() {
+      // oldHour (0..23 in 24h, or 1..12 in 12h)
+      int oldHour = _selectedHour;
+
+      if (_is24HourFormat) {
+        // In 24-hour format, newHourIndex is 0..23 directly
+        _selectedHour = newHourIndex;
+
+        bool isRolloverForward = (oldHour == 23 && _selectedHour == 0);
+        bool isRolloverBackward = (oldHour == 0 && _selectedHour == 23);
+
+        // If rolling from 23->0, increment day
+        if (isRolloverForward) {
+          print('Increment day');
+          _selectedInDial = _selectedInDial.add(Duration(days: 1));
+        }
+        // If rolling from 0->23, decrement day
+        else if (isRolloverBackward) {
+          print('Decrement day');
+          _selectedInDial = _selectedInDial.subtract(Duration(days: 1));
+        }
+      } else {
+        // In 12-hour format, newHourIndex is 0..11, but the displayed hour is (newHourIndex + 1)
+        int new12Hour = newHourIndex + 1; // now in [1..12]
+        // Toggle AM/PM if crossing 11->12 or 12->1
+        bool crossingBoundary =
+            ((oldHour == 11 && new12Hour == 12) ||
+                (oldHour == 12 && new12Hour == 11));
+
+        if (crossingBoundary) {
+          // Switch AM<->PM
+          _isPM = !_isPM;
+        }
+
+        // (Simple approach to detect day rollover: if we go from 11 PM -> 12 AM)
+        bool wasMidnight = (oldHour == 11 && _isPM == false); // 11 AM => 12 PM is not day rollover
+        bool isNowMidnight = (new12Hour == 12 && _isPM == false); // 12 AM
+        // If we just toggled from 11:xx PM to 12:xx AM, then day increments
+        // (This is a rough demonstration. In practice, you'd want to be sure you're specifically crossing from 11:59 PM to 12:00 AM, etc.)
+        if (wasMidnight && isNowMidnight) {
+          print('Day rollover at midnight in 12-hour mode');
+          _selectedInDial = _selectedInDial.add(Duration(days: 1));
+        }
+
+        // Finally, update our selectedHour in 12-hour format
+        _selectedHour = new12Hour;
+      }
+
+      _updateTime();
+    });
   }
 
-  Widget _buildDebugPanel() {
-    if (!kDebugMode) return SizedBox.shrink();
-    
-    Duration difference = _selectedInDial.difference(_deviceCurrentTime);
-    
-    return Container(
-      padding: EdgeInsets.all(8),
-      margin: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.tertiary),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Device Time: ${_deviceCurrentTime.toString()}'),
-          Text('Selected Time: ${_selectedInDial.toString()}'),
-          Text('Difference: ${difference.inSeconds} seconds'),
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: _toggleTimeFormat,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onPrimary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    CupertinoIcons.time,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    _is24HourFormat ? 'Switch to 12h' : 'Switch to 24h',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  // ------------------------------------------------------------------
+  //  Increment/decrement methods used in minute/second hand rollover
+  // ------------------------------------------------------------------
+
+  void _incrementHour() {
+    if (_is24HourFormat) {
+      _selectedHour = (_selectedHour + 1) % 24;
+
+      // NEW OR MODIFIED: check if we’ve just rolled 23 -> 0
+      if (_selectedHour == 0) {
+        print("Hour rolled over forward, increment day");
+        _selectedInDial = _selectedInDial.add(Duration(days: 1));
+      }
+
+      _hourPickerController.jumpToItem(_selectedHour);
+    } else {
+      // 12-hour logic
+      if (_selectedHour == 12) {
+        _selectedHour = 1;
+        _isPM = !_isPM;
+        // If we toggled from 12:xx PM to 1:xx PM, that’s not day rollover, but
+        // from 12:xx AM to 1:xx AM might or might not be day rollover
+        // (depending on whether it was 12:xx AM midnight).
+      } else {
+        _selectedHour++;
+        if (_selectedHour > 12) {
+          _selectedHour = 1;
+        }
+        // If we crossed from 11->12, toggle
+        if (_selectedHour == 12) {
+          _isPM = !_isPM;
+          // Possibly day rollover if it’s turning 12:xx AM
+          if (!_isPM) {
+            // 12 AM means we just incremented day from previous day
+            print("Increment day at midnight (12 AM).");
+            _selectedInDial = _selectedInDial.add(Duration(days: 1));
+          }
+        }
+      }
+      _hourPickerController.jumpToItem(_selectedHour - 1);
+    }
+    _updateTime();
+    setState(() {});
   }
+
+  void _decrementHour() {
+    if (_is24HourFormat) {
+      _selectedHour = (_selectedHour - 1) < 0 ? 23 : _selectedHour - 1;
+
+      // NEW OR MODIFIED: check if we’ve just rolled 0 -> 23
+      if (_selectedHour == 23) {
+        print("Hour rolled over backward, decrement day");
+        _selectedInDial = _selectedInDial.subtract(Duration(days: 1));
+      }
+
+      _hourPickerController.jumpToItem(_selectedHour);
+    } else {
+      // 12-hour logic
+      if (_selectedHour == 12) {
+        _selectedHour = 11;
+        _isPM = !_isPM;
+        // Possibly day rollover if we’re crossing from 12 AM to 11 PM
+        // (this can get tricky to handle precisely).
+      } else if (_selectedHour == 1) {
+        _selectedHour = 12;
+        _isPM = !_isPM;
+        // If we just jumped from 1:xx AM to 12:xx AM, that might be
+        // going backward across midnight → day - 1
+        if (!_isPM) {
+          // 12 AM after going backwards means we’re now on the previous day
+          print("Decrement day at midnight (12 AM).");
+          _selectedInDial = _selectedInDial.subtract(Duration(days: 1));
+        }
+      } else {
+        _selectedHour--;
+        if (_selectedHour < 1) {
+          _selectedHour = 12;
+        }
+      }
+      _hourPickerController.jumpToItem(_selectedHour - 1);
+    }
+
+    _updateTime();
+    setState(() {});
+  }
+
+  void _incrementMinute() {
+    _selectedMinute = (_selectedMinute + 1) % 60;
+    if (_selectedMinute == 0) {
+      // If we just rolled 59 -> 0, increment hour
+      _incrementHour();
+    }
+    _minutePickerController.jumpToItem(_selectedMinute);
+    _updateTime();
+  }
+
+  void _decrementMinute() {
+    if (_selectedMinute == 0) {
+      _selectedMinute = 59;
+      // If we just rolled 0 -> 59 backwards, decrement hour
+      _decrementHour();
+    } else {
+      _selectedMinute--;
+    }
+    _minutePickerController.jumpToItem(_selectedMinute);
+    _updateTime();
+  }
+
+  // ------------------------------------------------------------------
+  //  UI
+  // ------------------------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -339,13 +396,13 @@ class _ConfigurablePrecisionTimePickerState
                   _selectedHour,
                   _is24HourFormat ? 24 : 12,
                   _is24HourFormat ? 0 : 1,
-                  _handleHourChange,
+                  _handleHourChange, // <--- Hook up the hour handler
                   scrollController: _hourPickerController,
                   loopingAllowed: true,
                 ),
               ],
             ),
-            // Hour-Minute Separator
+
             Column(
               children: [
                 Text('', style: TextStyle(fontSize: 10)),
@@ -356,36 +413,21 @@ class _ConfigurablePrecisionTimePickerState
                         color: Theme.of(context).colorScheme.onBackground)),
               ],
             ),
+
             // Minute Picker
             Column(
               children: [
                 Text('M', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.tertiary)),
-                _buildPicker(_selectedMinute, 60, 0, (int value) {
-                  // Before setting the new minute, capture the previous state to check for rollover
-                  bool isRollingOverIncrement = _selectedMinute == 59 && value == 0;
-                  bool isRollingOverDecrement = _selectedMinute == 0 && value == 59;
-
-                  setState(() {
-                    _selectedMinute = value;
-
-                    // Increment hour if rolling over from 59 to 0
-                    if (isRollingOverIncrement) {
-                      print('Increment hour');
-                      _incrementHour();
-                    }
-                    // Decrement hour if rolling over from 0 to 59
-                    else if (isRollingOverDecrement) {
-                      print('Decrement hour');
-                      _decrementHour();
-                    }
-
-                    _updateTime();
-                  });
-                }, scrollController: _minutePickerController),
+                _buildPicker(
+                  _selectedMinute,
+                  60,
+                  0,
+                  _handleMinuteChange, // <--- Hook up the new minute handler
+                  scrollController: _minutePickerController,
+                ),
               ],
             ),
 
-            // Minute-Second Separator
             Column(
               children: [
                 Text('', style: TextStyle(fontSize: 10)),
@@ -396,6 +438,7 @@ class _ConfigurablePrecisionTimePickerState
                         color: Theme.of(context).colorScheme.onBackground)),
               ],
             ),
+
             // Seconds Picker
             if (widget.mode == TimePickerMode.tap ||
                 widget.mode == TimePickerMode.image)
@@ -406,13 +449,12 @@ class _ConfigurablePrecisionTimePickerState
                     _selectedSecond,
                     60,
                     0,
-                    (int value) {
-                      _handleSecondChange(value);
-                    },
+                    _handleSecondChange, // <--- Already uses second handler
                     scrollController: _secondPickerController,
                   ),
                 ],
               ),
+
             // Tenth of Second Picker (for Image Mode)
             if (widget.mode == TimePickerMode.image)
               Column(
@@ -443,14 +485,15 @@ class _ConfigurablePrecisionTimePickerState
                   ),
                 ],
               ),
-            // Add AM/PM indicator after the last picker
+
+            // AM/PM indicator (12-hour)
             if (!_is24HourFormat)
               Padding(
                 padding: EdgeInsets.only(left: 8),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('', style: TextStyle(fontSize: 10)),  // Empty space to align with pickers
+                    Text('', style: TextStyle(fontSize: 10)),
                     Text(
                       _isPM ? 'PM' : 'AM',
                       style: TextStyle(
@@ -464,6 +507,7 @@ class _ConfigurablePrecisionTimePickerState
               ),
           ],
         ),
+
         // Compact date display
         Container(
           margin: EdgeInsets.only(top: 8),
@@ -519,17 +563,95 @@ class _ConfigurablePrecisionTimePickerState
     );
   }
 
-  // Helper methods to handle minute increment/decrement
-  void _incrementMinute() {
-    _selectedMinute = (_selectedMinute + 1) % 60;
-    _minutePickerController.jumpToItem(_selectedMinute);
-    _updateTime(); // Ensure time is updated
+  Widget _buildDebugPanel() {
+    if (!kDebugMode) return SizedBox.shrink();
+
+    Duration difference = _selectedInDial.difference(_deviceCurrentTime);
+
+    return Container(
+      padding: EdgeInsets.all(8),
+      margin: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.tertiary),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Device Time: ${_deviceCurrentTime.toString()}'),
+          Text('Selected Time: ${_selectedInDial.toString()}'),
+          Text('Difference: ${difference.inSeconds} seconds'),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: _toggleTimeFormat,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onPrimary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    CupertinoIcons.time,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    _is24HourFormat ? 'Switch to 12h' : 'Switch to 24h',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  void _decrementMinute() {
-    _selectedMinute = (_selectedMinute - 1) < 0 ? 59 : _selectedMinute - 1;
-    _minutePickerController.jumpToItem(_selectedMinute);
-    _updateTime(); // Ensure time is updated
+  Widget _buildPicker(
+    int selectedValue,
+    int numberOfItems,
+    int offset,
+    ValueChanged<int> onSelectedItemChanged, {
+    int step = 1,
+    FixedExtentScrollController? scrollController,
+    bool loopingAllowed = true,
+    bool isSubsecond = false,
+  }) {
+    return SizedBox(
+      height: 150,
+      width: 50,
+      child: CupertinoPicker(
+        diameterRatio: 1.1,
+        itemExtent: 60,
+        looping: loopingAllowed,
+        selectionOverlay: const CupertinoPickerDefaultSelectionOverlay(),
+        onSelectedItemChanged: onSelectedItemChanged,
+        scrollController: scrollController ??
+            FixedExtentScrollController(initialItem: selectedValue - offset),
+        children: List<Widget>.generate(
+          numberOfItems,
+          (index) => Center(
+            child: Text(
+              isSubsecond
+                  ? '${(index * step) + offset}'
+                  : '${(index * step) + offset}'.padLeft(2, '0'),
+              style: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _toggleTimeFormat() async {
