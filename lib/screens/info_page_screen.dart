@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chronolog/screens/welcome_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,7 +66,7 @@ void sendMailWithFeedback() async {
 class InfoPage extends ConsumerWidget {
   InfoPage({Key? key}) : super(key: key);
 
-  final String versionNumber = "1.6.5";
+  final String versionNumber = "1.6.61";
   // replace with actual value
 
   final DatabaseHelper _db = DatabaseHelper();
@@ -504,6 +505,8 @@ void showDebugInfoModal(BuildContext context) async {
   final prefsData = await getSharedPreferencesData();
   final purchaseInfo = await getPurchaseDebugInfo();
   final allDebugInfo = 'SHARED PREFERENCES:\n$prefsData\n\nPURCHASE INFO:\n$purchaseInfo';
+  final prefs = await SharedPreferences.getInstance();
+  final isDebugEnabled = prefs.getBool('internalDebugMode') ?? false;
 
   showModalBottomSheet(
     context: context,
@@ -528,6 +531,18 @@ void showDebugInfoModal(BuildContext context) async {
                   Row(
                     children: [
                       IconButton(
+                        icon: Icon(
+                          isDebugEnabled ? Icons.bug_report : Icons.bug_report_outlined,
+                          color: isDebugEnabled ? Colors.green : null,
+                        ),
+                        onPressed: () async {
+                          await _toggleDebugMode();
+                          Navigator.pop(context);
+                          showDebugInfoModal(context); // Refresh the modal
+                        },
+                        tooltip: 'Toggle Debug Mode',
+                      ),
+                      IconButton(
                         icon: Icon(Icons.copy),
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: allDebugInfo));
@@ -540,7 +555,6 @@ void showDebugInfoModal(BuildContext context) async {
                       IconButton(
                         icon: Icon(Icons.delete_forever),
                         onPressed: () async {
-                          final prefs = await SharedPreferences.getInstance();
                           await prefs.clear();
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -577,4 +591,16 @@ void showDebugInfoModal(BuildContext context) async {
       );
     },
   );
+}
+
+Future<void> _toggleDebugMode() async {
+  final prefs = await SharedPreferences.getInstance();
+  final isDebugEnabled = prefs.getBool('internalDebugMode') ?? false;
+  await prefs.setBool('internalDebugMode', !isDebugEnabled);
+}
+
+Future<bool> isDebugEnabled() async {
+  if (!kDebugMode) return false; // Always false in release
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('internalDebugMode') ?? false;
 }

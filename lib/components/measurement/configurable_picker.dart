@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 enum TimePickerMode { image, tap }
 
@@ -79,9 +80,11 @@ class _ConfigurablePrecisionTimePickerState
 
   void _loadTimeModePreference() async {
     final prefs = await SharedPreferences.getInstance();
-    // Assuming 'timeMode24Hour' is a stored preference where true indicates 24-hour format
-    _is24HourFormat = prefs.getInt('timeModeOption') == 1 ? true : false;
-    _initializePickerValues();
+    setState(() {
+      // Default to system setting if no preference is set
+      _is24HourFormat = prefs.getInt('timeModeOption') == 1;
+      _initializePickerValues();
+    });
   }
 
   void _initializePickerValues() {
@@ -266,6 +269,8 @@ class _ConfigurablePrecisionTimePickerState
   }
 
   Widget _buildDebugPanel() {
+    if (!kDebugMode) return SizedBox.shrink();
+    
     Duration difference = _selectedInDial.difference(_deviceCurrentTime);
     
     return Container(
@@ -281,9 +286,34 @@ class _ConfigurablePrecisionTimePickerState
           Text('Device Time: ${_deviceCurrentTime.toString()}'),
           Text('Selected Time: ${_selectedInDial.toString()}'),
           Text('Difference: ${difference.inSeconds} seconds'),
-          ElevatedButton(
+          CupertinoButton(
+            padding: EdgeInsets.zero,
             onPressed: _toggleTimeFormat,
-            child: Text(_is24HourFormat ? 'Switch to 12h' : 'Switch to 24h'),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onPrimary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    CupertinoIcons.time,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    _is24HourFormat ? 'Switch to 12h' : 'Switch to 24h',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -506,6 +536,7 @@ class _ConfigurablePrecisionTimePickerState
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _is24HourFormat = !_is24HourFormat;
+      // Save the preference: 1 for 24h, 0 for 12h
       prefs.setInt('timeModeOption', _is24HourFormat ? 1 : 0);
       _initializePickerValues();
     });
